@@ -1,0 +1,67 @@
+================================================================================
+GRID-BASED WORLD PACKAGE SUITE
+Project Documentation Complete
+================================================================================
+
+PROJECT VISION
+A composable TypeScript toolkit for creating 2D interactive worlds that are:
+- Logically grid-based underneath (for pathfinding, collision, AI, actions)
+- Visually freeform on top (organic, cozy, artistic 2D rendering)
+- Renderer-agnostic (PixiJS, Canvas, Three.js, or anything)
+- React-friendly but React-independent in core
+- AI-ready with structured actions as the control boundary
+
+NOT a full game engine — a foundation for map editors, agent simulations,
+cozy 2D worlds, interactive sandboxes.
+
+DOCUMENTATION STRUCTURE
+├── docs/README.md (navigation guide)
+├── docs/VISION.md (why we're building this, 5-10 min read)
+├── docs/ARCHITECTURE.md (package structure, data flow, 15-20 min)
+├── docs/GETTING_STARTED.md (dev setup and commands, 10-15 min)
+└── docs/DESIGN_DECISIONS.md (rationale for choices, 15-20 min)
+
+Also see: CLAUDE.md (AI context) in the project root.
+
+KEY PRINCIPLES
+1. Plain Objects > Classes (serializable, immutable-friendly state)
+2. Actions as Control Boundary (AI proposes, simulation validates)
+3. No Rendering in Core (headless-first, adapter-based rendering)
+4. No React in Core (optional, thin integration layer)
+5. No AI SDKs in Core (provider-agnostic, you choose AI)
+6. Modular Packages (clear dependencies, one concern per package)
+7. Grid-Based Logic, Freeform Visuals (discrete logic, organic art)
+8. Events Over Callbacks (decoupled, replayable, testable)
+
+PACKAGE ORGANIZATION (Milestone 1)
+core               → Shared types, EntityId, events
+grid               → Grid logic, coordinates, neighbors
+world              → World state model, entities, terrain
+agents             → Agent model and creation
+actions            → Structured action types and validation
+pathfinding        → A* pathfinding for square grids
+movement           → Movement rules, collision checks
+simulation         → Simulation engine, tick loop, dispatch
+bundle             → Re-export common APIs
+
+CURRENT MILESTONE
+Milestone 1: Headless Simulation (no rendering yet)
+- ✓ Documentation complete
+- ⏳ Package scaffolding needed
+- ⏳ Core implementation
+- ⏳ Tests and examples
+
+READING RECOMMENDATIONS
+Quick Intro:        VISION.md (skim) + ARCHITECTURE.md (skim)
+Want to Contribute: VISION.md + ARCHITECTURE.md (full) + GETTING_STARTED.md
+Understand Design:  VISION.md + DESIGN_DECISIONS.md (both full)
+Quick Reference:    docs/README.md (navigation guide)
+
+STATUS
+✓ Project vision captured
+✓ Architecture documented
+✓ Design decisions explained
+✓ Development guide written
+⏳ Next: Implement Milestone 1 packages
+
+================================================================================
