@@ -1,4 +1,4 @@
-import type { GridPosition } from '@worldkit/grid';
+import type { Direction, GridPosition } from '@worldkit/grid';
 
 export type AgentId = string;
 
@@ -9,7 +9,7 @@ export type AgentState =
   | 'speaking'
   | 'waiting';
 
-export type Direction = 'north' | 'east' | 'south' | 'west';
+export type { Direction };
 
 export type Agent = {
   id: AgentId;

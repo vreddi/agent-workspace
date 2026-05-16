@@ -1,9 +1,16 @@
-export type { GridConfig, GridPosition, WorldPoint } from './types.js';
+export type {
+  Direction,
+  GridConfig,
+  GridPosition,
+  WorldPoint,
+} from './types.js';
 export {
   createGrid,
+  directionToDelta,
+  getNeighbors,
+  getVerticalNeighbors,
+  gridToWorld,
   isInsideGrid,
   positionsEqual,
-  getNeighbors,
-  gridToWorld,
   worldToGrid,
 } from './grid.js';

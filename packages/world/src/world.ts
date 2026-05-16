@@ -8,7 +8,7 @@ import type {
 } from './types.js';
 
 export function getCellKey(position: GridPosition): string {
-  return `${position.x},${position.y}`;
+  return `${position.x},${position.y},${position.z}`;
 }
 
 export function createWorld(input: {
@@ -111,7 +111,8 @@ export function getObjectsAt(
   for (const object of Object.values(world.objects)) {
     if (
       object.position.x === position.x &&
-      object.position.y === position.y
+      object.position.y === position.y &&
+      object.position.z === position.z
     ) {
       out.push(object);
     }
@@ -119,18 +120,31 @@ export function getObjectsAt(
   return out;
 }
 
-export function isCellBlocked(
+// In 2.5D semantics, a cell is standable only when it has a non-blocking
+// terrain tile (the "floor") and no blocking object on top. Cells with no
+// terrain are treated as empty air — not standable, not enterable.
+export function isCellStandable(
   world: World,
   position: GridPosition,
 ): boolean {
   if (!isInsideGrid(world.grid, position)) {
-    return true;
+    return false;
   }
   const terrain = getTerrain(world, position);
-  if (terrain?.blocksMovement) {
-    return true;
+  if (!terrain) {
+    return false;
   }
-  return getObjectsAt(world, position).some(
+  if (terrain.blocksMovement) {
+    return false;
+  }
+  return !getObjectsAt(world, position).some(
     (object) => object.blocksMovement,
   );
+}
+
+export function isCellBlocked(
+  world: World,
+  position: GridPosition,
+): boolean {
+  return !isCellStandable(world, position);
 }

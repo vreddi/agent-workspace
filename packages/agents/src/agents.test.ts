@@ -12,7 +12,7 @@ const makeAgent = () =>
   createAgent({
     id: 'agent_1',
     name: 'Mira',
-    position: { x: 2, y: 3 },
+    position: { x: 2, y: 3, z: 0 },
   });
 
 describe('createAgent', () => {
@@ -21,7 +21,7 @@ describe('createAgent', () => {
     expect(agent).toEqual({
       id: 'agent_1',
       name: 'Mira',
-      position: { x: 2, y: 3 },
+      position: { x: 2, y: 3, z: 0 },
       facing: 'south',
       state: 'idle',
     });
@@ -31,13 +31,14 @@ describe('createAgent', () => {
     const agent = createAgent({
       id: 'agent_1',
       name: 'Mira',
-      position: { x: 0, y: 0 },
+      position: { x: 0, y: 0, z: 1 },
       facing: 'east',
       state: 'moving',
       data: { skin: 'green' },
       traits: { curiosity: 0.8 },
       memory: { lastSpoke: 'hello' },
     });
+    expect(agent.position).toEqual({ x: 0, y: 0, z: 1 });
     expect(agent.facing).toBe('east');
     expect(agent.state).toBe('moving');
     expect(agent.data).toEqual({ skin: 'green' });
@@ -54,18 +55,18 @@ describe('createAgent', () => {
 
   it('rejects an empty id', () => {
     expect(() =>
-      createAgent({ id: '', name: 'Mira', position: { x: 0, y: 0 } }),
+      createAgent({ id: '', name: 'Mira', position: { x: 0, y: 0, z: 0 } }),
     ).toThrow();
   });
 
   it('rejects an empty name', () => {
     expect(() =>
-      createAgent({ id: 'agent_1', name: '', position: { x: 0, y: 0 } }),
+      createAgent({ id: 'agent_1', name: '', position: { x: 0, y: 0, z: 0 } }),
     ).toThrow();
   });
 
   it('does not share position reference with the input', () => {
-    const position = { x: 1, y: 1 };
+    const position = { x: 1, y: 1, z: 0 };
     const agent = createAgent({ id: 'a', name: 'A', position });
     expect(agent.position).not.toBe(position);
     expect(agent.position).toEqual(position);
@@ -75,20 +76,20 @@ describe('createAgent', () => {
 describe('setAgentPosition', () => {
   it('returns a new agent with updated position', () => {
     const agent = makeAgent();
-    const moved = setAgentPosition(agent, { x: 3, y: 3 });
-    expect(moved.position).toEqual({ x: 3, y: 3 });
+    const moved = setAgentPosition(agent, { x: 3, y: 3, z: 1 });
+    expect(moved.position).toEqual({ x: 3, y: 3, z: 1 });
   });
 
   it('does not mutate the original agent', () => {
     const agent = makeAgent();
-    const moved = setAgentPosition(agent, { x: 7, y: 8 });
-    expect(agent.position).toEqual({ x: 2, y: 3 });
+    const moved = setAgentPosition(agent, { x: 7, y: 8, z: 0 });
+    expect(agent.position).toEqual({ x: 2, y: 3, z: 0 });
     expect(moved).not.toBe(agent);
   });
 
   it('copies the position to avoid aliasing', () => {
     const agent = makeAgent();
-    const target = { x: 5, y: 5 };
+    const target = { x: 5, y: 5, z: 0 };
     const moved = setAgentPosition(agent, target);
     expect(moved.position).not.toBe(target);
   });
@@ -159,12 +160,12 @@ describe('serialization', () => {
     const agent = createAgent({
       id: 'agent_1',
       name: 'Mira',
-      position: { x: 2, y: 3 },
+      position: { x: 2, y: 3, z: 1 },
       facing: 'east',
       state: 'moving',
       data: { skin: 'green' },
       traits: { curiosity: 0.8 },
-      memory: { lastSeen: { x: 1, y: 1 } },
+      memory: { lastSeen: { x: 1, y: 1, z: 0 } },
     });
     const restored = JSON.parse(JSON.stringify(agent));
     expect(restored).toEqual(agent);
