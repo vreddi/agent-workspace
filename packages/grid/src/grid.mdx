@@ -1,0 +1,116 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Packages/@worldkit/grid" />
+
+# @worldkit/grid
+
+The compass. Headless grid coordinate system that everything else stands on.
+
+> **Internally**: grid-based — predictable, logical, testable.
+> **Externally**: freeform-looking — organic, cozy, artistic.
+
+This package only answers the boring, sacred questions. It knows nothing about
+rendering, agents, pathfinding, or React.
+
+- Is this cell inside the world?
+- What are this cell's neighbors?
+- Are these two positions equal?
+- How do I convert a grid position to a world (pixel) position?
+- How do I convert a world point back to a grid cell?
+
+## Where it sits
+
+```
+grid → world → agents → actions → pathfinding → simulation → renderer / editor / AI
+```
+
+Once the grid is solid, every layer above it has a floor.
+
+## Install
+
+```bash
+pnpm add @worldkit/grid
+```
+
+ESM-only. No runtime dependencies.
+
+## Quick tour
+
+```ts
+import {
+  createGrid,
+  isInsideGrid,
+  getNeighbors,
+  gridToWorld,
+  worldToGrid,
+} from '@worldkit/grid';
+
+const grid = createGrid({ width: 20, height: 20, cellSize: 32 });
+
+isInsideGrid(grid, { x: 5, y: 5 });   // true
+isInsideGrid(grid, { x: 20, y: 0 });  // false (width is exclusive)
+
+getNeighbors(grid, { x: 0, y: 0 });
+// [{ x: 1, y: 0 }, { x: 0, y: 1 }]
+
+gridToWorld(grid, { x: 3, y: 2 });    // { x: 96, y: 64 }
+worldToGrid(grid, { x: 100, y: 70 }); // { x: 3, y: 2 }
+```
+
+## Types
+
+```ts
+type GridPosition = { x: number; y: number };
+// Integer cell coordinates. Origin (0, 0) is the top-left cell.
+
+type GridConfig = { width: number; height: number; cellSize: number };
+// width / height are cell counts. cellSize is pixels per cell.
+
+type WorldPoint = { x: number; y: number };
+// Continuous world-space point, in pixels.
+```
+
+## Functions
+
+### `createGrid(config)`
+
+Validates the config and returns a normalized `GridConfig`.
+Throws if `width` or `height` are not positive integers, or if `cellSize` is
+not a positive finite number.
+
+### `isInsideGrid(grid, position)`
+
+`true` iff `position` is an **integer** cell strictly inside the grid bounds.
+Non-integer or out-of-range coordinates return `false`.
+
+### `positionsEqual(a, b)`
+
+Value equality for two `GridPosition` objects.
+
+### `getNeighbors(grid, position)`
+
+Returns the 4-way (N / E / S / W) neighbors of `position` that lie inside the
+grid. Order: north, east, south, west. Corners get two neighbors, edges get
+three, interior cells get four.
+
+8-way / diagonal variants are intentionally not in this package — those are
+movement rules, not grid geometry.
+
+### `gridToWorld(grid, position)`
+
+Converts a grid cell to its world-space origin (top-left of the cell).
+
+### `worldToGrid(grid, point)`
+
+Converts a continuous world point to the grid cell that contains it. Floors
+along both axes — points exactly on a cell boundary belong to the cell on the
+positive side.
+
+## Design notes
+
+- **Plain data, not classes.** `GridConfig` is a serializable object. Pass it
+  by value, store it in world state, save it to JSON.
+- **No rendering, no physics, no movement rules.** Walkability and movement
+  cost live in higher packages (`@worldkit/world`, `@worldkit/pathfinding`).
+- **Origin top-left, Y-down.** Matches DOM, Canvas, and most 2D engines. If
+  you need Y-up for rendering, flip in the renderer.
