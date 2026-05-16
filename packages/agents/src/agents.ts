@@ -20,7 +20,11 @@ export function createAgent(input: {
   const agent: Agent = {
     id: input.id,
     name: input.name,
-    position: { x: input.position.x, y: input.position.y },
+    position: {
+      x: input.position.x,
+      y: input.position.y,
+      z: input.position.z,
+    },
     facing: input.facing ?? 'south',
     state: input.state ?? 'idle',
   };
@@ -42,7 +46,7 @@ export function setAgentPosition(
 ): Agent {
   return {
     ...agent,
-    position: { x: position.x, y: position.y },
+    position: { x: position.x, y: position.y, z: position.z },
   };
 }
 

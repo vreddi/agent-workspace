@@ -34,6 +34,67 @@
 └─────────────────────────────────────────┘
 ```
 
+## 2.5D Model
+
+The world is logically a stack of grid layers along the `z` axis, rendered with
+an isometric (or oblique) projection so it reads as 2.5D. Internally the sim
+stays grid-discrete and testable; the renderer is the only part that draws
+depth.
+
+### Logical model (sim-side)
+
+- `GridPosition = { x, y, z }` and `GridConfig = { width, height, layers, cellSize }`.
+- Cells are addressed by `(x, y, z)`. Terrain at `(x, y, z=0)` and terrain at
+  `(x, y, z=1)` are independent tiles.
+- A cell is **standable** iff it has non-blocking terrain AND no blocking
+  object. **Empty = air**: a cell with no terrain is not enterable. This is the
+  key semantic shift from a flat 2D grid — every walkable cell needs an
+  explicit floor tile underneath.
+- Horizontal neighbors stay on the same `z`. There is no free vertical
+  adjacency; agents only change layers via **ramp** tiles.
+
+### Ramps
+
+A terrain tile may carry `ramp: { up: Direction }` to act as a one-cell slope.
+If a ramp at `(x, y, z)` has `up: 'east'`, then:
+
+- Standing on it, stepping east lands you at `(x+1, y, z+1)`.
+- Standing at `(x+1, y, z+1)`, stepping west brings you back onto the ramp at
+  `(x, y, z)`.
+
+The pathfinder handles both directions automatically — no `move.up` action
+needed. Both endpoints must be standable; ramps don't synthesize floors.
+
+### Out of scope (for now)
+
+- **No gravity.** An agent at `(x, y, 3)` with no floor below does not fall.
+- **No tall agents.** Agents occupy exactly one `(x, y, z)` cell.
+- **No diagonal ramps.** Slopes face N/E/S/W only.
+
+### Isometric rendering (forward-looking)
+
+No renderer exists yet, but the logical model is built for an iso projection.
+When the `renderer-pixi` (or similar) package is added, it should use:
+
+```
+screenX = (gridX - gridY) * (tileW / 2)
+screenY = (gridX + gridY) * (tileH / 2) - z * tileH * heightRatio
+```
+
+- `heightRatio` controls how visually tall a single layer is (commonly 0.5–1).
+- **Draw order:** ascending `(x + y + z)` so nearer/higher tiles overlay farther/lower ones.
+- **Mouse picking:** apply the inverse iso transform, then hit-test layers
+  top-down (`z = layers - 1` downwards) so a click on a rooftop selects the
+  rooftop tile, not the floor beneath it.
+- **Visual freeform:** ramp tiles render as smooth slopes; objects can carry
+  per-tile pixel offsets and rotation. The grid logic doesn't care — it only
+  sees discrete `(x, y, z)`.
+
+This is a *rendering* concern only; nothing in `grid`/`world`/`pathfinding`/
+`agents` knows about the projection.
+
+---
+
 ## Package Responsibilities
 
 ### Tier 1: Core Primitives
@@ -43,7 +104,7 @@
 
 **Exports:**
 - `EntityId` — Unique identifier type
-- `GridPosition` — Grid cell coordinate `{ x: number; y: number }`
+- `GridPosition` — Grid cell coordinate `{ x: number; y: number; z: number }` (z = layer index for 2.5D)
 - `Direction` — Cardinal directions (N, S, E, W, NE, NW, SE, SW)
 - `Size` — Dimensions `{ width: number; height: number }`
 - `Result<T, E>` — Error handling type
@@ -69,9 +130,10 @@
 
 **Usage:**
 ```ts
-const grid = createGrid({ width: 20, height: 20 });
-const neighbors = grid.getNeighbors({ x: 5, y: 5 });
-const isValid = grid.isInBounds({ x: -1, y: 5 }); // false
+const grid = createGrid({ width: 20, height: 20, layers: 2, cellSize: 32 });
+const neighbors = getNeighbors(grid, { x: 5, y: 5, z: 0 });          // 4 horizontal
+const upDown   = getVerticalNeighbors(grid, { x: 5, y: 5, z: 0 });   // [z+1]
+const isValid  = isInsideGrid(grid, { x: -1, y: 5, z: 0 });          // false
 ```
 
 **Dependencies:** `@worldkit/core` only.

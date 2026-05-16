@@ -1,6 +1,7 @@
 export type {
   EntityId,
   ObjectType,
+  Ramp,
   TerrainCell,
   TerrainId,
   World,
@@ -15,6 +16,7 @@ export {
   getObjectsAt,
   getTerrain,
   isCellBlocked,
+  isCellStandable,
   removeObject,
   removeTerrain,
   setTerrain,
