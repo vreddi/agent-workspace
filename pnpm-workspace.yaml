@@ -1,3 +1,8 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+
+catalog:
+  tsdown: ^0.22.0
+  vitest: ^4.1.6
+  '@storybook/addon-docs': ^10.4.0
