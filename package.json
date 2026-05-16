@@ -2,6 +2,7 @@
   "name": "@org/source",
   "version": "0.0.0",
   "license": "MIT",
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "nx run-many --target=build",
     "build:affected": "nx affected --target=build",
