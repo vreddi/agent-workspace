@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WorldKit — Pixi Pathfinding Playground</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #0f1115;
+        color: #e6e8ec;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+
+      header {
+        max-width: 720px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 20px;
+        margin: 0 0 6px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      p.subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: #9aa1ad;
+        line-height: 1.5;
+      }
+
+      #stage {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow:
+          0 1px 0 rgba(255, 255, 255, 0.04) inset,
+          0 12px 40px rgba(0, 0, 0, 0.45);
+      }
+
+      .legend {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: #b8bdc7;
+      }
+
+      .legend .swatch {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        margin-right: 6px;
+        vertical-align: -2px;
+      }
+
+      .status {
+        font-size: 12px;
+        color: #9aa1ad;
+        font-variant-numeric: tabular-nums;
+      }
+
+      kbd {
+        background: #1a1d24;
+        border: 1px solid #2a2f3a;
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        padding: 1px 5px;
+        font-size: 11px;
+        font-family: ui-monospace, 'JetBrains Mono', monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>WorldKit — Pixi Pathfinding Playground</h1>
+      <p class="subtitle">
+        Left-click a cell to set the <strong>goal</strong>. <kbd>Shift</kbd>+click to set the
+        <strong>start</strong>. Right-click to toggle a wall. A* runs every change.
+      </p>
+    </header>
+
+    <div id="stage"></div>
+
+    <div class="legend">
+      <span><span class="swatch" style="background:#3b4357"></span>grass</span>
+      <span><span class="swatch" style="background:#2c5872"></span>water (impassable)</span>
+      <span><span class="swatch" style="background:#1a1d24"></span>wall</span>
+      <span><span class="swatch" style="background:#3ddc84"></span>start</span>
+      <span><span class="swatch" style="background:#ffb347"></span>goal</span>
+      <span><span class="swatch" style="background:#7aa2ff"></span>path</span>
+    </div>
+
+    <div class="status" id="status">…</div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

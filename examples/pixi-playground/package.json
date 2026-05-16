@@ -1,0 +1,23 @@
+{
+  "name": "@worldkit/example-pixi-playground",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Visual playground for @worldkit/world + @worldkit/pathfinding rendered with PixiJS.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@worldkit/agents": "workspace:*",
+    "@worldkit/grid": "workspace:*",
+    "@worldkit/pathfinding": "workspace:*",
+    "@worldkit/world": "workspace:*",
+    "pixi.js": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2",
+    "vite": "catalog:"
+  }
+}
