@@ -1,0 +1,168 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Packages/@worldkit/world" />
+
+# @worldkit/world
+
+The second brick. Headless world state on top of `@worldkit/grid`: terrain,
+objects, and occupancy. No rendering, no agents, no AI — just a sturdy,
+serializable record of what exists where.
+
+This package only answers the boring, sacred questions:
+
+- What is this world?
+- What grid does it use?
+- What terrain exists at this cell?
+- What objects exist? Where?
+- Is this cell blocked?
+- Can this world be saved and loaded?
+
+## Where it sits
+
+```
+grid → world → agents → actions → pathfinding → simulation → renderer / editor / AI
+```
+
+`world` sits directly on `grid`. Everything above it asks `world` whether a
+cell is walkable.
+
+## Install
+
+```bash
+pnpm add @worldkit/world @worldkit/grid
+```
+
+ESM-only. One workspace dependency: `@worldkit/grid`.
+
+## Quick tour
+
+```ts
+import { createGrid } from '@worldkit/grid';
+import {
+  addObject,
+  createWorld,
+  isCellBlocked,
+  setTerrain,
+} from '@worldkit/world';
+
+let world = createWorld({
+  id: 'demo',
+  grid: createGrid({ width: 20, height: 20, cellSize: 32 }),
+});
+
+world = setTerrain(world, {
+  position: { x: 2, y: 2 },
+  terrain: 'water',
+  blocksMovement: true,
+});
+
+world = addObject(world, {
+  id: 'tree_1',
+  type: 'tree',
+  position: { x: 5, y: 5 },
+  blocksMovement: true,
+});
+
+isCellBlocked(world, { x: 2, y: 2 });  // true  (blocking terrain)
+isCellBlocked(world, { x: 5, y: 5 });  // true  (blocking object)
+isCellBlocked(world, { x: 1, y: 1 });  // false
+isCellBlocked(world, { x: -1, y: 0 }); // true  (out of bounds)
+```
+
+Every function returns a **new** `World`. Nothing mutates in place.
+
+## Types
+
+```ts
+type WorldId = string;
+type EntityId = string;
+type TerrainId = string;
+type ObjectType = string;
+
+type TerrainCell = {
+  position: GridPosition;
+  terrain: TerrainId;
+  blocksMovement?: boolean;
+};
+
+type WorldObject = {
+  id: EntityId;
+  type: ObjectType;
+  position: GridPosition;
+  blocksMovement?: boolean;
+  tags?: string[];
+  data?: Record<string, unknown>;
+};
+
+type World = {
+  id: WorldId;
+  name?: string;
+  grid: GridConfig;
+  terrain: Record<string, TerrainCell>;
+  objects: Record<EntityId, WorldObject>;
+};
+```
+
+`terrain` is keyed by `"x,y"` (see `getCellKey`). `objects` is keyed by
+`EntityId`.
+
+## Functions
+
+### `getCellKey(position)`
+
+Returns the stable string key for a `GridPosition` (`"x,y"`). A small hinge
+with a big door behind it — the same key reappears in occupancy lookups,
+editor selection, multiplayer patches, and pathfinding.
+
+### `createWorld({ id, name?, grid })`
+
+Returns a fresh, empty `World`. Validates the grid via `createGrid`. Throws
+on an empty `id`.
+
+### `setTerrain(world, cell)`
+
+Sets terrain at a cell. Throws if the position is outside the grid.
+
+### `getTerrain(world, position)`
+
+Returns the `TerrainCell` at `position`, or `undefined`.
+
+### `removeTerrain(world, position)`
+
+Removes terrain at a cell. No-op when there is no terrain.
+
+### `addObject(world, object)`
+
+Adds an object. Throws on empty id, duplicate id, or out-of-bounds position.
+
+### `removeObject(world, objectId)`
+
+Removes an object by id. No-op for unknown ids.
+
+### `getObject(world, objectId)`
+
+Returns the object with `objectId`, or `undefined`.
+
+### `getObjectsAt(world, position)`
+
+Returns every object whose position matches `position`. Multiple objects per
+cell are allowed (think: a flower under a sign).
+
+### `isCellBlocked(world, position)`
+
+`true` if the cell is out of bounds, has blocking terrain, or contains a
+blocking object.
+
+Out-of-bounds counts as blocked. That isn't grid geometry — it's a movement
+rule, and it lives here so pathfinding can ask one question.
+
+## Design notes
+
+- **Immutable at the boundary.** Every mutator returns a new `World`. Undo,
+  redo, replay, sync, and AI validation all stay easy.
+- **Plain data.** `World` is a serializable object — `JSON.stringify` /
+  `JSON.parse` round-trips cleanly. No classes, no methods, no hidden state.
+- **No spatial index yet.** `getObjectsAt` is a linear scan. First make it
+  correct; optimize when a real workload demands it.
+- **No agents here.** Agents land in `@worldkit/agents` and get wired into the
+  world later, in `@worldkit/simulation`. Keep the world boring.
