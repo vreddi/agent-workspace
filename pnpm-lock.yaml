@@ -110,7 +110,36 @@ importers:
         specifier: ^7.0.0
         version: 7.3.3(@types/node@22.19.19)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.8.0)
 
+  packages/agents:
+    dependencies:
+      '@worldkit/grid':
+        specifier: workspace:*
+        version: link:../grid
+    devDependencies:
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.0(oxc-resolver@11.19.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@5.9.3)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.6(@types/node@22.19.19)(vite@7.3.3(@types/node@22.19.19)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.8.0))
+
   packages/grid:
+    devDependencies:
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.0(oxc-resolver@11.19.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@5.9.3)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.6(@types/node@22.19.19)(vite@7.3.3(@types/node@22.19.19)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.8.0))
+
+  packages/pathfinding:
+    dependencies:
+      '@worldkit/grid':
+        specifier: workspace:*
+        version: link:../grid
+      '@worldkit/world':
+        specifier: workspace:*
+        version: link:../world
     devDependencies:
       tsdown:
         specifier: 'catalog:'
