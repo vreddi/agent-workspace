@@ -6,5 +6,5 @@ export default defineMain({
     '../../../packages/*/src/**/*.mdx',
     '../../../packages/*/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
-  addons: [],
+  addons: ['@storybook/addon-docs'],
 });
