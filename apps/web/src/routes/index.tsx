@@ -5,10 +5,5 @@ export const Route = createFileRoute('/')({
 })
 
 function Home() {
-  return (
-    <main>
-      <h1>Web</h1>
-      <p>TanStack Start app.</p>
-    </main>
-  )
+  return null
 }
