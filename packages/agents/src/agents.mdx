@@ -1,0 +1,143 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Packages/@worldkit/agents" />
+
+# @worldkit/agents
+
+The third brick. Headless agent model on top of `@worldkit/grid`: identity,
+position, facing, and state for the characters that inhabit a world. No AI,
+no behavior, no rendering — just a sturdy, serializable description of a
+character.
+
+This package only answers the boring, sacred questions:
+
+- Who is this agent?
+- Where are they standing?
+- Which way are they facing?
+- What are they doing right now?
+- Are they free to act?
+- Can they be saved and loaded?
+
+## Where it sits
+
+```
+grid → world → agents → actions → pathfinding → simulation → renderer / editor / AI
+```
+
+`agents` sits on `grid` (it needs `GridPosition`) but deliberately does **not**
+depend on `world`. The simulation layer is what later combines world occupancy
+with agent intent.
+
+## Install
+
+```bash
+pnpm add @worldkit/agents @worldkit/grid
+```
+
+ESM-only. One workspace dependency: `@worldkit/grid`.
+
+## Quick tour
+
+```ts
+import {
+  createAgent,
+  isAgentIdle,
+  setAgentFacing,
+  setAgentPosition,
+  setAgentState,
+} from '@worldkit/agents';
+
+const mira = createAgent({
+  id: 'agent_1',
+  name: 'Mira',
+  position: { x: 2, y: 2 },
+});
+
+const moved = setAgentPosition(mira, { x: 3, y: 2 });
+const turned = setAgentFacing(moved, 'east');
+const busy = setAgentState(turned, 'moving');
+
+isAgentIdle(mira); // true
+isAgentIdle(busy); // false
+```
+
+Every function returns a **new** `Agent`. Nothing mutates in place.
+
+## Types
+
+```ts
+type AgentId = string;
+
+type AgentState =
+  | 'idle'
+  | 'moving'
+  | 'acting'
+  | 'speaking'
+  | 'waiting';
+
+type Direction = 'north' | 'east' | 'south' | 'west';
+
+type Agent = {
+  id: AgentId;
+  name: string;
+  position: GridPosition;
+  facing: Direction;
+  state: AgentState;
+  data?: Record<string, unknown>;
+  traits?: Record<string, unknown>;
+  memory?: Record<string, unknown>;
+};
+```
+
+`data` is for appearance, UI state, and customization. `traits` and `memory`
+are placeholders for future AI and personality systems — kept generic on
+purpose so nothing here gets coupled to a specific provider.
+
+## Functions
+
+### `createAgent({ id, name, position, facing?, state?, data?, traits?, memory? })`
+
+Returns a fresh `Agent`. Defaults: `facing: 'south'`, `state: 'idle'`. Throws
+on an empty `id` or empty `name`.
+
+### `setAgentPosition(agent, position)`
+
+Returns a new agent at `position`. The world layer is responsible for
+validating that the cell is reachable — agents don't second-guess the world.
+
+### `setAgentFacing(agent, facing)`
+
+Returns a new agent with the given facing.
+
+### `setAgentState(agent, state)`
+
+Returns a new agent with the given state.
+
+### `isAgentIdle(agent)`
+
+`true` iff the agent's state is `'idle'`. The simulation uses this to decide
+who can accept a new action this tick.
+
+### `getDirectionFromDelta(delta)`
+
+Converts a movement delta into a 4-way `Direction`. Ties (`|dx| === |dy|`)
+break in favor of horizontal motion. Returns `undefined` when the delta is
+zero.
+
+```ts
+getDirectionFromDelta({ x: 1, y: 0 });  // 'east'
+getDirectionFromDelta({ x: 0, y: -1 }); // 'north'
+getDirectionFromDelta({ x: 0, y: 0 });  // undefined
+```
+
+## Design notes
+
+- **Tiny body first. Soul later.** This package describes the *shape* of a
+  character. Smart agents — AI, behavior trees, memory consolidation — come
+  later, on top.
+- **Plain data.** `Agent` is a serializable object. `JSON.stringify` /
+  `JSON.parse` round-trips cleanly. No classes, no methods, no hidden state.
+- **No world coupling.** Agents don't know about terrain, occupancy, or
+  pathfinding. The world owns those rules; agents just say where they are.
+- **4-way facing on purpose.** Diagonals are a movement rule, not an
+  identity. If you need 8-way, derive it in the renderer.

@@ -8,6 +8,12 @@
     },
     {
       "path": "./packages/world"
+    },
+    {
+      "path": "./packages/agents"
+    },
+    {
+      "path": "./packages/pathfinding"
     }
   ]
 }

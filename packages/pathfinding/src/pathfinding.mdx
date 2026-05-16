@@ -1,0 +1,114 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Packages/@worldkit/pathfinding" />
+
+# @worldkit/pathfinding
+
+The fourth brick. Headless A* over a `@worldkit/world`: given a start, a goal,
+and the world's occupancy, return the shortest 4-way path — or `undefined`
+when there isn't one.
+
+This package only answers the boring, sacred questions:
+
+- Is there a path from A to B in this world?
+- What is the shortest 4-way path?
+- Which path is cheapest under a custom movement cost?
+
+## Where it sits
+
+```
+grid → world → agents → pathfinding → actions → simulation → renderer / editor / AI
+```
+
+`pathfinding` sits on `grid` (for `getNeighbors`) and `world` (for
+`isCellBlocked`). It deliberately does **not** know about agents — it takes
+plain positions.
+
+## Install
+
+```bash
+pnpm add @worldkit/pathfinding @worldkit/world @worldkit/grid
+```
+
+ESM-only. Two workspace dependencies: `@worldkit/grid`, `@worldkit/world`.
+
+## Quick tour
+
+```ts
+import { createGrid } from '@worldkit/grid';
+import { addObject, createWorld } from '@worldkit/world';
+import { findPath } from '@worldkit/pathfinding';
+
+let world = createWorld({
+  id: 'demo',
+  grid: createGrid({ width: 10, height: 10, cellSize: 32 }),
+});
+
+world = addObject(world, {
+  id: 'tree_1',
+  type: 'tree',
+  position: { x: 1, y: 0 },
+  blocksMovement: true,
+});
+
+findPath(world, { x: 0, y: 0 }, { x: 2, y: 0 });
+// [{x:0,y:0}, {x:0,y:1}, {x:1,y:1}, {x:2,y:1}, {x:2,y:0}]
+```
+
+The path always includes both endpoints. When `start === goal`, the result is
+`[start]`.
+
+## Types
+
+```ts
+type Path = GridPosition[];
+
+type CostFn = (position: GridPosition) => number;
+
+type FindPathOptions = {
+  cost?: CostFn;     // entry cost per cell; default 1
+  maxNodes?: number; // safety brake; default 10_000
+};
+```
+
+## Functions
+
+### `findPath(world, start, goal, options?)`
+
+Returns the shortest walkable path from `start` to `goal`, inclusive, along
+4-way neighbors. Returns `undefined` when no path exists, when either endpoint
+is out of bounds, or when the goal is blocked.
+
+A cell is walkable when:
+
+1. `isCellBlocked(world, cell)` is `false`, **and**
+2. `cost(cell)` returns a positive finite number.
+
+Non-finite or non-positive costs (including `Infinity`, `0`, negatives) mark
+the cell as impassable.
+
+### `manhattanDistance(a, b)`
+
+L1 distance. The heuristic A* uses internally — exposed because it's handy
+upstream (range checks, sorting candidates, deciding whether to pathfind at
+all).
+
+### `pathCost(path, cost?)`
+
+Sums the entry cost of every step after the first. The starting cell is
+free — you're already there.
+
+## Design notes
+
+- **4-way only.** Mirrors `getNeighbors`. Diagonals are a movement rule; build
+  them on top if you need them, don't push them down here.
+- **A\* with a binary min-heap.** Manhattan heuristic. Admissible (and
+  therefore optimal) when every step cost is `≥ 1`. With sub-unit costs A*
+  may still return *a* path, just not necessarily the cheapest.
+- **Cost is a function, not data.** Keeps `@worldkit/world` free of
+  pathfinding concerns and lets callers derive cost from terrain type, agent
+  traits, time of day, whatever.
+- **`maxNodes` safety brake.** Big maze-like worlds can blow up; the brake
+  returns `undefined` instead of hanging. Tune per-call.
+- **Plain data in, plain data out.** Each call is independent. Pure A* — no
+  caches, no internal state, no listeners.

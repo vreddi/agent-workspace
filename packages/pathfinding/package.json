@@ -1,0 +1,36 @@
+{
+  "name": "@worldkit/pathfinding",
+  "version": "0.0.1",
+  "description": "Headless A* pathfinding for @worldkit/world grids, with pluggable movement cost.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "@org/source": "./src/index.ts",
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@worldkit/grid": "workspace:*",
+    "@worldkit/world": "workspace:*"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "vitest": "catalog:"
+  }
+}
