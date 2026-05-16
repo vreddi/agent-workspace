@@ -4,12 +4,14 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 
-/** Load `.env*` into `process.env`, then run T3 env validation (Node-only). */
+const WEB_ENV_DIR = path.resolve(__dirname)
+
+/** Load `apps/web/.env.local` (and friends) into `process.env`, then validate. */
 function t3EnvPlugin(): Plugin {
   return {
     name: 't3-env',
     config(_config, { mode }) {
-      const loaded = loadEnv(mode, process.cwd(), '')
+      const loaded = loadEnv(mode, WEB_ENV_DIR, '')
       for (const [key, value] of Object.entries(loaded)) {
         if (process.env[key] === undefined) {
           process.env[key] = value
@@ -22,16 +24,26 @@ function t3EnvPlugin(): Plugin {
   }
 }
 
-export default defineConfig({
-  server: {
-    port: 3000,
-  },
-  resolve: {
-    tsconfigPaths: true,
-    alias: {
-      '~': path.resolve(__dirname, './src'),
-      '@convex': path.resolve(__dirname, '../../convex'),
+export default defineConfig(({ mode }) => {
+  const loaded = loadEnv(mode, WEB_ENV_DIR, '')
+  const convexUrl = loaded.VITE_CONVEX_URL ?? loaded.CONVEX_URL ?? ''
+
+  return {
+    server: {
+      port: 3000,
     },
-  },
-  plugins: [t3EnvPlugin(), tailwindcss(), tanstackStart(), viteReact()],
+    resolve: {
+      tsconfigPaths: true,
+      alias: {
+        '~': path.resolve(__dirname, './src'),
+        '@convex': path.resolve(__dirname, '../../convex'),
+      },
+    },
+    define: {
+      ...(convexUrl
+        ? { 'import.meta.env.VITE_CONVEX_URL': JSON.stringify(convexUrl) }
+        : {}),
+    },
+    plugins: [t3EnvPlugin(), tailwindcss(), tanstackStart(), viteReact()],
+  }
 })

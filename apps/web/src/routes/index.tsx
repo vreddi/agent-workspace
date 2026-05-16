@@ -18,9 +18,7 @@ function Home() {
         </p>
       </div>
 
-      {loading ? (
-        <p className="text-sm text-muted-foreground">Checking session…</p>
-      ) : user ? (
+      {user ? (
         <div className="flex flex-col items-start gap-3">
           <p className="text-sm">
             Signed in as{' '}
@@ -35,6 +33,9 @@ function Home() {
         </div>
       ) : (
         <div className="flex flex-col items-start gap-3">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Checking session…</p>
+          ) : null}
           <Button asChild>
             <a href="/api/auth/sign-in">Sign in</a>
           </Button>

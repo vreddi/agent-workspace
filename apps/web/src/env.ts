@@ -1,12 +1,16 @@
 import { createEnv } from '@t3-oss/env-core'
 import { z } from 'zod'
 
+function resolveConvexUrl(): string | undefined {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CONVEX_URL) {
+    return import.meta.env.VITE_CONVEX_URL
+  }
+  return process.env.VITE_CONVEX_URL ?? process.env.CONVEX_URL
+}
+
 /**
  * Type-safe environment variables (T3-style).
- * @see https://env.t3.gg/docs/core
- *
- * Import this module to validate env. Server vars come from `process.env`
- * (WorkOS AuthKit). Client vars use the `VITE_` prefix.
+ * Loaded from `apps/web/.env.local` (see `.env.local.example`).
  */
 export const env = createEnv({
   server: {
@@ -36,10 +40,7 @@ export const env = createEnv({
     WORKOS_COOKIE_NAME: process.env.WORKOS_COOKIE_NAME,
     WORKOS_COOKIE_DOMAIN: process.env.WORKOS_COOKIE_DOMAIN,
     WORKOS_COOKIE_SAMESITE: process.env.WORKOS_COOKIE_SAMESITE,
-    VITE_CONVEX_URL:
-      typeof import.meta !== 'undefined' && import.meta.env
-        ? import.meta.env.VITE_CONVEX_URL
-        : process.env.VITE_CONVEX_URL,
+    VITE_CONVEX_URL: resolveConvexUrl(),
   },
   emptyStringAsUndefined: true,
   skipValidation:
