@@ -25,6 +25,23 @@ node_modules
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# Environment / secrets (never commit real credentials)
+.env
+.env.*
+!.env.example
+!**/.env.example
+.env.local
+.env.*.local
+**/.env
+!**/.env.example
+apps/web/.env
+
+# Local package manager cache
+.pnpm-store/
+
+# Convex local deployment state (admin keys, instance secrets)
+.convex/
+
 # misc
 /.sass-cache
 /connect.lock

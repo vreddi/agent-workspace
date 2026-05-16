@@ -6,17 +6,19 @@
   "scripts": {
     "build": "nx run-many --target=build",
     "build:affected": "nx affected --target=build",
+    "dev:web": "convex dev --start \"pnpm --filter @org/web dev\"",
     "storybook": "pnpm --filter @org/storybook storybook",
     "build-storybook": "pnpm --filter @org/storybook build-storybook"
   },
   "private": true,
-  "dependencies": {},
   "devDependencies": {
     "@nx/js": "22.7.0",
     "@storybook/addon-docs": "catalog:",
     "@swc-node/register": "1.11.1",
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.18",
+    "@types/node": "^22.19.19",
+    "convex": "^1.39.1",
     "nx": "22.7.0",
     "prettier": "^3.8.1",
     "tslib": "^2.3.0",
