@@ -8,10 +8,12 @@
     "chromatic": "pnpm build-storybook && chromatic --storybook-build-dir=storybook-static"
   },
   "dependencies": {
+    "@org/ui": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.8",
     "chromatic": "^16.10.1",
     "@storybook/addon-docs": "catalog:",
     "@storybook/react-vite": "^10.0.0",

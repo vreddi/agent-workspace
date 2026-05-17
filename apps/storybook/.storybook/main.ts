@@ -1,4 +1,5 @@
-import { defineMain } from '@storybook/react-vite/node';
+import { defineMain } from '@storybook/react-vite/node'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineMain({
   framework: '@storybook/react-vite',
@@ -7,4 +8,8 @@ export default defineMain({
     '../../../packages/*/src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
   addons: ['@storybook/addon-docs'],
-});
+  viteFinal: async (config) => {
+    config.plugins = [...(config.plugins ?? []), tailwindcss()]
+    return config
+  },
+})
