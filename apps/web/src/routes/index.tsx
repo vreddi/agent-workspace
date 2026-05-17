@@ -1,13 +1,19 @@
 import { Button } from '@org/ui/components/button'
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  useUser,
+} from '@clerk/tanstack-react-start'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useAuth } from '@workos/authkit-tanstack-react-start/client'
 
 export const Route = createFileRoute('/')({
   component: Home,
 })
 
 function Home() {
-  const { user, loading } = useAuth()
+  const { user, isLoaded } = useUser()
 
   return (
     <main className="mx-auto flex min-h-svh max-w-lg flex-col justify-center gap-6 p-8">
@@ -18,32 +24,34 @@ function Home() {
         </p>
       </div>
 
-      {user ? (
+      <SignedOut>
+        {!isLoaded ? (
+          <p className="text-sm text-muted-foreground">Checking session…</p>
+        ) : (
+          <div className="flex flex-col items-start gap-3">
+            <SignInButton mode="modal">
+              <Button>Sign in</Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button variant="outline">Create account</Button>
+            </SignUpButton>
+          </div>
+        )}
+      </SignedOut>
+
+      <SignedIn>
         <div className="flex flex-col items-start gap-3">
           <p className="text-sm">
             Signed in as{' '}
-            <span className="font-medium">{user.email ?? user.id}</span>
+            <span className="font-medium">
+              {user?.primaryEmailAddress?.emailAddress ?? user?.id}
+            </span>
           </p>
           <Button asChild>
             <Link to="/todos">Open todos</Link>
           </Button>
-          <Button variant="ghost" asChild className="h-auto px-0">
-            <Link to="/logout">Sign out</Link>
-          </Button>
         </div>
-      ) : (
-        <div className="flex flex-col items-start gap-3">
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Checking session…</p>
-          ) : null}
-          <Button asChild>
-            <a href="/api/auth/sign-in">Sign in</a>
-          </Button>
-          <Button variant="outline" asChild>
-            <a href="/api/auth/sign-up">Create account</a>
-          </Button>
-        </div>
-      )}
+      </SignedIn>
     </main>
   )
 }

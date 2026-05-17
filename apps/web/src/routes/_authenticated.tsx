@@ -1,21 +1,20 @@
+import { auth } from '@clerk/tanstack-react-start/server'
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-import { getAuth } from '~/lib/auth'
+import { createServerFn } from '@tanstack/react-start'
 
 /**
- * Pathless layout: all child routes require a signed-in WorkOS session.
- * Add future TODO routes under `src/routes/_authenticated/`.
+ * Pathless layout: child routes require a signed-in Clerk session.
  */
+const requireAuth = createServerFn({ method: 'GET' }).handler(async () => {
+  const { isAuthenticated, userId } = await auth()
+  if (!isAuthenticated) {
+    throw redirect({ to: '/' })
+  }
+  return { userId }
+})
+
 export const Route = createFileRoute('/_authenticated')({
-  loader: async ({ location }) => {
-    const { user } = await getAuth()
-    if (!user) {
-      throw redirect({
-        to: '/api/auth/sign-in',
-        search: { returnPathname: location.pathname },
-      })
-    }
-    return { user }
-  },
+  beforeLoad: async () => requireAuth(),
   component: AuthenticatedLayout,
 })
 

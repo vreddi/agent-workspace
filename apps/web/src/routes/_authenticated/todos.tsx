@@ -1,17 +1,17 @@
 import { api } from '@convex/_generated/api'
+import { UserButton, useUser } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
 import { cn } from '@org/ui/lib/utils'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Authenticated, useMutation, useQuery } from 'convex/react'
 import { useState, type FormEvent } from 'react'
-import { Route as AuthenticatedRoute } from '../_authenticated'
 
 export const Route = createFileRoute('/_authenticated/todos')({
   component: TodosPage,
 })
 
 function TodosPage() {
-  const { user } = AuthenticatedRoute.useLoaderData()
+  const { user } = useUser()
 
   return (
     <main className="mx-auto max-w-lg p-8">
@@ -19,16 +19,14 @@ function TodosPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Todos</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {user.email ?? user.id}
+            {user?.primaryEmailAddress?.emailAddress ?? user?.id}
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <Button variant="outline" size="sm" asChild>
             <Link to="/">Home</Link>
           </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/logout">Sign out</Link>
-          </Button>
+          <UserButton />
         </div>
       </header>
 

@@ -1,62 +1,71 @@
 # @org/web
 
-TanStack Start web client for the TODO app.
+TanStack Start TODO app with **Clerk** auth and **Convex** backend.
 
-## Environment (single file)
+## Environment
 
-All local secrets and URLs live in **`apps/web/.env.local`** (web app + Convex CLI).
+All local secrets live in **`apps/web/.env.local`**.
 
 ```bash
 cp apps/web/.env.local.example apps/web/.env.local
 ```
 
-Fill in WorkOS values from [dashboard.workos.com](https://dashboard.workos.com) (Staging).
-After the first `pnpm dev:web`, Convex writes `CONVEX_DEPLOYMENT`, `CONVEX_URL`, and
-`CONVEX_SITE_URL` into the same file — set `VITE_CONVEX_URL` to match `CONVEX_URL`.
-
-Then sync WorkOS credentials to your Convex deployment:
-
-```bash
-pnpm convex:env:sync
-```
+| Variable | Where |
+| --- | --- |
+| `VITE_CLERK_PUBLISHABLE_KEY` | [Clerk Dashboard → API keys](https://dashboard.clerk.com/last-active?path=api-keys) |
+| `CLERK_SECRET_KEY` | Same page (secret key) |
+| `CLERK_JWT_ISSUER_DOMAIN` | Clerk → **JWT templates** → template named **`convex`** → Issuer URL |
+| `VITE_CONVEX_URL` | Same as `CONVEX_URL` after `pnpm dev:web` writes Convex vars |
 
 Never commit `apps/web/.env.local`.
 
-Variables are validated at startup via `src/env.ts` ([@t3-oss/env-core](https://env.t3.gg) + Zod).
+## Clerk setup (one-time)
 
-| Variable | Where |
-| --- | --- |
-| `WORKOS_*` | WorkOS dashboard → API Keys & Redirects |
-| `WORKOS_COOKIE_PASSWORD` | `openssl rand -base64 24` |
-| `CONVEX_*` | Written by `convex dev` into `.env.local` |
-| `VITE_CONVEX_URL` | Same URL as `CONVEX_URL` (required for the browser) |
+1. Create an application at [dashboard.clerk.com](https://dashboard.clerk.com).
+2. Enable sign-in methods you want (email, Google, etc.).
+3. Open **[Convex integration](https://dashboard.clerk.com/apps/setup/convex)** and follow the steps (or manually):
+   - Create a JWT template named **`convex`** (Convex docs preset).
+   - Copy the template **Issuer** URL into `CLERK_JWT_ISSUER_DOMAIN` in `.env.local`.
+4. Copy API keys into `.env.local` (`pk_test_` / `sk_test_` for development).
 
-### WorkOS redirects (Staging)
+## Convex setup
 
-| Setting | Value |
-| --- | --- |
-| Redirect URI | `http://localhost:3000/api/auth/callback` |
-| Sign-in endpoint | `http://localhost:3000/api/auth/sign-in` |
-| Sign-out redirect | `http://localhost:3000/` |
-
-## Run
-
-From the **repo root**:
+From the repo root:
 
 ```bash
 pnpm dev:web
 ```
 
-This runs Convex with `--env-file apps/web/.env.local` and starts the Vite app.
+Convex writes `CONVEX_DEPLOYMENT`, `CONVEX_URL`, and `CONVEX_SITE_URL` into `.env.local`. Set `VITE_CONVEX_URL` to match `CONVEX_URL`.
 
-Open [http://localhost:3000](http://localhost:3000) → sign in → `/todos`.
+Push Clerk issuer to your Convex deployment:
 
-## Auth routes
+```bash
+pnpm convex:env:sync
+```
 
-| Path | Role |
+## Run
+
+```bash
+pnpm dev:web
+```
+
+Open [http://localhost:3000](http://localhost:3000) → **Sign in** (Clerk modal) → **Open todos**.
+
+## Routes
+
+| Path | Description |
 | --- | --- |
-| `/api/auth/sign-in` | Starts sign-in |
-| `/api/auth/sign-up` | Starts sign-up |
-| `/api/auth/callback` | OAuth callback |
-| `/logout` | Sign out |
-| `/_authenticated/*` | Protected (e.g. `/todos`) |
+| `/` | Home, sign-in / sign-up |
+| `/todos` | Authenticated todo list |
+
+Sign-out is via the **User** menu on `/todos` (Clerk `UserButton`).
+
+## Deploy (Cloudflare Workers)
+
+See [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md). Quick path:
+
+```bash
+pnpm exec wrangler login   # once, from apps/web
+pnpm deploy:web            # from repo root
+```

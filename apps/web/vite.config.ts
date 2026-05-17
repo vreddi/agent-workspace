@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -27,6 +28,7 @@ function t3EnvPlugin(): Plugin {
 export default defineConfig(({ mode }) => {
   const loaded = loadEnv(mode, WEB_ENV_DIR, '')
   const convexUrl = loaded.VITE_CONVEX_URL ?? loaded.CONVEX_URL ?? ''
+  const clerkPublishableKey = loaded.VITE_CLERK_PUBLISHABLE_KEY ?? ''
 
   return {
     server: {
@@ -43,7 +45,19 @@ export default defineConfig(({ mode }) => {
       ...(convexUrl
         ? { 'import.meta.env.VITE_CONVEX_URL': JSON.stringify(convexUrl) }
         : {}),
+      ...(clerkPublishableKey
+        ? {
+            'import.meta.env.VITE_CLERK_PUBLISHABLE_KEY':
+              JSON.stringify(clerkPublishableKey),
+          }
+        : {}),
     },
-    plugins: [t3EnvPlugin(), tailwindcss(), tanstackStart(), viteReact()],
+    plugins: [
+      cloudflare({ viteEnvironment: { name: 'ssr' } }),
+      t3EnvPlugin(),
+      tailwindcss(),
+      tanstackStart(),
+      viteReact(),
+    ],
   }
 })

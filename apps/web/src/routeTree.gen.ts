@@ -9,19 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
-import { Route as ApiAuthSignUpRouteImport } from './routes/api/auth/sign-up'
-import { Route as ApiAuthSignInRouteImport } from './routes/api/auth/sign-in'
-import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
 
-const LogoutRoute = LogoutRouteImport.update({
-  id: '/logout',
-  path: '/logout',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -36,94 +27,36 @@ const AuthenticatedTodosRoute = AuthenticatedTodosRouteImport.update({
   path: '/todos',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const ApiAuthSignUpRoute = ApiAuthSignUpRouteImport.update({
-  id: '/api/auth/sign-up',
-  path: '/api/auth/sign-up',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthSignInRoute = ApiAuthSignInRouteImport.update({
-  id: '/api/auth/sign-in',
-  path: '/api/auth/sign-in',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
-  id: '/api/auth/callback',
-  path: '/api/auth/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/logout': typeof LogoutRoute
   '/todos': typeof AuthenticatedTodosRoute
-  '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/auth/sign-in': typeof ApiAuthSignInRoute
-  '/api/auth/sign-up': typeof ApiAuthSignUpRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/logout': typeof LogoutRoute
   '/todos': typeof AuthenticatedTodosRoute
-  '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/auth/sign-in': typeof ApiAuthSignInRoute
-  '/api/auth/sign-up': typeof ApiAuthSignUpRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/logout': typeof LogoutRoute
   '/_authenticated/todos': typeof AuthenticatedTodosRoute
-  '/api/auth/callback': typeof ApiAuthCallbackRoute
-  '/api/auth/sign-in': typeof ApiAuthSignInRoute
-  '/api/auth/sign-up': typeof ApiAuthSignUpRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/logout'
-    | '/todos'
-    | '/api/auth/callback'
-    | '/api/auth/sign-in'
-    | '/api/auth/sign-up'
+  fullPaths: '/' | '/todos'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/logout'
-    | '/todos'
-    | '/api/auth/callback'
-    | '/api/auth/sign-in'
-    | '/api/auth/sign-up'
-  id:
-    | '__root__'
-    | '/'
-    | '/_authenticated'
-    | '/logout'
-    | '/_authenticated/todos'
-    | '/api/auth/callback'
-    | '/api/auth/sign-in'
-    | '/api/auth/sign-up'
+  to: '/' | '/todos'
+  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/todos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  LogoutRoute: typeof LogoutRoute
-  ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute
-  ApiAuthSignInRoute: typeof ApiAuthSignInRoute
-  ApiAuthSignUpRoute: typeof ApiAuthSignUpRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/logout': {
-      id: '/logout'
-      path: '/logout'
-      fullPath: '/logout'
-      preLoaderRoute: typeof LogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -145,27 +78,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTodosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/auth/sign-up': {
-      id: '/api/auth/sign-up'
-      path: '/api/auth/sign-up'
-      fullPath: '/api/auth/sign-up'
-      preLoaderRoute: typeof ApiAuthSignUpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/sign-in': {
-      id: '/api/auth/sign-in'
-      path: '/api/auth/sign-in'
-      fullPath: '/api/auth/sign-in'
-      preLoaderRoute: typeof ApiAuthSignInRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/auth/callback': {
-      id: '/api/auth/callback'
-      path: '/api/auth/callback'
-      fullPath: '/api/auth/callback'
-      preLoaderRoute: typeof ApiAuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -184,10 +96,6 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  LogoutRoute: LogoutRoute,
-  ApiAuthCallbackRoute: ApiAuthCallbackRoute,
-  ApiAuthSignInRoute: ApiAuthSignInRoute,
-  ApiAuthSignUpRoute: ApiAuthSignUpRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

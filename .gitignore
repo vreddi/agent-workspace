@@ -39,6 +39,13 @@ node_modules
 apps/web/.env
 apps/web/.env.local
 
+# Storybook / Chromatic
+**/storybook-static
+
+# Cloudflare
+.wrangler/
+.dev.vars
+
 # Local package manager cache
 .pnpm-store/
 

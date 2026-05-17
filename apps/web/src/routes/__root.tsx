@@ -9,37 +9,42 @@ import {
   Scripts,
   useRouteContext,
 } from '@tanstack/react-router'
-import {
-  AuthKitProvider,
-  getAuthAction,
-} from '@workos/authkit-tanstack-react-start/client'
-import { ConvexProviderWithAuth, type ConvexReactClient } from 'convex/react'
+import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start'
+import { auth } from '@clerk/tanstack-react-start/server'
+import { createServerFn } from '@tanstack/react-start'
+import { ConvexProviderWithClerk, type ConvexReactClient } from 'convex/react-clerk'
 import type { ReactNode } from 'react'
-import { useAuthFromWorkOS } from '~/lib/convex-auth'
+const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
+  const { userId, getToken } = await auth()
+  const token = await getToken({ template: 'convex' })
+  return { userId, token }
+})
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
   convexClient: ConvexReactClient
   convexQueryClient: ConvexQueryClient
 }>()({
-  loader: async () => {
-    const auth = await getAuthAction()
-    return { auth }
+  beforeLoad: async (ctx) => {
+    const { userId, token } = await fetchClerkAuth()
+    if (token) {
+      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    }
+    return { userId, token }
   },
   component: RootComponent,
 })
 
 function RootComponent() {
-  const { auth } = Route.useLoaderData()
   const { convexClient } = useRouteContext({ from: '__root__' })
 
   return (
     <RootDocument>
-      <AuthKitProvider initialAuth={auth}>
-        <ConvexProviderWithAuth client={convexClient} useAuth={useAuthFromWorkOS}>
+      <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+        <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
           <Outlet />
-        </ConvexProviderWithAuth>
-      </AuthKitProvider>
+        </ConvexProviderWithClerk>
+      </ClerkProvider>
     </RootDocument>
   )
 }

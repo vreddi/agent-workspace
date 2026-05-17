@@ -7,9 +7,11 @@
     "build": "nx run-many --target=build",
     "build:affected": "nx affected --target=build",
     "dev:web": "convex dev --env-file apps/web/.env.local --start \"pnpm --filter @org/web dev\"",
-    "convex:env:sync": "bash scripts/sync-convex-env.sh",
-    "storybook": "pnpm --filter @org/storybook storybook",
-    "build-storybook": "pnpm --filter @org/storybook build-storybook"
+    "convex:env:sync": "bash scripts/sync-convex-clerk-env.sh",
+    "deploy:web": "pnpm --filter @org/web deploy",
+    "storybook": "nx run @org/storybook:storybook",
+    "build-storybook": "nx run @org/storybook:build-storybook",
+    "chromatic": "nx run @org/storybook:chromatic"
   },
   "private": true,
   "devDependencies": {
