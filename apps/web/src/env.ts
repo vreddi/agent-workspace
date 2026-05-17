@@ -1,11 +1,19 @@
 import { createEnv } from '@t3-oss/env-core'
 import { z } from 'zod'
 
-function resolveConvexUrl(): string | undefined {
-  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CONVEX_URL) {
-    return import.meta.env.VITE_CONVEX_URL
+/**
+ * Resolve a `VITE_*` value from whichever source is populated for the
+ * current evaluation context: `import.meta.env` in the browser bundle,
+ * `process.env` in Node/SSR (Vite injects loaded `.env.local` here).
+ */
+function viteClient(name: 'VITE_CLERK_PUBLISHABLE_KEY' | 'VITE_CONVEX_URL'): string | undefined {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.[name]) {
+    return import.meta.env[name]
   }
-  return process.env.VITE_CONVEX_URL ?? process.env.CONVEX_URL
+  if (name === 'VITE_CONVEX_URL') {
+    return process.env.VITE_CONVEX_URL ?? process.env.CONVEX_URL
+  }
+  return process.env[name]
 }
 
 /**
@@ -29,8 +37,8 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     CLERK_JWT_ISSUER_DOMAIN: process.env.CLERK_JWT_ISSUER_DOMAIN,
-    VITE_CLERK_PUBLISHABLE_KEY: process.env.VITE_CLERK_PUBLISHABLE_KEY,
-    VITE_CONVEX_URL: resolveConvexUrl(),
+    VITE_CLERK_PUBLISHABLE_KEY: viteClient('VITE_CLERK_PUBLISHABLE_KEY'),
+    VITE_CONVEX_URL: viteClient('VITE_CONVEX_URL'),
   },
   emptyStringAsUndefined: true,
   skipValidation:
