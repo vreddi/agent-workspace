@@ -46,6 +46,7 @@ function fixUseSyncExternalStoreShim(): Plugin {
     name: 'fix-use-sync-external-store-shim',
     enforce: 'pre',
     load(id) {
+      if (id.startsWith('\0')) return
       const cleanId = id.split('?')[0]
       if (!cleanId.endsWith(shimSuffix)) return
       return `export { useSyncExternalStore } from 'react'\n`
