@@ -46,6 +46,8 @@ function fixUseSyncExternalStoreShim(): Plugin {
     name: 'fix-use-sync-external-store-shim',
     enforce: 'pre',
     load(id) {
+      // Vite marks virtual modules (including CJS proxy modules) with `\0`.
+      // Rewriting those proxy IDs causes Rollup to fail resolving `react`.
       if (id.startsWith('\0')) return
       const cleanId = id.split('?')[0]
       if (!cleanId.endsWith(shimSuffix)) return
