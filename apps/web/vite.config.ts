@@ -48,8 +48,10 @@ function fixUseSyncExternalStoreShim(): Plugin {
     load(id) {
       // Vite/Rollup reserve `\0` IDs for internal virtual modules (including
       // CommonJS proxies). We only want to patch the real file on disk.
-      if (id.startsWith('\0')) return
-      // Strip Vite query params (e.g. `?commonjs-entry`) before suffix checks.
+      // Returning undefined delegates virtual IDs to Vite's default pipeline.
+      if (id.startsWith('\0')) return undefined
+      // Strip Vite query params (e.g. `?commonjs-entry`, `?commonjs-proxy`,
+      // `?v=<hash>`) before suffix checks.
       const cleanId = id.split('?')[0]
       if (!cleanId.endsWith(shimSuffix)) return
       return `export { useSyncExternalStore } from 'react'\n`
