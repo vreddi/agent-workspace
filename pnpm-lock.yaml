@@ -25,6 +25,13 @@ catalogs:
 importers:
 
   .:
+    dependencies:
+      '@clerk/backend':
+        specifier: ^3.4.9
+        version: 3.4.9(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      svix:
+        specifier: ^1.93.0
+        version: 1.93.0
     devDependencies:
       '@nx/js':
         specifier: 22.7.0
@@ -884,6 +891,10 @@ packages:
     resolution: {integrity: sha512-cgkFVEYFG2nZn4QDuYBhiAwPtMdo8Yj7DAtq/SBQ5C/ainh3uxNRDgUj4bFn52qJkWLiCkraYJIw1b8dEUbUBg==}
     engines: {node: '>=18.17.0'}
 
+  '@clerk/backend@3.4.9':
+    resolution: {integrity: sha512-2sbnGrHga3t/IFAkyvWO6H9QG1bnj7KUA13hpRB9utOYGCRdCn6oLxtiSdH6uGUzjX/km1dtw0uwZIxYgHbuVA==}
+    engines: {node: '>=20.9.0'}
+
   '@clerk/clerk-react@5.61.3':
     resolution: {integrity: sha512-W21aNEeHtqh3xJLuW5g2ydben/1D5pSnxsl/kCnv0IY1zma7lO+aIJ7Br2bR4FKKkiu695mPnjtY+fvkQmCXBg==}
     engines: {node: '>=18.17.0'}
@@ -895,6 +906,18 @@ packages:
   '@clerk/shared@3.47.5':
     resolution: {integrity: sha512-rDVe73/VN2NZXhtrLRHshkUpQDrevAqDRxeXUl2M0IBEBkcl+VMHlV7fep53cVWo0b3gIqLk82pmmi+WoyF/xg==}
     engines: {node: '>=18.17.0'}
+    peerDependencies:
+      react: ^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0
+      react-dom: ^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
+  '@clerk/shared@4.12.0':
+    resolution: {integrity: sha512-LEe3lpi1r2DhFH9FuqzVrDQ2UkQJ3TA6XkkqnfHHRBfAJdh+jnYXYiivQpj3znMCihm3FVLOMXcpSqBz80XoQg==}
+    engines: {node: '>=20.9.0'}
     peerDependencies:
       react: ^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0
       react-dom: ^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0
@@ -5778,6 +5801,9 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+  svix@1.93.0:
+    resolution: {integrity: sha512-AeCcSs+CrHNejZytBuvD4hw2B14rB7+Sq7ggwYgF22TgXh0uJJ3T4uVJSbSYKFSbO1AA4o470XoGgOYqu2fbSA==}
+
   swr@2.3.4:
     resolution: {integrity: sha512-bYd2lrhc+VarcpkgWclcUi92wYCpOgMws9Sd1hG1ntAu0NEy+14CbotuFjshBU2kt9rYj9TSmDcybpxpeTU1fg==}
     peerDependencies:
@@ -6006,6 +6032,11 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  use-sync-external-store@1.4.0:
+    resolution: {integrity: sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   use-sync-external-store@1.6.0:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
@@ -7085,6 +7116,15 @@ snapshots:
       - react
       - react-dom
 
+  '@clerk/backend@3.4.9(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@clerk/shared': 4.12.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      standardwebhooks: 1.0.0
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - react
+      - react-dom
+
   '@clerk/clerk-react@5.61.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@clerk/shared': 3.47.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -7100,6 +7140,17 @@ snapshots:
       js-cookie: 3.0.5
       std-env: 3.10.0
       swr: 2.3.4(react@19.2.6)
+    optionalDependencies:
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+
+  '@clerk/shared@4.12.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@tanstack/query-core': 5.100.10
+      dequal: 2.0.3
+      glob-to-regexp: 0.4.1
+      js-cookie: 3.0.5
+      std-env: 3.10.0
     optionalDependencies:
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
@@ -11954,11 +12005,15 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
+  svix@1.93.0:
+    dependencies:
+      standardwebhooks: 1.0.0
+
   swr@2.3.4(react@19.2.6):
     dependencies:
       dequal: 2.0.3
       react: 19.2.6
-      use-sync-external-store: 1.6.0(react@19.2.6)
+      use-sync-external-store: 1.4.0(react@19.2.6)
 
   tagged-tag@1.0.0: {}
 
@@ -12138,6 +12193,10 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       '@types/react': 19.2.14
+
+  use-sync-external-store@1.4.0(react@19.2.6):
+    dependencies:
+      react: 19.2.6
 
   use-sync-external-store@1.6.0(react@19.2.6):
     dependencies:

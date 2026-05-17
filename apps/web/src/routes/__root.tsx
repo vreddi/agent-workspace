@@ -13,11 +13,15 @@ import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start'
 import { auth } from '@clerk/tanstack-react-start/server'
 import { createServerFn } from '@tanstack/react-start'
 import { ConvexProviderWithClerk, type ConvexReactClient } from 'convex/react-clerk'
-import type { ReactNode } from 'react'
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
-  const { userId, getToken } = await auth()
-  const token = await getToken({ template: 'convex' })
-  return { userId, token }
+  try {
+    const { userId, getToken } = await auth()
+    const token = await getToken({ template: 'convex' })
+    return { userId, token }
+  } catch (err) {
+    console.error('[clerk] fetchClerkAuth failed:', err)
+    return { userId: null, token: null }
+  }
 })
 
 export const Route = createRootRouteWithContext<{
@@ -33,32 +37,32 @@ export const Route = createRootRouteWithContext<{
     return { userId, token }
   },
   component: RootComponent,
+  notFoundComponent: () => (
+    <main className="mx-auto flex min-h-svh max-w-lg flex-col justify-center gap-2 p-8">
+      <h1 className="text-2xl font-semibold tracking-tight">Not found</h1>
+      <p className="text-sm text-muted-foreground">
+        The page you're looking for doesn't exist.
+      </p>
+    </main>
+  ),
 })
 
 function RootComponent() {
   const { convexClient } = useRouteContext({ from: '__root__' })
 
   return (
-    <RootDocument>
-      <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
-        <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-          <Outlet />
-        </ConvexProviderWithClerk>
-      </ClerkProvider>
-    </RootDocument>
-  )
-}
-
-function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
+    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+      <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
+        <html lang="en">
+          <head>
+            <HeadContent />
+          </head>
+          <body>
+            <Outlet />
+            <Scripts />
+          </body>
+        </html>
+      </ConvexProviderWithClerk>
+    </ClerkProvider>
   )
 }

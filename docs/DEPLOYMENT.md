@@ -145,7 +145,7 @@ pnpm deploy:web
 # or: pnpm --filter @org/web deploy
 ```
 
-This runs `vite build && wrangler deploy` using `apps/web/wrangler.jsonc`.
+This runs `pnpm --filter @org/web cf-deploy` (`vite build && wrangler deploy`). Do not use `pnpm deploy` — pnpm reserves that command for registry publishing.
 
 ### Custom domain
 
@@ -156,7 +156,7 @@ Cloudflare dashboard → Worker → **Custom Domains** → add `todo.yourdomain.
 Workflow: [`.github/workflows/deploy-web.yml`](../.github/workflows/deploy-web.yml)
 
 - **Trigger:** manual only (`workflow_dispatch`) from the Actions tab
-- **Source:** always checks out the latest **`develop`** branch, then runs `pnpm deploy` in `apps/web`
+- **Source:** always checks out the latest **`develop`** branch, then runs `pnpm cf-deploy` in `apps/web`
 
 Store these **repository secrets**:
 

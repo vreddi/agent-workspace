@@ -8,7 +8,7 @@
     "build:affected": "nx affected --target=build",
     "dev:web": "convex dev --env-file apps/web/.env.local --start \"pnpm --filter @org/web dev\"",
     "convex:env:sync": "bash scripts/sync-convex-clerk-env.sh",
-    "deploy:web": "pnpm --filter @org/web deploy",
+    "deploy:web": "pnpm --filter @org/web cf-deploy",
     "storybook": "nx run @org/storybook:storybook",
     "build-storybook": "nx run @org/storybook:build-storybook",
     "chromatic": "nx run @org/storybook:chromatic"
@@ -26,5 +26,9 @@
     "prettier": "^3.8.1",
     "tslib": "^2.3.0",
     "typescript": "~5.9.2"
+  },
+  "dependencies": {
+    "@clerk/backend": "^3.4.9",
+    "svix": "^1.93.0"
   }
 }

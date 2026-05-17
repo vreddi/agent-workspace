@@ -15,6 +15,8 @@ export const Route = createFileRoute('/')({
 function Home() {
   const { user, isLoaded } = useUser()
 
+  const missingPublishableKey = !import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
   return (
     <main className="mx-auto flex min-h-svh max-w-lg flex-col justify-center gap-6 p-8">
       <div>
@@ -25,18 +27,32 @@ function Home() {
       </div>
 
       <SignedOut>
-        {!isLoaded ? (
-          <p className="text-sm text-muted-foreground">Checking session…</p>
-        ) : (
-          <div className="flex flex-col items-start gap-3">
-            <SignInButton mode="modal">
-              <Button>Sign in</Button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <Button variant="outline">Create account</Button>
-            </SignUpButton>
-          </div>
-        )}
+        <div className="flex flex-col items-start gap-3">
+          {missingPublishableKey ? (
+            <p className="text-sm text-destructive">
+              Missing <code className="text-xs">VITE_CLERK_PUBLISHABLE_KEY</code>{' '}
+              in <code className="text-xs">apps/web/.env.local</code>. Restart{' '}
+              <code className="text-xs">pnpm dev:web</code> after adding it.
+            </p>
+          ) : null}
+          {!isLoaded ? (
+            <p className="text-sm text-muted-foreground">Checking session…</p>
+          ) : null}
+          <SignInButton mode="modal">
+            <Button type="button" disabled={missingPublishableKey}>
+              Sign in
+            </Button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={missingPublishableKey}
+            >
+              Create account
+            </Button>
+          </SignUpButton>
+        </div>
       </SignedOut>
 
       <SignedIn>
