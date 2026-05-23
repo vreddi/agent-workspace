@@ -75,3 +75,6 @@ Thumbs.db
 .claude/settings.local.json
 .nx/polygraph
 .nx/self-healing
+
+# Playwright MCP plugin scratch artifacts (page snapshots, console logs)
+.playwright-mcp/
