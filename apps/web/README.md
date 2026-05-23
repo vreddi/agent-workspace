@@ -67,5 +67,5 @@ See [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md). Quick path:
 
 ```bash
 pnpm exec wrangler login   # once, from apps/web
-pnpm deploy:web            # from repo root
+pnpm deploy:web            # from repo root (do not use `pnpm deploy` — reserved by pnpm)
 ```

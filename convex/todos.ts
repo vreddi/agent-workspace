@@ -1,12 +1,13 @@
 import { ConvexError, v } from 'convex/values'
-import { mutation, query } from './_generated/server'
+import { mutation, query, QueryCtx } from './_generated/server'
+import { getCurrentUser } from './users'
 
-async function requireUserId(ctx: { auth: { getUserIdentity: () => Promise<{ subject: string } | null> } }) {
-  const identity = await ctx.auth.getUserIdentity()
-  if (!identity) {
+async function requireUserId(ctx: QueryCtx) {
+  const user = await getCurrentUser(ctx)
+  if (!user) {
     throw new ConvexError('Not authenticated')
   }
-  return identity.subject
+  return user._id
 }
 
 export const list = query({

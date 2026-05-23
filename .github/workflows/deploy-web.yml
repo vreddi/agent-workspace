@@ -50,4 +50,4 @@ jobs:
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
           VITE_CONVEX_URL: ${{ secrets.VITE_CONVEX_URL }}
           CLOUDFLARE_INCLUDE_PROCESS_ENV: true
-        run: pnpm deploy
+        run: pnpm cf-deploy
