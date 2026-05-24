@@ -11,8 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedTodosRouteImport } from './routes/_authenticated/todos'
-import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks.$taskId'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -24,55 +22,33 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedTodosRoute = AuthenticatedTodosRouteImport.update({
-  id: '/todos',
-  path: '/todos',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
-  id: '/tasks',
-  path: '/tasks',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedTasksTaskIdRoute =
   AuthenticatedTasksTaskIdRouteImport.update({
-    id: '/$taskId',
-    path: '/$taskId',
-    getParentRoute: () => AuthenticatedTasksRoute,
+    id: '/tasks/$taskId',
+    path: '/tasks/$taskId',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/tasks': typeof AuthenticatedTasksRouteWithChildren
-  '/todos': typeof AuthenticatedTodosRoute
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/tasks': typeof AuthenticatedTasksRouteWithChildren
-  '/todos': typeof AuthenticatedTodosRoute
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
-  '/_authenticated/tasks': typeof AuthenticatedTasksRouteWithChildren
-  '/_authenticated/todos': typeof AuthenticatedTodosRoute
   '/_authenticated/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/tasks' | '/todos' | '/tasks/$taskId'
+  fullPaths: '/' | '/tasks/$taskId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/tasks' | '/todos' | '/tasks/$taskId'
-  id:
-    | '__root__'
-    | '/'
-    | '/_authenticated'
-    | '/_authenticated/tasks'
-    | '/_authenticated/todos'
-    | '/_authenticated/tasks/$taskId'
+  to: '/' | '/tasks/$taskId'
+  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/tasks/$taskId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -96,49 +72,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/todos': {
-      id: '/_authenticated/todos'
-      path: '/todos'
-      fullPath: '/todos'
-      preLoaderRoute: typeof AuthenticatedTodosRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/tasks': {
-      id: '/_authenticated/tasks'
-      path: '/tasks'
-      fullPath: '/tasks'
-      preLoaderRoute: typeof AuthenticatedTasksRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/tasks/$taskId': {
       id: '/_authenticated/tasks/$taskId'
-      path: '/$taskId'
+      path: '/tasks/$taskId'
       fullPath: '/tasks/$taskId'
       preLoaderRoute: typeof AuthenticatedTasksTaskIdRouteImport
-      parentRoute: typeof AuthenticatedTasksRoute
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
-interface AuthenticatedTasksRouteChildren {
+interface AuthenticatedRouteChildren {
   AuthenticatedTasksTaskIdRoute: typeof AuthenticatedTasksTaskIdRoute
 }
 
-const AuthenticatedTasksRouteChildren: AuthenticatedTasksRouteChildren = {
-  AuthenticatedTasksTaskIdRoute: AuthenticatedTasksTaskIdRoute,
-}
-
-const AuthenticatedTasksRouteWithChildren =
-  AuthenticatedTasksRoute._addFileChildren(AuthenticatedTasksRouteChildren)
-
-interface AuthenticatedRouteChildren {
-  AuthenticatedTasksRoute: typeof AuthenticatedTasksRouteWithChildren
-  AuthenticatedTodosRoute: typeof AuthenticatedTodosRoute
-}
-
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedTasksRoute: AuthenticatedTasksRouteWithChildren,
-  AuthenticatedTodosRoute: AuthenticatedTodosRoute,
+  AuthenticatedTasksTaskIdRoute: AuthenticatedTasksTaskIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

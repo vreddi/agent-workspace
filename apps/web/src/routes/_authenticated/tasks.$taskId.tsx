@@ -63,7 +63,7 @@ function TaskDetailPage() {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link to="/tasks">Back to tasks</Link>
+            <Link to="/">Back to tasks</Link>
           </Button>
           <UserButton />
         </div>
@@ -91,7 +91,7 @@ function TaskDetail() {
           Task not found, or you don't have access.
         </p>
         <Button variant="outline" size="sm" asChild>
-          <Link to="/tasks">Back to tasks</Link>
+          <Link to="/">Back to tasks</Link>
         </Button>
       </div>
     )
@@ -106,7 +106,7 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
   const removeTask = useMutation(api.tasks.remove)
 
   const [title, setTitle] = useState(task.title)
-  const [description, setDescription] = useState(task.description)
+  const [description, setDescription] = useState(task.description ?? '')
   const [status, setStatus] = useState<TaskStatus>(task.status)
   const [softDeadline, setSoftDeadline] = useState(
     msToDateTimeLocal(task.softDeadline),
@@ -123,7 +123,7 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
 
   useEffect(() => {
     setTitle(task.title)
-    setDescription(task.description)
+    setDescription(task.description ?? '')
     setStatus(task.status)
     setSoftDeadline(msToDateTimeLocal(task.softDeadline))
     setHardDeadline(msToDateTimeLocal(task.hardDeadline))
@@ -145,15 +145,15 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
     e.preventDefault()
     const trimmedTitle = title.trim()
     const trimmedDescription = description.trim()
-    if (!trimmedTitle || !trimmedDescription) {
-      setError('Title and description are required.')
+    if (!trimmedTitle) {
+      setError('Title is required.')
       return
     }
 
     const patch: {
       id: Id<'tasks'>
       title?: string
-      description?: string
+      description?: string | null
       status?: TaskStatus
       softDeadline?: number | null
       hardDeadline?: number | null
@@ -161,8 +161,9 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
     } = { id: task._id }
 
     if (trimmedTitle !== task.title) patch.title = trimmedTitle
-    if (trimmedDescription !== task.description) {
-      patch.description = trimmedDescription
+    const nextDescription = trimmedDescription === '' ? null : trimmedDescription
+    if (nextDescription !== task.description) {
+      patch.description = nextDescription
     }
     if (status !== task.status) patch.status = status
 
@@ -198,7 +199,7 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
     if (!window.confirm('Delete this task? This cannot be undone.')) return
     try {
       await removeTask({ id: task._id })
-      await navigate({ to: '/tasks' })
+      await navigate({ to: '/' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete task')
     }
