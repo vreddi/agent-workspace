@@ -398,6 +398,74 @@ export const todayStyles = `
   letter-spacing: -0.01em;
 }
 .t-palette__input::placeholder { color: var(--t-ink-3); }
+.t-palette__meta {
+  display: flex; gap: 24px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--t-divider);
+  flex-wrap: wrap;
+}
+.t-palette__field {
+  display: flex; flex-direction: column; gap: 6px;
+  flex: 1 1 200px;
+}
+.t-palette__label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--t-ink-3);
+}
+.t-palette__field-input {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  background: var(--t-bg);
+  border: 1px solid var(--t-divider);
+  border-radius: 9px;
+  transition: border-color 0.12s ease;
+}
+.t-palette__field-input:focus-within {
+  border-color: var(--t-accent);
+}
+.t-palette__field-input input {
+  flex: 1; min-width: 0;
+  border: none; outline: none; background: transparent;
+  font-size: 14px; font-weight: 500; color: var(--t-ink-1);
+  font-family: inherit;
+}
+.t-palette__field-input input::placeholder { color: var(--t-ink-3); }
+.t-palette__suffix {
+  font-size: 12px; color: var(--t-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.t-palette__chip {
+  padding: 4px 9px;
+  border-radius: 7px;
+  border: 1px solid var(--t-divider);
+  background: var(--t-surface);
+  color: var(--t-ink-2);
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.t-palette__chip:hover {
+  background: var(--t-accent-soft);
+  color: var(--t-accent-ink);
+  border-color: var(--t-accent-soft);
+}
+.t-palette__chip:disabled { opacity: 0.5; cursor: not-allowed; }
+.t-palette__chip--ghost {
+  background: transparent;
+  color: var(--t-ink-3);
+}
+.t-palette__error {
+  padding: 10px 20px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  font-size: 12px; font-weight: 500;
+  border-bottom: 1px solid var(--t-divider);
+}
+[data-today-theme="dark"] .t-palette__error {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+}
 .t-palette__hints {
   display: flex; align-items: center; gap: 16px;
   padding: 12px 20px; background: var(--t-bg);
