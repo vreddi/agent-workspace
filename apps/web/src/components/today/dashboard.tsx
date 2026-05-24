@@ -468,6 +468,18 @@ function FilterChips({
   )
 }
 
+export type CaptureInput = {
+  title: string
+  estimateMinutes: number | null
+  targetDate: string | null
+}
+
+function todayDateString(): string {
+  const d = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 function GroupRail({
   groups,
   active,
@@ -642,16 +654,22 @@ function CapturePalette({
 }: {
   open: boolean
   onClose: () => void
-  onSubmit: (value: string) => Promise<void>
+  onSubmit: (input: CaptureInput) => Promise<void>
   groupLabel: string
   groupColor: string
 }) {
   const [val, setVal] = useState('')
+  const [estimate, setEstimate] = useState('')
+  const [targetDate, setTargetDate] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
   useEffect(() => {
     if (open) {
       setVal('')
+      setEstimate('')
+      setTargetDate('')
+      setError(null)
       setSubmitting(false)
       window.requestAnimationFrame(() => inputRef.current?.focus())
     }
@@ -661,10 +679,27 @@ function CapturePalette({
     e?.preventDefault()
     const trimmed = val.trim()
     if (!trimmed || submitting) return
+    const trimmedEstimate = estimate.trim()
+    let estimateMinutes: number | null = null
+    if (trimmedEstimate !== '') {
+      const n = Number(trimmedEstimate)
+      if (!Number.isFinite(n) || n < 0) {
+        setError('Estimate must be a positive number of minutes.')
+        return
+      }
+      estimateMinutes = n
+    }
+    setError(null)
     setSubmitting(true)
     try {
-      await onSubmit(trimmed)
+      await onSubmit({
+        title: trimmed,
+        estimateMinutes,
+        targetDate: targetDate || null,
+      })
       onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create task')
     } finally {
       setSubmitting(false)
     }
@@ -690,10 +725,61 @@ function CapturePalette({
             value={val}
             disabled={submitting}
             onChange={(e) => setVal(e.target.value)}
-            placeholder="Capture a task — AI fills the rest…"
+            placeholder="Capture a task — title first, details optional…"
           />
           <span className="t-kbd">↵</span>
         </div>
+        <div className="t-palette__meta">
+          <label className="t-palette__field">
+            <span className="t-palette__label">Estimate</span>
+            <div className="t-palette__field-input">
+              <input
+                type="number"
+                min={0}
+                step={5}
+                inputMode="numeric"
+                disabled={submitting}
+                value={estimate}
+                onChange={(e) => setEstimate(e.target.value)}
+                placeholder="—"
+              />
+              <span className="t-palette__suffix">min</span>
+            </div>
+          </label>
+          <label className="t-palette__field">
+            <span className="t-palette__label">Target date</span>
+            <div className="t-palette__field-input">
+              <input
+                type="date"
+                disabled={submitting}
+                value={targetDate}
+                onChange={(e) => setTargetDate(e.target.value)}
+              />
+              {targetDate !== todayDateString() && (
+                <button
+                  type="button"
+                  className="t-palette__chip"
+                  onClick={() => setTargetDate(todayDateString())}
+                  disabled={submitting}
+                >
+                  Today
+                </button>
+              )}
+              {targetDate !== '' && (
+                <button
+                  type="button"
+                  className="t-palette__chip t-palette__chip--ghost"
+                  onClick={() => setTargetDate('')}
+                  disabled={submitting}
+                  aria-label="Clear target date"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </label>
+        </div>
+        {error && <div className="t-palette__error">{error}</div>}
         <div className="t-palette__hints">
           <span className="t-palette__group">
             <span
@@ -712,7 +798,7 @@ function CapturePalette({
             <span className="t-kbd">!</span> priority
           </span>
           <span className="t-palette__ai">
-            ✦ AI drafts description, estimate, deadline
+            ✦ Estimate &amp; target date are optional — schedule when to start
           </span>
         </div>
       </form>
@@ -949,11 +1035,19 @@ export function TodayDashboard() {
     [display, filter, live],
   )
 
-  async function handleCapture(value: string) {
+  async function handleCapture(input: CaptureInput) {
     // "All" view captures into Inbox by default — explicit user intent comes from picking a group.
     const groupId =
       activeGroup === 'all' || activeGroup === 'inbox' ? null : activeGroup
-    await createTask({ title: value, groupId })
+    const softDeadline = input.targetDate
+      ? new Date(`${input.targetDate}T23:59:00`).getTime()
+      : null
+    await createTask({
+      title: input.title,
+      estimateMinutes: input.estimateMinutes,
+      softDeadline,
+      groupId,
+    })
   }
 
   async function handleCreateGroup(input: {
