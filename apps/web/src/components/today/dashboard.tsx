@@ -1,5 +1,5 @@
 import { api } from '@convex/_generated/api'
-import type { Doc } from '@convex/_generated/dataModel'
+import type { Doc, Id } from '@convex/_generated/dataModel'
 import { useUser } from '@clerk/tanstack-react-start'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery } from 'convex/react'
@@ -40,6 +40,36 @@ type Tweaks = {
 
 const ACCENT_OPTIONS = ['#2b6ef5', '#7b5cf6', '#16a34a', '#e25151', '#0a0a0a']
 const TWEAKS_STORAGE_KEY = 'today.tweaks.v1'
+
+// Token → hex. Stored as token strings so we can re-theme later without migrating data.
+const GROUP_COLOR_TOKENS = [
+  'indigo',
+  'violet',
+  'emerald',
+  'amber',
+  'rose',
+  'slate',
+] as const
+type GroupColorToken = (typeof GROUP_COLOR_TOKENS)[number]
+const GROUP_COLOR_HEX: Record<GroupColorToken, string> = {
+  indigo: '#5b6cf5',
+  violet: '#8b5cf6',
+  emerald: '#10b981',
+  amber: '#f59e0b',
+  rose: '#f43f5e',
+  slate: '#64748b',
+}
+function colorForGroup(color: string | undefined): string {
+  if (!color) return GROUP_COLOR_HEX.indigo
+  if ((GROUP_COLOR_TOKENS as readonly string[]).includes(color)) {
+    return GROUP_COLOR_HEX[color as GroupColorToken]
+  }
+  // hex literal fall-through
+  return color
+}
+
+// "all" = every task (no group filter); "inbox" = ungrouped (groupId === null); Id = that group
+type GroupFilter = 'all' | 'inbox' | Id<'taskGroups'>
 
 function loadTweaks(): Tweaks {
   if (typeof window === 'undefined')
@@ -438,14 +468,183 @@ function FilterChips({
   )
 }
 
+function GroupRail({
+  groups,
+  active,
+  onChange,
+  onNew,
+}: {
+  groups: Doc<'taskGroups'>[]
+  active: GroupFilter
+  onChange: (next: GroupFilter) => void
+  onNew: () => void
+}) {
+  return (
+    <div className="t-group-rail">
+      <button
+        type="button"
+        className={'t-group-pill' + (active === 'all' ? ' t-group-pill--active' : '')}
+        onClick={() => onChange('all')}
+      >
+        <span className="t-group-pill__icon">✦</span>
+        All
+      </button>
+      <button
+        type="button"
+        className={'t-group-pill' + (active === 'inbox' ? ' t-group-pill--active' : '')}
+        onClick={() => onChange('inbox')}
+      >
+        <span className="t-group-pill__icon">📥</span>
+        Inbox
+      </button>
+      {groups.map((g) => (
+        <button
+          key={g._id}
+          type="button"
+          className={'t-group-pill' + (active === g._id ? ' t-group-pill--active' : '')}
+          onClick={() => onChange(g._id)}
+        >
+          {g.icon ? (
+            <span className="t-group-pill__icon">{g.icon}</span>
+          ) : (
+            <span
+              className="t-group-pill__dot"
+              style={{ background: colorForGroup(g.color) }}
+            />
+          )}
+          {g.name}
+        </button>
+      ))}
+      <button
+        type="button"
+        className="t-group-pill t-group-pill--ghost"
+        onClick={onNew}
+        aria-label="New group"
+      >
+        <span className="t-group-pill__icon">＋</span>
+        New group
+      </button>
+    </div>
+  )
+}
+
+function NewGroupModal({
+  open,
+  onClose,
+  onCreate,
+}: {
+  open: boolean
+  onClose: () => void
+  onCreate: (input: { name: string; color: GroupColorToken; icon: string | null }) => Promise<void>
+}) {
+  const [name, setName] = useState('')
+  const [icon, setIcon] = useState('')
+  const [color, setColor] = useState<GroupColorToken>('indigo')
+  const [submitting, setSubmitting] = useState(false)
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  useEffect(() => {
+    if (open) {
+      setName('')
+      setIcon('')
+      setColor('indigo')
+      setSubmitting(false)
+      window.requestAnimationFrame(() => inputRef.current?.focus())
+    }
+  }, [open])
+  if (!open) return null
+  async function handleSubmit(e?: FormEvent) {
+    e?.preventDefault()
+    const trimmed = name.trim()
+    if (!trimmed || submitting) return
+    setSubmitting(true)
+    try {
+      await onCreate({ name: trimmed, color, icon: icon.trim() || null })
+      onClose()
+    } finally {
+      setSubmitting(false)
+    }
+  }
+  return (
+    <div
+      className="t-newgroup-bd"
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
+      }}
+    >
+      <form
+        className="t-newgroup"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+      >
+        <div className="t-newgroup__title">New group</div>
+        <input
+          ref={inputRef}
+          className="t-newgroup__input"
+          value={name}
+          disabled={submitting}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Group name (e.g. Personal, Launch, Bug bash)"
+        />
+        <div className="t-newgroup__row">
+          <input
+            className="t-newgroup__input"
+            style={{ width: 64, textAlign: 'center', flex: '0 0 64px' }}
+            value={icon}
+            maxLength={2}
+            disabled={submitting}
+            onChange={(e) => setIcon(e.target.value)}
+            placeholder="🚀"
+            aria-label="Emoji icon"
+          />
+          <div className="t-newgroup__swatches" role="radiogroup" aria-label="Group color">
+            {GROUP_COLOR_TOKENS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className="t-newgroup__swatch"
+                data-active={color === c}
+                style={{ background: GROUP_COLOR_HEX[c] }}
+                onClick={() => setColor(c)}
+                aria-label={`Color ${c}`}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="t-newgroup__actions">
+          <button
+            type="button"
+            className="t-newgroup__btn"
+            onClick={onClose}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="t-newgroup__btn t-newgroup__btn--primary"
+            disabled={submitting || name.trim() === ''}
+          >
+            {submitting ? 'Creating…' : 'Create group'}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 function CapturePalette({
   open,
   onClose,
   onSubmit,
+  groupLabel,
+  groupColor,
 }: {
   open: boolean
   onClose: () => void
   onSubmit: (value: string) => Promise<void>
+  groupLabel: string
+  groupColor: string
 }) {
   const [val, setVal] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -496,14 +695,18 @@ function CapturePalette({
           <span className="t-kbd">↵</span>
         </div>
         <div className="t-palette__hints">
+          <span className="t-palette__group">
+            <span
+              className="t-palette__group__dot"
+              style={{ background: groupColor }}
+            />
+            {groupLabel}
+          </span>
           <span>
             <span className="t-kbd">/</span> commands
           </span>
           <span>
             <span className="t-kbd">@</span> assign
-          </span>
-          <span>
-            <span className="t-kbd">#</span> project
           </span>
           <span>
             <span className="t-kbd">!</span> priority
@@ -648,8 +851,40 @@ export function TodayDashboard() {
   const meInitials = initialsFromName(userFullName, 'Y')
   const meInitial = meInitials[0] ?? 'Y'
 
-  const rawTasks = useQuery(api.tasks.list, {})
+  const [activeGroup, setActiveGroup] = useState<GroupFilter>('all')
+  const [newGroupOpen, setNewGroupOpen] = useState(false)
+
+  // Inbox = groupId null. Specific group = its Id. All = omit field entirely.
+  const taskQueryArgs =
+    activeGroup === 'all'
+      ? {}
+      : activeGroup === 'inbox'
+        ? { groupId: null as Id<'taskGroups'> | null }
+        : { groupId: activeGroup }
+
+  const rawTasks = useQuery(api.tasks.list, taskQueryArgs)
+  const groupsRaw = useQuery(api.groups.list, {})
+  const groups = useMemo(
+    () => (groupsRaw ?? []).slice().sort((a, b) => a.position - b.position),
+    [groupsRaw],
+  )
   const createTask = useMutation(api.tasks.create)
+  const createGroup = useMutation(api.groups.create)
+
+  const activeGroupDoc = useMemo(() => {
+    if (activeGroup === 'all' || activeGroup === 'inbox') return null
+    return groups.find((g) => g._id === activeGroup) ?? null
+  }, [activeGroup, groups])
+  const captureGroupLabel =
+    activeGroup === 'all'
+      ? 'Inbox'
+      : activeGroup === 'inbox'
+        ? 'Inbox'
+        : activeGroupDoc?.name ?? 'Inbox'
+  const captureGroupColor =
+    activeGroup === 'all' || activeGroup === 'inbox'
+      ? 'var(--t-ink-4)'
+      : colorForGroup(activeGroupDoc?.color)
 
   const [tweaks, setTweaksState] = useState<Tweaks>(() => loadTweaks())
   const setTweaks = useCallback((next: Tweaks) => {
@@ -715,7 +950,23 @@ export function TodayDashboard() {
   )
 
   async function handleCapture(value: string) {
-    await createTask({ title: value })
+    // "All" view captures into Inbox by default — explicit user intent comes from picking a group.
+    const groupId =
+      activeGroup === 'all' || activeGroup === 'inbox' ? null : activeGroup
+    await createTask({ title: value, groupId })
+  }
+
+  async function handleCreateGroup(input: {
+    name: string
+    color: GroupColorToken
+    icon: string | null
+  }) {
+    const id = await createGroup({
+      name: input.name,
+      color: input.color,
+      icon: input.icon ?? undefined,
+    })
+    setActiveGroup(id as Id<'taskGroups'>)
   }
 
   return (
@@ -737,6 +988,12 @@ export function TodayDashboard() {
           onCreate={() => setPaletteOpen(true)}
           meInitial={meInitial}
           brandLetter={meInitial}
+        />
+        <GroupRail
+          groups={groups}
+          active={activeGroup}
+          onChange={setActiveGroup}
+          onNew={() => setNewGroupOpen(true)}
         />
         <Hero
           tasks={display}
@@ -785,6 +1042,13 @@ export function TodayDashboard() {
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
         onSubmit={handleCapture}
+        groupLabel={captureGroupLabel}
+        groupColor={captureGroupColor}
+      />
+      <NewGroupModal
+        open={newGroupOpen}
+        onClose={() => setNewGroupOpen(false)}
+        onCreate={handleCreateGroup}
       />
       <TweaksPanel tweaks={tweaks} setTweaks={setTweaks} />
     </div>

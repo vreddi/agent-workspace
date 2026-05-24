@@ -20,6 +20,18 @@ export default defineSchema({
     title: v.string(),
     completed: v.boolean(),
   }).index('by_user', ['userId']),
+  taskGroups: defineTable({
+    creatorId: v.id('users'),
+    name: v.string(),
+    description: v.union(v.string(), v.null()),
+    color: v.string(),
+    icon: v.union(v.string(), v.null()),
+    position: v.number(),
+    archivedAt: v.union(v.number(), v.null()),
+    updatedAt: v.number(),
+  })
+    .index('by_creator', ['creatorId'])
+    .index('by_creator_archived_position', ['creatorId', 'archivedAt', 'position']),
   tasks: defineTable({
     title: v.string(),
     description: v.union(v.string(), v.null()),
@@ -30,8 +42,13 @@ export default defineSchema({
     softDeadline: v.union(v.number(), v.null()),
     hardDeadline: v.union(v.number(), v.null()),
     estimateMinutes: v.union(v.number(), v.null()),
+    groupId: v.optional(v.union(v.id('taskGroups'), v.null())),
+    groupPosition: v.optional(v.number()),
     updatedAt: v.number(),
-  }).index('by_assignee_status', ['assigneeUserId', 'status']),
+  })
+    .index('by_assignee_status', ['assigneeUserId', 'status'])
+    .index('by_assignee_group_status', ['assigneeUserId', 'groupId', 'status'])
+    .index('by_group_position', ['groupId', 'groupPosition']),
   taskEvents: defineTable({
     taskId: v.id('tasks'),
     actorId: v.id('users'),
