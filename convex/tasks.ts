@@ -44,7 +44,7 @@ type TaskChange = { field: string; before: string | null; after: string | null }
 
 type UpdateArgs = {
   title?: string
-  description?: string
+  description?: string | null
   status?: Doc<'tasks'>['status']
   softDeadline?: number | null
   hardDeadline?: number | null
@@ -68,7 +68,7 @@ function diffFields(task: Doc<'tasks'>, args: UpdateArgs) {
 export const create = mutation({
   args: {
     title: v.string(),
-    description: v.string(),
+    description: v.optional(v.string()),
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
     estimateMinutes: v.optional(v.union(v.number(), v.null())),
@@ -79,10 +79,8 @@ export const create = mutation({
     if (!title) {
       throw new ConvexError('Title is required')
     }
-    const description = args.description.trim()
-    if (!description) {
-      throw new ConvexError('Description is required')
-    }
+    const trimmedDescription = args.description?.trim() ?? ''
+    const description = trimmedDescription === '' ? null : trimmedDescription
     const softDeadline = args.softDeadline ?? null
     const hardDeadline = args.hardDeadline ?? null
     const estimateMinutes = args.estimateMinutes ?? null
@@ -104,10 +102,12 @@ export const create = mutation({
     })
     const changes: TaskChange[] = [
       { field: 'title', before: null, after: encode(title) },
-      { field: 'description', before: null, after: encode(description) },
       { field: 'status', before: null, after: encode('open') },
       { field: 'assigneeUserId', before: null, after: encode(userId) },
     ]
+    if (description !== null) {
+      changes.push({ field: 'description', before: null, after: encode(description) })
+    }
     if (softDeadline !== null) {
       changes.push({ field: 'softDeadline', before: null, after: encode(softDeadline) })
     }
@@ -131,7 +131,7 @@ export const update = mutation({
   args: {
     id: v.id('tasks'),
     title: v.optional(v.string()),
-    description: v.optional(v.string()),
+    description: v.optional(v.union(v.string(), v.null())),
     status: v.optional(taskStatus),
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
@@ -151,11 +151,12 @@ export const update = mutation({
       normalized.title = trimmed
     }
     if (args.description !== undefined) {
-      const trimmed = args.description.trim()
-      if (!trimmed) {
-        throw new ConvexError('Description is required')
+      if (args.description === null) {
+        normalized.description = null
+      } else {
+        const trimmed = args.description.trim()
+        normalized.description = trimmed === '' ? null : trimmed
       }
-      normalized.description = trimmed
     }
     if (args.status !== undefined) normalized.status = args.status
     if (args.softDeadline !== undefined) normalized.softDeadline = args.softDeadline
@@ -212,7 +213,11 @@ export const remove = mutation({
 
     const snapshot: TaskChange[] = [
       { field: 'title', before: encode(task.title), after: null },
-      { field: 'description', before: encode(task.description), after: null },
+      {
+        field: 'description',
+        before: task.description === null ? null : encode(task.description),
+        after: null,
+      },
       { field: 'status', before: encode(task.status), after: null },
       { field: 'assigneeUserId', before: encode(task.assigneeUserId), after: null },
       {

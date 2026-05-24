@@ -22,7 +22,7 @@ export default defineSchema({
   }).index('by_user', ['userId']),
   tasks: defineTable({
     title: v.string(),
-    description: v.string(),
+    description: v.union(v.string(), v.null()),
     creatorId: v.id('users'),
     assigneeUserId: v.id('users'),
     status: taskStatus,
