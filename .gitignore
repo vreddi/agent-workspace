@@ -52,6 +52,10 @@ apps/web/.env.local
 # Convex local deployment state (admin keys, instance secrets)
 .convex/
 
+# Stray Convex codegen that lands under apps/ when the CLI mis-locates its
+# output (canonical generated files live in convex/_generated/ at the root)
+apps/**/convex/_generated/
+
 # misc
 /.sass-cache
 /connect.lock
