@@ -9,6 +9,7 @@
  */
 
 import type * as clerk from "../clerk.js";
+import type * as tasks from "../tasks.js";
 import type * as todos from "../todos.js";
 import type * as users from "../users.js";
 
@@ -20,6 +21,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   clerk: typeof clerk;
+  tasks: typeof tasks;
   todos: typeof todos;
   users: typeof users;
 }>;

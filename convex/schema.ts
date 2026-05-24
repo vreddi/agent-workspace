@@ -1,6 +1,13 @@
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 
+export const taskStatus = v.union(
+  v.literal('open'),
+  v.literal('in_progress'),
+  v.literal('done'),
+  v.literal('cancelled'),
+)
+
 export default defineSchema({
   users: defineTable({
     externalId: v.string(),
@@ -13,4 +20,28 @@ export default defineSchema({
     title: v.string(),
     completed: v.boolean(),
   }).index('by_user', ['userId']),
+  tasks: defineTable({
+    title: v.string(),
+    description: v.union(v.string(), v.null()),
+    creatorId: v.id('users'),
+    assigneeUserId: v.id('users'),
+    status: taskStatus,
+    completedAt: v.union(v.number(), v.null()),
+    softDeadline: v.union(v.number(), v.null()),
+    hardDeadline: v.union(v.number(), v.null()),
+    estimateMinutes: v.union(v.number(), v.null()),
+    updatedAt: v.number(),
+  }).index('by_assignee_status', ['assigneeUserId', 'status']),
+  taskEvents: defineTable({
+    taskId: v.id('tasks'),
+    actorId: v.id('users'),
+    kind: v.union(v.literal('created'), v.literal('updated'), v.literal('deleted')),
+    changes: v.array(
+      v.object({
+        field: v.string(),
+        before: v.union(v.string(), v.null()),
+        after: v.union(v.string(), v.null()),
+      }),
+    ),
+  }).index('by_task', ['taskId']),
 })
