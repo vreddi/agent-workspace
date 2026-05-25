@@ -73,7 +73,7 @@ type GroupFilter = 'all' | 'inbox' | Id<'taskGroups'>
 
 function loadTweaks(): Tweaks {
   if (typeof window === 'undefined')
-    return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'casual', showAI: true }
+    return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'time-of-day', showAI: true }
   try {
     const raw = window.localStorage.getItem(TWEAKS_STORAGE_KEY)
     if (raw) {
@@ -81,14 +81,14 @@ function loadTweaks(): Tweaks {
       return {
         theme: parsed.theme === 'dark' ? 'dark' : 'light',
         accent: typeof parsed.accent === 'string' ? parsed.accent : ACCENT_OPTIONS[0]!,
-        greeting: parsed.greeting === 'time-of-day' ? 'time-of-day' : 'casual',
+        greeting: parsed.greeting === 'casual' ? 'casual' : 'time-of-day',
         showAI: parsed.showAI !== false,
       }
     }
   } catch {
     /* ignore */
   }
-  return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'casual', showAI: true }
+  return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'time-of-day', showAI: true }
 }
 
 function useLiveTime(intervalMs: number): Date {
