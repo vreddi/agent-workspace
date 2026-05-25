@@ -383,6 +383,25 @@ export const list = query({
   },
 })
 
+export const listUngrouped = query({
+  args: {},
+  handler: async (ctx): Promise<TaskListItem[]> => {
+    const userId = await requireUserId(ctx)
+    // Only open/in_progress ungrouped tasks — what the user is likely to want to file.
+    const rows = await ctx.db
+      .query('tasks')
+      .withIndex('by_assignee_group_status', (q) =>
+        q.eq('assigneeUserId', userId).eq('groupId', null),
+      )
+      .order('desc')
+      .take(200)
+    const filtered = rows.filter(
+      (t) => t.status === 'open' || t.status === 'in_progress',
+    )
+    return await hydrateAssignees(ctx, filtered)
+  },
+})
+
 export const reorder = mutation({
   args: {
     id: v.id('tasks'),

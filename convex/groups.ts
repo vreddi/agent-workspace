@@ -75,6 +75,7 @@ export const create = mutation({
     description: v.optional(v.string()),
     color: v.optional(v.string()),
     icon: v.optional(v.string()),
+    iconImageUrl: v.optional(v.union(v.string(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -85,6 +86,12 @@ export const create = mutation({
     const trimmedIcon = args.icon?.trim() ?? ''
     const icon = trimmedIcon === '' ? null : trimmedIcon
     const color = args.color?.trim() || 'indigo'
+    const iconImageUrl =
+      args.iconImageUrl === undefined || args.iconImageUrl === null
+        ? null
+        : args.iconImageUrl.trim() === ''
+          ? null
+          : args.iconImageUrl.trim()
     const position = await nextTailPosition(ctx, userId)
     const now = Date.now()
     return await ctx.db.insert('taskGroups', {
@@ -93,6 +100,7 @@ export const create = mutation({
       description,
       color,
       icon,
+      iconImageUrl,
       position,
       archivedAt: null,
       updatedAt: now,
@@ -107,6 +115,7 @@ export const update = mutation({
     description: v.optional(v.union(v.string(), v.null())),
     color: v.optional(v.string()),
     icon: v.optional(v.union(v.string(), v.null())),
+    iconImageUrl: v.optional(v.union(v.string(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -136,6 +145,14 @@ export const update = mutation({
       } else {
         const trimmed = args.icon.trim()
         patch.icon = trimmed === '' ? null : trimmed
+      }
+    }
+    if (args.iconImageUrl !== undefined) {
+      if (args.iconImageUrl === null) {
+        patch.iconImageUrl = null
+      } else {
+        const trimmed = args.iconImageUrl.trim()
+        patch.iconImageUrl = trimmed === '' ? null : trimmed
       }
     }
     if (Object.keys(patch).length === 0) return { changed: false }
@@ -191,6 +208,68 @@ export const remove = mutation({
       )
     }
     await ctx.db.delete(args.id)
+  },
+})
+
+async function nextGroupTaskTailPosition(
+  ctx: QueryCtx,
+  groupId: Id<'taskGroups'>,
+): Promise<number> {
+  const last = await ctx.db
+    .query('tasks')
+    .withIndex('by_group_position', (q) => q.eq('groupId', groupId))
+    .order('desc')
+    .take(1)
+  if (last.length === 0) return POSITION_STEP
+  const lastPos = last[0]!.groupPosition
+  if (lastPos === undefined) return Date.now()
+  return lastPos + POSITION_STEP
+}
+
+export const addTasks = mutation({
+  args: {
+    groupId: v.id('taskGroups'),
+    taskIds: v.array(v.id('tasks')),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx)
+    const group = await ctx.db.get(args.groupId)
+    assertCanEditGroup(group, userId)
+    if (args.taskIds.length === 0) return { moved: 0 }
+    if (args.taskIds.length > 100) {
+      throw new ConvexError('Cannot move more than 100 tasks at once')
+    }
+    let position = await nextGroupTaskTailPosition(ctx, args.groupId)
+    const now = Date.now()
+    let moved = 0
+    for (const taskId of args.taskIds) {
+      const task = await ctx.db.get(taskId)
+      if (!task) continue
+      const assignees = task.assigneeUserIds ?? [task.assigneeUserId]
+      if (task.creatorId !== userId && !assignees.includes(userId)) continue
+      // Only adopt tasks not already in this group; silently skip the no-ops.
+      if ((task.groupId ?? null) === args.groupId) continue
+      await ctx.db.patch(taskId, {
+        groupId: args.groupId,
+        groupPosition: position,
+        updatedAt: now,
+      })
+      await ctx.db.insert('taskEvents', {
+        taskId,
+        actorId: userId,
+        kind: 'updated',
+        changes: [
+          {
+            field: 'groupId',
+            before: task.groupId ? JSON.stringify(task.groupId) : null,
+            after: JSON.stringify(args.groupId),
+          },
+        ],
+      })
+      position += POSITION_STEP
+      moved += 1
+    }
+    return { moved }
   },
 })
 
