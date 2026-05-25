@@ -230,6 +230,30 @@ function Topbar({
         </svg>
         Day view
       </Link>
+      <Link
+        to="/groups"
+        className="t-icon-btn"
+        title="Groups"
+        aria-label="Groups"
+        style={{ paddingInline: 10, gap: 6, fontSize: 12, fontWeight: 600 }}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </svg>
+        Groups
+      </Link>
       <button className="t-btn-create" onClick={onCreate} type="button">
         <span style={{ fontSize: 18, lineHeight: 1, marginTop: -2 }}>＋</span>
         Create Task
