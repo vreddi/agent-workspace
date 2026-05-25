@@ -1,0 +1,223 @@
+import { api } from '@convex/_generated/api'
+import { Link } from '@tanstack/react-router'
+import { useQuery } from 'convex/react'
+import {
+  Background,
+  BackgroundVariant,
+  Controls,
+  MiniMap,
+  ReactFlow,
+  ReactFlowProvider,
+  useReactFlow,
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
+import { useEffect, useMemo, useState } from 'react'
+import { sortForToday, toDisplayTask, type DisplayTask } from '../today/helpers'
+import { bucketize } from './buckets'
+import { buildGraph, type DayNode } from './layout'
+import { nodeTypes } from './nodes'
+import { dayViewStyles } from './styles'
+
+type Theme = 'light' | 'dark'
+
+function useNow(intervalMs: number): Date {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), intervalMs)
+    return () => window.clearInterval(id)
+  }, [intervalMs])
+  return now
+}
+
+function startOfDayLabel(now: Date): { label: string; sub: string } {
+  const hour = now.getHours()
+  if (hour < 5) return { label: 'Late night', sub: "Tomorrow's day starts soon" }
+  if (hour < 12) return { label: 'Start of day', sub: 'Sunrise → ' + dayName(now) }
+  if (hour < 17) return { label: 'Day in motion', sub: 'Mid-' + dayName(now) }
+  return { label: 'Day winding down', sub: 'Evening of ' + dayName(now) }
+}
+
+function dayName(d: Date): string {
+  return d.toLocaleDateString('en-US', { weekday: 'long' })
+}
+
+function loadTheme(): Theme {
+  if (typeof window === 'undefined') return 'light'
+  try {
+    const raw = window.localStorage.getItem('today.tweaks.v1')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (parsed && parsed.theme === 'dark') return 'dark'
+    }
+  } catch {
+    /* ignore */
+  }
+  return 'light'
+}
+
+function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
+  const now = useNow(60_000)
+  const start = startOfDayLabel(now)
+  const buckets = useMemo(() => bucketize(tasks, now), [tasks, now])
+  const { nodes, edges } = useMemo(
+    () =>
+      buildGraph({
+        buckets,
+        startLabel: start.label,
+        endLabel: 'End of day',
+        startSub: start.sub,
+        endSub: 'Wrap up · review · rest',
+      }),
+    [buckets, start.label, start.sub],
+  )
+
+  const { fitView } = useReactFlow<DayNode>()
+  useEffect(() => {
+    // Defer one frame so layout sizing is committed before fitting.
+    const id = window.requestAnimationFrame(() => {
+      fitView({ padding: 0.18, duration: 600 })
+    })
+    return () => window.cancelAnimationFrame(id)
+  }, [nodes.length, edges.length, fitView])
+
+  return (
+    <ReactFlow
+      className="day-flow"
+      nodes={nodes}
+      edges={edges}
+      nodeTypes={nodeTypes}
+      nodesDraggable={false}
+      nodesConnectable={false}
+      elementsSelectable
+      panOnDrag
+      panOnScroll
+      zoomOnPinch
+      zoomOnScroll={false}
+      minZoom={0.35}
+      maxZoom={1.5}
+      fitView
+      fitViewOptions={{ padding: 0.18, duration: 0 }}
+      proOptions={{ hideAttribution: true }}
+    >
+      <Background variant={BackgroundVariant.Dots} gap={28} size={1.2} color="rgba(20,22,28,0.10)" />
+      <Controls position="bottom-right" showInteractive={false} />
+      <MiniMap
+        position="top-right"
+        pannable
+        zoomable
+        maskColor="rgba(20,22,28,0.06)"
+        nodeColor={(n) => {
+          const data = (n as DayNode).data
+          if (data.kind === 'anchor') return data.variant === 'start' ? '#f7c25c' : '#6b6fdc'
+          if (data.kind === 'bucket') return '#2b6ef5'
+          return data.task.overdue ? '#e25151' : '#16181d'
+        }}
+        nodeStrokeWidth={0}
+      />
+    </ReactFlow>
+  )
+}
+
+export function DayGraph() {
+  const rawTasks = useQuery(api.tasks.list, {})
+  const [theme, setTheme] = useState<Theme>(() => loadTheme())
+  const now = useNow(30_000)
+
+  useEffect(() => {
+    // Keep in sync with Today dashboard tweaks if the user toggles theme there.
+    function onStorage(e: StorageEvent) {
+      if (e.key === 'today.tweaks.v1') setTheme(loadTheme())
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
+  const display = useMemo<DisplayTask[]>(() => {
+    if (!rawTasks) return []
+    const openish = rawTasks.filter(
+      (t) => t.status === 'open' || t.status === 'in_progress',
+    )
+    return sortForToday(openish.map((t) => toDisplayTask(t, now.getTime())))
+  }, [rawTasks, now])
+
+  const overdueCount = display.filter((t) => t.overdue).length
+  const inProgress = display.filter((t) => t.raw.status === 'in_progress').length
+
+  return (
+    <div className="day-root" data-theme={theme}>
+      <style>{dayViewStyles}</style>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      />
+
+      <div className="d-topbar">
+        <Link to="/" className="d-back" aria-label="Back to Today">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+          Today
+        </Link>
+        <div className="d-title">
+          <div className="d-title__main">Day view</div>
+          <div className="d-title__sub">
+            {now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+          </div>
+        </div>
+        <div className="d-spacer" />
+        <div className="d-stat">
+          <b>{display.length}</b> task{display.length === 1 ? '' : 's'}
+        </div>
+        {inProgress > 0 && (
+          <div className="d-stat"><b>{inProgress}</b> in progress</div>
+        )}
+        {overdueCount > 0 && (
+          <div className="d-stat d-stat--alert"><b>{overdueCount}</b> overdue</div>
+        )}
+        <button
+          type="button"
+          className="d-back"
+          onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+          aria-label="Toggle theme"
+          style={{ paddingRight: 14 }}
+        >
+          {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+        </button>
+      </div>
+
+      {rawTasks === undefined ? (
+        <div className="d-empty">
+          <div className="d-empty__title">Loading your day…</div>
+          <div className="d-empty__body">Pulling tasks from the server.</div>
+        </div>
+      ) : display.length === 0 ? (
+        <div className="d-empty">
+          <div className="d-empty__title">Your day is clear</div>
+          <div className="d-empty__body">
+            Nothing on the board for today. Capture a thought from the Today view
+            and it will appear here in its time slot.
+          </div>
+        </div>
+      ) : (
+        <ReactFlowProvider>
+          <DayGraphInner tasks={display} />
+        </ReactFlowProvider>
+      )}
+
+      <div className="d-legend">
+        <div className="d-legend__title">Legend</div>
+        <div className="d-legend__row">
+          <span className="d-legend__chip d-legend__chip--default" /> Time bucket
+        </div>
+        <div className="d-legend__row">
+          <span className="d-legend__chip d-legend__chip--active" /> In progress
+        </div>
+        <div className="d-legend__row">
+          <span className="d-legend__chip d-legend__chip--overdue" /> Overdue
+        </div>
+      </div>
+    </div>
+  )
+}

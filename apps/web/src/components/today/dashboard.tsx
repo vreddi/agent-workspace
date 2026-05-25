@@ -204,6 +204,32 @@ function Topbar({
         <LiveClock />
       </div>
       <span style={{ flex: 1 }} />
+      <Link
+        to="/day"
+        className="t-icon-btn"
+        title="Day view (graph)"
+        aria-label="Day view"
+        style={{ width: 'auto', padding: '0 12px', gap: 8, fontSize: 12, fontWeight: 600 }}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="5" r="2" />
+          <circle cx="6" cy="12" r="2" />
+          <circle cx="18" cy="12" r="2" />
+          <circle cx="9" cy="19" r="2" />
+          <circle cx="15" cy="19" r="2" />
+          <path d="M12 7v3M6 14v3M18 14v3M10.5 6.5L7.5 10.5M13.5 6.5l3 4M7.5 14l1.5 3.5M16.5 14l-1.5 3.5" />
+        </svg>
+        Day view
+      </Link>
       <button className="t-btn-create" onClick={onCreate} type="button">
         <span style={{ fontSize: 18, lineHeight: 1, marginTop: -2 }}>＋</span>
         Create Task
