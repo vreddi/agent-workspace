@@ -37,6 +37,9 @@ export default defineSchema({
     description: v.union(v.string(), v.null()),
     creatorId: v.id('users'),
     assigneeUserId: v.id('users'),
+    // Full set of assignees (primary first). Optional for rows created before
+    // multi-assign existed; readers should fall back to [assigneeUserId].
+    assigneeUserIds: v.optional(v.array(v.id('users'))),
     status: taskStatus,
     completedAt: v.union(v.number(), v.null()),
     softDeadline: v.union(v.number(), v.null()),
