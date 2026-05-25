@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
+import { Route as AuthenticatedDayRouteImport } from './routes/_authenticated/day'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks.$taskId'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
@@ -29,6 +30,11 @@ const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDayRoute = AuthenticatedDayRouteImport.update({
+  id: '/day',
+  path: '/day',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   id: '/groups',
@@ -50,6 +56,7 @@ const AuthenticatedGroupsGroupIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/day': typeof AuthenticatedDayRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/day': typeof AuthenticatedDayRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
@@ -66,6 +74,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/day': typeof AuthenticatedDayRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
@@ -75,6 +84,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/day'
     | '/groups'
     | '/api/uploadthing'
     | '/groups/$groupId'
@@ -82,6 +92,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/day'
     | '/groups'
     | '/api/uploadthing'
     | '/groups/$groupId'
@@ -90,6 +101,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/day'
     | '/_authenticated/groups'
     | '/api/uploadthing'
     | '/_authenticated/groups/$groupId'
@@ -117,6 +129,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/day': {
+      id: '/_authenticated/day'
+      path: '/day'
+      fullPath: '/day'
+      preLoaderRoute: typeof AuthenticatedDayRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/api/uploadthing': {
       id: '/api/uploadthing'
@@ -161,11 +180,13 @@ const AuthenticatedGroupsRouteWithChildren =
   AuthenticatedGroupsRoute._addFileChildren(AuthenticatedGroupsRouteChildren)
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedDayRoute: typeof AuthenticatedDayRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedTasksTaskIdRoute: typeof AuthenticatedTasksTaskIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDayRoute: AuthenticatedDayRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedTasksTaskIdRoute: AuthenticatedTasksTaskIdRoute,
 }

@@ -14,6 +14,7 @@
   "dependencies": {
     "@clerk/tanstack-react-start": "^0.27.11",
     "@convex-dev/react-query": "^0.1.0",
+    "@dagrejs/dagre": "^3.0.0",
     "@org/ui": "workspace:*",
     "@t3-oss/env-core": "^0.13.11",
     "@tanstack/react-query": "^5.100.10",
@@ -21,6 +22,7 @@
     "@tanstack/react-router-ssr-query": "^1.167.0",
     "@tanstack/react-start": "^1.168.2",
     "@uploadthing/react": "^7.3.3",
+    "@xyflow/react": "^12.10.2",
     "convex": "^1.39.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
