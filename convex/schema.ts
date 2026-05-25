@@ -26,6 +26,7 @@ export default defineSchema({
     description: v.union(v.string(), v.null()),
     color: v.string(),
     icon: v.union(v.string(), v.null()),
+    iconImageUrl: v.optional(v.union(v.string(), v.null())),
     position: v.number(),
     archivedAt: v.union(v.number(), v.null()),
     updatedAt: v.number(),
