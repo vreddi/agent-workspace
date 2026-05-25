@@ -42,13 +42,20 @@ async function nextGroupTailPosition(
 
 const encode = (value: unknown): string => JSON.stringify(value)
 
+function taskAssigneeIds(task: Doc<'tasks'>): Id<'users'>[] {
+  if (task.assigneeUserIds && task.assigneeUserIds.length > 0) {
+    return task.assigneeUserIds
+  }
+  return [task.assigneeUserId]
+}
+
 function assertCanEditTask(task: Doc<'tasks'> | null, userId: Id<'users'>): asserts task is Doc<'tasks'> {
   if (!task) {
     throw new ConvexError('Task not found')
   }
-  if (task.creatorId !== userId && task.assigneeUserId !== userId) {
-    throw new ConvexError('Forbidden')
-  }
+  if (task.creatorId === userId) return
+  if (taskAssigneeIds(task).includes(userId)) return
+  throw new ConvexError('Forbidden')
 }
 
 type DiffableField =
@@ -129,6 +136,7 @@ export const create = mutation({
       description,
       creatorId: userId,
       assigneeUserId: userId,
+      assigneeUserIds: [userId],
       status: 'open',
       completedAt: null,
       softDeadline,
@@ -301,18 +309,59 @@ export const remove = mutation({
   },
 })
 
+export type TaskAssignee = {
+  userId: Id<'users'>
+  name: string
+  email: string
+  imageUrl: string | null
+}
+
+export type TaskListItem = Doc<'tasks'> & {
+  assignees: TaskAssignee[]
+}
+
+async function hydrateAssignees(
+  ctx: QueryCtx,
+  tasks: Doc<'tasks'>[],
+): Promise<TaskListItem[]> {
+  const ids = new Set<Id<'users'>>()
+  for (const task of tasks) {
+    for (const id of taskAssigneeIds(task)) ids.add(id)
+  }
+  const cache = new Map<Id<'users'>, TaskAssignee>()
+  await Promise.all(
+    Array.from(ids).map(async (id) => {
+      const user = await ctx.db.get(id)
+      if (!user) return
+      cache.set(id, {
+        userId: id,
+        name: user.name,
+        email: user.email,
+        imageUrl: user.imageUrl ?? null,
+      })
+    }),
+  )
+  return tasks.map((task) => ({
+    ...task,
+    assignees: taskAssigneeIds(task)
+      .map((id) => cache.get(id))
+      .filter((a): a is TaskAssignee => a !== undefined),
+  }))
+}
+
 export const list = query({
   args: {
     status: v.optional(taskStatus),
     // null = Inbox (ungrouped). Omit field = all groups.
     groupId: v.optional(v.union(v.id('taskGroups'), v.null())),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<TaskListItem[]> => {
     const userId = await requireUserId(ctx)
     const status = args.status
+    let tasks: Doc<'tasks'>[]
     if (args.groupId !== undefined) {
       const groupId = args.groupId
-      return await ctx.db
+      tasks = await ctx.db
         .query('tasks')
         .withIndex('by_assignee_group_status', (q) =>
           status
@@ -321,20 +370,22 @@ export const list = query({
         )
         .order('desc')
         .take(200)
+    } else {
+      tasks = await ctx.db
+        .query('tasks')
+        .withIndex('by_assignee_status', (q) =>
+          status ? q.eq('assigneeUserId', userId).eq('status', status) : q.eq('assigneeUserId', userId),
+        )
+        .order('desc')
+        .take(200)
     }
-    return await ctx.db
-      .query('tasks')
-      .withIndex('by_assignee_status', (q) =>
-        status ? q.eq('assigneeUserId', userId).eq('status', status) : q.eq('assigneeUserId', userId),
-      )
-      .order('desc')
-      .take(200)
+    return await hydrateAssignees(ctx, tasks)
   },
 })
 
 export const listUngrouped = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async (ctx): Promise<TaskListItem[]> => {
     const userId = await requireUserId(ctx)
     // Only open/in_progress ungrouped tasks — what the user is likely to want to file.
     const rows = await ctx.db
@@ -344,7 +395,10 @@ export const listUngrouped = query({
       )
       .order('desc')
       .take(200)
-    return rows.filter((t) => t.status === 'open' || t.status === 'in_progress')
+    const filtered = rows.filter(
+      (t) => t.status === 'open' || t.status === 'in_progress',
+    )
+    return await hydrateAssignees(ctx, filtered)
   },
 })
 

@@ -245,7 +245,8 @@ export const addTasks = mutation({
     for (const taskId of args.taskIds) {
       const task = await ctx.db.get(taskId)
       if (!task) continue
-      if (task.assigneeUserId !== userId && task.creatorId !== userId) continue
+      const assignees = task.assigneeUserIds ?? [task.assigneeUserId]
+      if (task.creatorId !== userId && !assignees.includes(userId)) continue
       // Only adopt tasks not already in this group; silently skip the no-ops.
       if ((task.groupId ?? null) === args.groupId) continue
       await ctx.db.patch(taskId, {

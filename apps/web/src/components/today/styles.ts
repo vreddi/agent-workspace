@@ -258,23 +258,31 @@ export const todayStyles = `
 }
 .t-card:hover { transform: translateY(-2px); box-shadow: var(--t-shadow-elev); }
 .t-card--overdue { box-shadow: 0 0 0 1.5px var(--t-overdue-soft) inset, var(--t-shadow-card); }
-.t-card__hdr { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
-.t-card__name {
-  font-size: 14.5px; font-weight: 700; color: var(--t-ink-1);
-  letter-spacing: -0.01em;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.t-card__hdr {
+  display: flex; gap: 12px;
+  align-items: flex-start; justify-content: space-between;
+  min-width: 0;
 }
 .t-card__date {
+  flex-shrink: 0;
   font-size: 12px; font-weight: 700; color: var(--t-accent);
   font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
   display: flex; align-items: center; gap: 8px;
-  margin-top: 1px;
+  padding-top: 4px;
 }
 .t-card__date--overdue { color: var(--t-overdue); }
 .t-card__date .t-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--t-ink-4); }
 .t-card__countdown { font-size: 11.5px; font-weight: 600; color: var(--t-ink-2); }
 .t-card__countdown--overdue { color: var(--t-overdue); }
-.t-card__title { margin: 0; font-size: 15.5px; font-weight: 700; letter-spacing: -0.012em; line-height: 1.35; color: var(--t-ink-1); text-wrap: pretty; }
+.t-card__title {
+  margin: 0; flex: 1; min-width: 0;
+  font-size: 17px; font-weight: 700;
+  letter-spacing: -0.015em; line-height: 1.3;
+  color: var(--t-ink-1);
+  text-wrap: pretty;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .t-card__body {
   margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--t-ink-2);
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
@@ -325,7 +333,9 @@ export const todayStyles = `
   font-size: 14px; font-weight: 700; flex-shrink: 0;
   letter-spacing: -0.01em;
   box-shadow: inset 0 -2px 0 rgba(0,0,0,0.06);
+  object-fit: cover; background-color: var(--t-chip-bg);
 }
+img.t-avatar { display: block; }
 .t-avatar--sm {
   width: 26px; height: 26px; border-radius: 8px; font-size: 11px;
   box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08), 0 0 0 2px var(--t-surface);

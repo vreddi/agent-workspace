@@ -14,6 +14,7 @@ import {
 import { BrandIcon } from './brand-icons'
 import { todayStyles } from './styles'
 import {
+  type DisplayAssignee,
   type DisplayTask,
   type FilterId,
   type Tone,
@@ -73,7 +74,7 @@ type GroupFilter = 'all' | 'inbox' | Id<'taskGroups'>
 
 function loadTweaks(): Tweaks {
   if (typeof window === 'undefined')
-    return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'casual', showAI: true }
+    return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'time-of-day', showAI: true }
   try {
     const raw = window.localStorage.getItem(TWEAKS_STORAGE_KEY)
     if (raw) {
@@ -81,14 +82,14 @@ function loadTweaks(): Tweaks {
       return {
         theme: parsed.theme === 'dark' ? 'dark' : 'light',
         accent: typeof parsed.accent === 'string' ? parsed.accent : ACCENT_OPTIONS[0]!,
-        greeting: parsed.greeting === 'time-of-day' ? 'time-of-day' : 'casual',
+        greeting: parsed.greeting === 'casual' ? 'casual' : 'time-of-day',
         showAI: parsed.showAI !== false,
       }
     }
   } catch {
     /* ignore */
   }
-  return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'casual', showAI: true }
+  return { theme: 'light', accent: ACCENT_OPTIONS[0]!, greeting: 'time-of-day', showAI: true }
 }
 
 function useLiveTime(intervalMs: number): Date {
@@ -103,31 +104,59 @@ function useLiveTime(intervalMs: number): Date {
 function Avatar({
   tone,
   initials,
+  imageUrl,
+  name,
   small,
 }: {
   tone: Tone
   initials: string
+  imageUrl?: string | null
+  name?: string
   small?: boolean
 }) {
   const style = TONE_STYLES[tone]
+  const className = 't-avatar' + (small ? ' t-avatar--sm' : '')
+  if (imageUrl) {
+    return (
+      <img
+        className={className}
+        src={imageUrl}
+        alt={name ?? initials}
+        title={name}
+      />
+    )
+  }
   return (
     <div
-      className={'t-avatar' + (small ? ' t-avatar--sm' : '')}
+      className={className}
       style={{ background: style.bg, color: style.fg }}
+      title={name}
     >
       {initials}
     </div>
   )
 }
 
-function AvatarStack({ ids, max = 3 }: { ids: string[]; max?: number }) {
-  const tones: Tone[] = ['sage', 'rose', 'fog', 'clay', 'sand', 'slate']
-  const shown = ids.slice(0, max)
-  const extra = ids.length - shown.length
+function AvatarStack({
+  assignees,
+  max = 3,
+}: {
+  assignees: DisplayAssignee[]
+  max?: number
+}) {
+  const shown = assignees.slice(0, max)
+  const extra = assignees.length - shown.length
   return (
     <div className="t-avatar-stack">
-      {shown.map((id, i) => (
-        <Avatar key={id + i} tone={tones[i % tones.length]!} initials={id} small />
+      {shown.map((a) => (
+        <Avatar
+          key={a.userId}
+          tone={a.tone}
+          initials={a.initials}
+          imageUrl={a.imageUrl}
+          name={a.name}
+          small
+        />
       ))}
       {extra > 0 && <span className="t-count">{extra}+</span>}
     </div>
@@ -283,6 +312,7 @@ function AIBrief({ tasks }: { tasks: DisplayTask[] }) {
 
 function UpNext({ task, now }: { task: DisplayTask; now: Date }) {
   const cd = fmtCountdown(task.deadline, now.getTime())
+  const primary = task.assignees[0]
   return (
     <div className="t-upnext">
       <div className="t-upnext__eyebrow">
@@ -295,8 +325,18 @@ function UpNext({ task, now }: { task: DisplayTask; now: Date }) {
         <small>until due</small>
       </div>
       <div className="t-upnext__assignee">
-        <Avatar tone={task.assigneeTone} initials={task.assigneeInitials} small />
-        <span className="t-upnext__assignee-name">{task.assigneeName}</span>
+        {primary && (
+          <>
+            <Avatar
+              tone={primary.tone}
+              initials={primary.initials}
+              imageUrl={primary.imageUrl}
+              name={primary.name}
+              small
+            />
+            <span className="t-upnext__assignee-name">{primary.name}</span>
+          </>
+        )}
         <span style={{ flex: 1 }} />
         {task.source && (
           <div className="t-source-chip">
@@ -393,9 +433,8 @@ function TaskCard({
       }
     >
       <header className="t-card__hdr">
-        <Avatar tone={task.assigneeTone} initials={task.assigneeInitials} />
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="t-card__name">{task.assigneeName}</div>
+        <h3 className="t-card__title">{task.title}</h3>
+        {task.deadline && (
           <div className={'t-card__date' + (task.overdue ? ' t-card__date--overdue' : '')}>
             {fmtDateBadge(task.deadline)}
             {cd && <span className="t-dot" />}
@@ -410,10 +449,9 @@ function TaskCard({
               </span>
             )}
           </div>
-        </div>
+        )}
       </header>
 
-      <h3 className="t-card__title">{task.title}</h3>
       {task.body ? (
         <p className="t-card__body">{task.body}</p>
       ) : task.fresh ? (
@@ -445,7 +483,7 @@ function TaskCard({
             Capturing…
           </div>
         )}
-        <AvatarStack ids={task.collaborators} max={3} />
+        <AvatarStack assignees={task.assignees} max={3} />
       </div>
     </Link>
   )
@@ -1036,13 +1074,11 @@ export function TodayDashboard() {
   const display = useMemo<DisplayTask[]>(() => {
     if (!rawTasks) return []
     const openish = rawTasks.filter(
-      (t: Doc<'tasks'>) => t.status === 'open' || t.status === 'in_progress',
+      (t) => t.status === 'open' || t.status === 'in_progress',
     )
-    const mapped = openish.map((t: Doc<'tasks'>) =>
-      toDisplayTask(t, userFirst === 'there' ? 'You' : userFullName || 'You', meInitials, live.getTime()),
-    )
+    const mapped = openish.map((t) => toDisplayTask(t, live.getTime()))
     return sortForToday(mapped)
-  }, [rawTasks, userFirst, userFullName, meInitials, live])
+  }, [rawTasks, live])
 
   const counts = useMemo(
     () => ({
