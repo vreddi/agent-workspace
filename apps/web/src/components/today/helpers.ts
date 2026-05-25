@@ -1,4 +1,5 @@
-import type { Doc } from '@convex/_generated/dataModel'
+import type { Doc, Id } from '@convex/_generated/dataModel'
+import type { TaskListItem } from '@convex/tasks'
 
 export type Tone = 'sand' | 'sage' | 'clay' | 'fog' | 'rose' | 'slate' | 'graphite'
 
@@ -43,8 +44,6 @@ const SOURCES: { kind: SourceKind; label: string }[] = [
   { kind: 'slack', label: 'Thread' },
 ]
 
-const FAKE_INITIALS = ['DR', 'MT', 'JV', 'LN', 'EG', 'PK', 'AR']
-
 export function hashString(value: string): number {
   let h = 2166136261
   for (let i = 0; i < value.length; i++) {
@@ -66,12 +65,24 @@ export function sourceFor(key: string): { kind: SourceKind; label: string } {
   return pick(SOURCES, key)
 }
 
-export function collaboratorsFor(key: string, selfInitials: string): string[] {
-  const a = pick(FAKE_INITIALS, key, 0)
-  const b = pick(FAKE_INITIALS, key, 7)
-  const c = pick(FAKE_INITIALS, key, 13)
-  const unique = Array.from(new Set([selfInitials, a, b, c]))
-  return unique.slice(0, 3)
+export type DisplayAssignee = {
+  userId: Id<'users'>
+  name: string
+  initials: string
+  imageUrl: string | null
+  tone: Exclude<Tone, 'graphite'>
+}
+
+export function toDisplayAssignees(
+  assignees: TaskListItem['assignees'],
+): DisplayAssignee[] {
+  return assignees.map((a) => ({
+    userId: a.userId,
+    name: a.name && a.name.trim() !== '' ? a.name : a.email,
+    initials: initialsFromName(a.name || a.email, '?'),
+    imageUrl: a.imageUrl,
+    tone: toneFor(a.userId),
+  }))
 }
 
 export function aiSuggestionFor(task: Doc<'tasks'>): string {
@@ -89,16 +100,13 @@ export function aiSuggestionFor(task: Doc<'tasks'>): string {
 
 export type DisplayTask = {
   id: string
-  raw: Doc<'tasks'>
+  raw: TaskListItem
   title: string
   body: string | null
   deadline: Date | null
   overdue: boolean
-  assigneeName: string
-  assigneeInitials: string
-  assigneeTone: Tone
+  assignees: DisplayAssignee[]
   source: { kind: SourceKind; label: string } | null
-  collaborators: string[]
   aiSuggestion: string
   fresh: boolean
 }
@@ -108,12 +116,7 @@ export function deriveDeadline(task: Doc<'tasks'>): Date | null {
   return ms ? new Date(ms) : null
 }
 
-export function toDisplayTask(
-  task: Doc<'tasks'>,
-  selfName: string,
-  selfInitials: string,
-  now: number,
-): DisplayTask {
+export function toDisplayTask(task: TaskListItem, now: number): DisplayTask {
   const deadline = deriveDeadline(task)
   const open = task.status === 'open' || task.status === 'in_progress'
   const overdue = !!(deadline && open && deadline.getTime() < now)
@@ -124,11 +127,8 @@ export function toDisplayTask(
     body: task.description,
     deadline,
     overdue,
-    assigneeName: selfName,
-    assigneeInitials: selfInitials,
-    assigneeTone: toneFor(task._id),
+    assignees: toDisplayAssignees(task.assignees),
     source: sourceFor(task._id),
-    collaborators: collaboratorsFor(task._id, selfInitials),
     aiSuggestion: aiSuggestionFor(task),
     fresh: false,
   }
