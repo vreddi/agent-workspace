@@ -9,6 +9,7 @@
     "dev:web": "convex dev --env-file apps/web/.env.local --start \"pnpm --filter @org/web dev\"",
     "convex:env:sync": "bash scripts/sync-convex-clerk-env.sh",
     "deploy:web": "pnpm --filter @org/web cf-deploy",
+    "wrangler": "pnpm --filter @org/web exec wrangler",
     "storybook": "nx run @org/storybook:storybook",
     "build-storybook": "nx run @org/storybook:build-storybook",
     "chromatic": "nx run @org/storybook:chromatic"

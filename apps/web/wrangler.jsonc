@@ -1,9 +1,13 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "org-web-todo",
+  "account_id": "e453d753b343710951ac048bab41c846",
   "compatibility_date": "2026-05-16",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "vars": {
+    "VITE_CONVEX_URL": "https://hidden-donkey-398.convex.cloud"
+  },
   "observability": {
     "enabled": true
   }
