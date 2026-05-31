@@ -1,7 +1,20 @@
 import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
-import { useUser } from '@clerk/tanstack-react-start'
+import { useClerk, useUser } from '@clerk/tanstack-react-start'
 import { Link } from '@tanstack/react-router'
+import {
+  Avatar as UIAvatar,
+  AvatarFallback as UIAvatarFallback,
+  AvatarImage as UIAvatarImage,
+} from '@org/ui/components/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@org/ui/components/dropdown-menu'
 import { useMutation, useQuery } from 'convex/react'
 import {
   type FormEvent,
@@ -178,13 +191,106 @@ function LiveClock() {
   )
 }
 
+function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
+  const { user } = useUser()
+  const { signOut } = useClerk()
+  const fullName =
+    user?.fullName ??
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ??
+    user?.primaryEmailAddress?.emailAddress ??
+    'You'
+  const email = user?.primaryEmailAddress?.emailAddress
+  const initials = initialsFromName(fullName, 'Y')
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label="Open account menu"
+          className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[11px] border-0 bg-transparent p-0 outline-none transition-transform focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px"
+        >
+          <UIAvatar className="size-10 rounded-[11px] after:rounded-[11px]">
+            <UIAvatarImage
+              src={user?.imageUrl}
+              alt={fullName}
+              className="rounded-[11px]"
+            />
+            <UIAvatarFallback className="rounded-[11px] bg-gradient-to-br from-[#18a86b] to-[#0e7a4d] text-[15px] font-extrabold tracking-tight text-white shadow-[inset_0_-2px_0_rgba(0,0,0,0.12)]">
+              {initials}
+            </UIAvatarFallback>
+          </UIAvatar>
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" sideOffset={8} className="w-56">
+        <DropdownMenuLabel className="flex flex-col gap-0.5">
+          <span className="truncate text-sm font-semibold text-foreground">
+            {fullName}
+          </span>
+          {email && (
+            <span className="truncate text-xs font-normal text-muted-foreground">
+              {email}
+            </span>
+          )}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault()
+            onOpenSettings()
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.36.39.58.91.6 1.51H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          Settings
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          variant="destructive"
+          onSelect={() => {
+            void signOut({ redirectUrl: '/' })
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 function Topbar({
   onCreate,
-  meInitial,
+  onOpenSettings,
   brandLetter,
 }: {
   onCreate: () => void
-  meInitial: string
+  onOpenSettings: () => void
   brandLetter: string
 }) {
   const live = useLiveTime(60_000)
@@ -295,7 +401,7 @@ function Topbar({
         </svg>
         <span className="t-icon-btn__dot" />
       </button>
-      <div className="t-me-pill">{meInitial}</div>
+      <UserMenu onOpenSettings={onOpenSettings} />
     </div>
   )
 }
@@ -897,11 +1003,15 @@ function CapturePalette({
 function TweaksPanel({
   tweaks,
   setTweaks,
+  open,
+  onOpenChange,
 }: {
   tweaks: Tweaks
   setTweaks: (t: Tweaks) => void
+  open: boolean
+  onOpenChange: (next: boolean) => void
 }) {
-  const [open, setOpen] = useState(false)
+  const setOpen = onOpenChange
   if (!open) {
     return (
       <div className="t-tweaks">
@@ -1081,6 +1191,7 @@ export function TodayDashboard() {
 
   const [filter, setFilter] = useState<FilterId>('all')
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const [tweaksOpen, setTweaksOpen] = useState(false)
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -1166,7 +1277,7 @@ export function TodayDashboard() {
       <div className="t-main">
         <Topbar
           onCreate={() => setPaletteOpen(true)}
-          meInitial={meInitial}
+          onOpenSettings={() => setTweaksOpen(true)}
           brandLetter={meInitial}
         />
         <GroupRail
@@ -1230,7 +1341,12 @@ export function TodayDashboard() {
         onClose={() => setNewGroupOpen(false)}
         onCreate={handleCreateGroup}
       />
-      <TweaksPanel tweaks={tweaks} setTweaks={setTweaks} />
+      <TweaksPanel
+        tweaks={tweaks}
+        setTweaks={setTweaks}
+        open={tweaksOpen}
+        onOpenChange={setTweaksOpen}
+      />
     </div>
   )
 }
