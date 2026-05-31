@@ -1,0 +1,36 @@
+{
+  "name": "@worldkit/sprite-actor",
+  "version": "0.0.1",
+  "description": "Fully controllable sprite-sheet character component for 2D worlds. One <SpriteActor /> per character; render any action your sheet has frames for.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "sideEffects": false,
+  "imports": {
+    "#lib/*": "./src/lib/*.ts",
+    "#components/*": "./src/components/*.tsx",
+    "#examples/*": "./src/examples/*.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./examples": "./src/examples/index.ts",
+    "./examples/*": "./src/examples/*.ts"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "~5.9.2"
+  }
+}

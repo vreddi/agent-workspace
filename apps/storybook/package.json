@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@org/ui": "workspace:*",
+    "@worldkit/sprite-actor": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
