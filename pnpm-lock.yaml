@@ -72,6 +72,9 @@ importers:
       '@org/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@worldkit/sprite-actor':
+        specifier: workspace:*
+        version: link:../../packages/sprite-actor
       react:
         specifier: ^19.0.0
         version: 19.2.6
@@ -248,6 +251,24 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@types/node@22.19.19)(msw@2.14.6(@types/node@22.19.19)(typescript@5.9.3))(vite@7.3.3(@types/node@22.19.19)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.8.0))
+
+  packages/sprite-actor:
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.2.14)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.6
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.6(react@19.2.6)
+      typescript:
+        specifier: ~5.9.2
+        version: 5.9.3
 
   packages/ui:
     dependencies:
