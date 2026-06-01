@@ -16,6 +16,9 @@ Welcome to the WorldKit documentation. Here's a guide to what you'll find:
 ### 💭 [DESIGN_DECISIONS.md](./DESIGN_DECISIONS.md)
 **For the curious.** Explains the "why" behind architectural choices (plain objects vs. classes, actions as boundaries, immutable updates, etc.). Read this if you want to understand trade-offs and rationale.
 
+### 💰 [clerk-auth-cost-projection.md](./clerk-auth-cost-projection.md)
+**For planning & ops.** Cost projection and COGS analysis for Clerk authentication — pricing model, billed-MAU vs. registered accounts, growth scenarios, and upgrade triggers for the Website Launch.
+
 ---
 
 ## Document Overview
@@ -26,6 +29,7 @@ Welcome to the WorldKit documentation. Here's a guide to what you'll find:
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Package structure, data flow, dependencies | Developers, architects | 15-20 min |
 | [GETTING_STARTED.md](./GETTING_STARTED.md) | Setup, commands, development workflow | Developers | 10-15 min |
 | [DESIGN_DECISIONS.md](./DESIGN_DECISIONS.md) | Rationale for key choices, trade-offs | Developers, future maintainers | 15-20 min |
+| [clerk-auth-cost-projection.md](./clerk-auth-cost-projection.md) | Clerk auth pricing model, growth projections, COGS | Founders, ops, finance | 10-15 min |
 
 ---
 
