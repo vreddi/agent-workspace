@@ -82,3 +82,6 @@ Thumbs.db
 
 # Playwright MCP plugin scratch artifacts (page snapshots, console logs)
 .playwright-mcp/
+
+# Raw asset downloads (extracted into packages/*/src/assets)
+craftpix-net-*/

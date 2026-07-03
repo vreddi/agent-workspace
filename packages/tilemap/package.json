@@ -1,0 +1,37 @@
+{
+  "name": "@worldkit/tilemap",
+  "version": "0.0.1",
+  "description": "GBA-style pixel-art tiles, ASCII map authoring, and a Canvas2D renderer on top of @worldkit/world.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "@org/source": "./src/index.ts",
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@worldkit/grid": "workspace:*",
+    "@worldkit/world": "workspace:*"
+  },
+  "devDependencies": {
+    "@worldkit/pathfinding": "workspace:*",
+    "tsdown": "catalog:",
+    "vitest": "catalog:"
+  }
+}

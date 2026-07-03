@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc",
+    "rootDir": "./src",
+    "lib": ["es2022", "dom"]
+  },
+  "include": ["src"],
+  "exclude": ["dist", "out-tsc", "node_modules", "**/*.test.ts"],
+  "references": [
+    {
+      "path": "../world"
+    },
+    {
+      "path": "../grid"
+    },
+    {
+      "path": "../pathfinding"
+    }
+  ]
+}

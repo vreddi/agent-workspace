@@ -10,6 +10,8 @@
   "dependencies": {
     "@org/ui": "workspace:*",
     "@worldkit/sprite-actor": "workspace:*",
+    "@worldkit/tilemap": "workspace:*",
+    "@worldkit/world-canvas": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

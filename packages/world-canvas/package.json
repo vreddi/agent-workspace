@@ -1,0 +1,44 @@
+{
+  "name": "@worldkit/world-canvas",
+  "version": "0.0.1",
+  "description": "Pokemon-GBA-style interactive world canvas: tile maps, autonomous sprite characters, and dialogue boxes.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "sideEffects": false,
+  "imports": {
+    "#lib/*": "./src/lib/*.ts",
+    "#components/*": "./src/components/*.tsx"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./lib/*": "./src/lib/*.ts",
+    "./demo": "./src/demo/index.ts",
+    "./demo/*": "./src/demo/*.ts"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "@worldkit/grid": "workspace:*",
+    "@worldkit/pathfinding": "workspace:*",
+    "@worldkit/sprite-actor": "workspace:*",
+    "@worldkit/tilemap": "workspace:*",
+    "@worldkit/world": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@storybook/react-vite": "^10.0.0",
+    "storybook": "^10.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "~5.9.2"
+  }
+}

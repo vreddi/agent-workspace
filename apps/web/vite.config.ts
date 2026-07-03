@@ -3,7 +3,13 @@ import { cloudflare } from '@cloudflare/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
-import { defineConfig, loadEnv, type Plugin } from 'vite'
+import {
+  defaultClientConditions,
+  defaultServerConditions,
+  defineConfig,
+  loadEnv,
+  type Plugin,
+} from 'vite'
 
 const WEB_ENV_DIR = path.resolve(__dirname)
 
@@ -76,9 +82,19 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       tsconfigPaths: true,
+      // Resolve @worldkit/* packages straight to TS source (see the custom
+      // export condition in each package's package.json). Vite 6+ replaces
+      // the defaults when conditions are set, so spread them back in.
+      conditions: ['@org/source', ...defaultClientConditions],
       alias: {
         '~': path.resolve(__dirname, './src'),
         '@convex': path.resolve(__dirname, '../../convex'),
+      },
+    },
+    ssr: {
+      resolve: {
+        conditions: ['@org/source', ...defaultServerConditions],
+        externalConditions: ['@org/source', 'node'],
       },
     },
     define: {
