@@ -20,6 +20,17 @@ export const uploadRouter = {
       // Returned to the client so the form can persist the URL via Convex.
       return { uploadedBy: metadata.userId, url: file.ufsUrl }
     }),
+  agentSprite: f({
+    image: { maxFileSize: '4MB', maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      const { userId } = await auth()
+      if (!userId) throw new UploadThingError('Unauthorized')
+      return { userId }
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      return { uploadedBy: metadata.userId, url: file.ufsUrl }
+    }),
 } satisfies FileRouter
 
 export type UploadRouter = typeof uploadRouter

@@ -16,6 +16,7 @@ import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AuthenticatedTodayRouteImport } from './routes/_authenticated/today'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedDayRouteImport } from './routes/_authenticated/day'
+import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks.$taskId'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
 
@@ -53,6 +54,11 @@ const AuthenticatedDayRoute = AuthenticatedDayRouteImport.update({
   path: '/day',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAgentsRoute = AuthenticatedAgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedTasksTaskIdRoute =
   AuthenticatedTasksTaskIdRouteImport.update({
     id: '/tasks/$taskId',
@@ -69,6 +75,7 @@ const AuthenticatedGroupsGroupIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/world': typeof WorldRoute
+  '/agents': typeof AuthenticatedAgentsRoute
   '/day': typeof AuthenticatedDayRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/today': typeof AuthenticatedTodayRoute
@@ -79,6 +86,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/world': typeof WorldRoute
+  '/agents': typeof AuthenticatedAgentsRoute
   '/day': typeof AuthenticatedDayRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/today': typeof AuthenticatedTodayRoute
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/world': typeof WorldRoute
+  '/_authenticated/agents': typeof AuthenticatedAgentsRoute
   '/_authenticated/day': typeof AuthenticatedDayRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/today': typeof AuthenticatedTodayRoute
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/world'
+    | '/agents'
     | '/day'
     | '/groups'
     | '/today'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/world'
+    | '/agents'
     | '/day'
     | '/groups'
     | '/today'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/world'
+    | '/_authenticated/agents'
     | '/_authenticated/day'
     | '/_authenticated/groups'
     | '/_authenticated/today'
@@ -190,6 +202,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDayRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/agents': {
+      id: '/_authenticated/agents'
+      path: '/agents'
+      fullPath: '/agents'
+      preLoaderRoute: typeof AuthenticatedAgentsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/tasks/$taskId': {
       id: '/_authenticated/tasks/$taskId'
       path: '/tasks/$taskId'
@@ -219,6 +238,7 @@ const AuthenticatedGroupsRouteWithChildren =
   AuthenticatedGroupsRoute._addFileChildren(AuthenticatedGroupsRouteChildren)
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAgentsRoute: typeof AuthenticatedAgentsRoute
   AuthenticatedDayRoute: typeof AuthenticatedDayRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedTodayRoute: typeof AuthenticatedTodayRoute
@@ -226,6 +246,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAgentsRoute: AuthenticatedAgentsRoute,
   AuthenticatedDayRoute: AuthenticatedDayRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedTodayRoute: AuthenticatedTodayRoute,

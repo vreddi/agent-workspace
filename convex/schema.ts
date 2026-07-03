@@ -53,6 +53,22 @@ export default defineSchema({
     .index('by_assignee_status', ['assigneeUserId', 'status'])
     .index('by_assignee_group_status', ['assigneeUserId', 'groupId', 'status'])
     .index('by_group_position', ['groupId', 'groupPosition']),
+  agents: defineTable({
+    ownerId: v.id('users'),
+    name: v.string(),
+    personality: v.union(v.string(), v.null()),
+    // Model powering the agent. Dummy for now — no API keys or provider auth
+    // are attached; this is just the user's selection.
+    model: v.string(),
+    sprite: v.union(
+      v.object({ kind: v.literal('stub'), stubId: v.string() }),
+      v.object({ kind: v.literal('custom'), sheetUrl: v.string() }),
+    ),
+    archivedAt: v.union(v.number(), v.null()),
+    updatedAt: v.number(),
+  })
+    .index('by_owner', ['ownerId'])
+    .index('by_owner_archived', ['ownerId', 'archivedAt']),
   taskEvents: defineTable({
     taskId: v.id('tasks'),
     actorId: v.id('users'),

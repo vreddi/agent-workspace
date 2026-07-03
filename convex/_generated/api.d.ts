@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as agents from "../agents.js";
 import type * as clerk from "../clerk.js";
 import type * as groups from "../groups.js";
 import type * as tasks from "../tasks.js";
@@ -21,6 +22,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  agents: typeof agents;
   clerk: typeof clerk;
   groups: typeof groups;
   tasks: typeof tasks;

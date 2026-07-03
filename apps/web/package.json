@@ -22,6 +22,8 @@
     "@tanstack/react-router-ssr-query": "^1.167.0",
     "@tanstack/react-start": "^1.168.2",
     "@uploadthing/react": "^7.3.3",
+    "@worldkit/sprite-actor": "workspace:*",
+    "@worldkit/tilemap": "workspace:*",
     "@worldkit/world-canvas": "workspace:*",
     "@xyflow/react": "^12.10.2",
     "convex": "^1.39.1",
