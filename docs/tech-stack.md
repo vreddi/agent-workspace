@@ -1,6 +1,6 @@
 # Tech stack
 
-This document describes the technologies used in the **TODO app** (`apps/web`) and shared workspace tooling.
+This document describes the technologies used in the web app (`apps/web`) and shared workspace tooling.
 
 ## Application (`apps/web`)
 
@@ -25,7 +25,7 @@ This document describes the technologies used in the **TODO app** (`apps/web`) a
 2. The app obtains a Clerk JWT from the **`convex`** JWT template.
 3. **`ConvexProviderWithClerk`** sends that token with every Convex request.
 4. Convex validates the token using `convex/auth.config.ts` (`CLERK_JWT_ISSUER_DOMAIN`).
-5. Todo queries/mutations use `ctx.auth.getUserIdentity().subject` as `userId`.
+5. Convex queries/mutations (tasks, groups, todos) use `ctx.auth.getUserIdentity().subject` as `userId`.
 
 ## Monorepo
 
@@ -37,19 +37,19 @@ This document describes the technologies used in the **TODO app** (`apps/web`) a
 
 ## Other packages (workspace)
 
-Headless **grid world** libraries (`@worldkit/*`) live under `packages/` for simulation work; they are separate from the TODO web app.
+The `@worldkit/*` libraries under `packages/` power the agent-village world canvas (headless grid/world/pathfinding logic plus React rendering); `@org/ui` holds shared shadcn/radix components. See [architecture.md](./architecture.md).
 
 ## Deployment
 
 | Target | Command / doc |
 | --- | --- |
-| Web (Cloudflare) | `pnpm deploy:web` — see [DEPLOYMENT.md](./DEPLOYMENT.md) |
-| Storybook (Chromatic) | `nx run @org/storybook:chromatic` — see [DEPLOYMENT.md](./DEPLOYMENT.md) |
+| Web (Cloudflare) | `pnpm deploy:web` — see [deployment.md](./deployment.md) |
+| Storybook (Chromatic) | `nx run @org/storybook:chromatic` — see [deployment.md](./deployment.md) |
 
 ## Related docs
 
-- [DEPLOYMENT.md](./DEPLOYMENT.md) — Cloudflare Workers + Chromatic setup
+- [deployment.md](./deployment.md) — Cloudflare Workers + Chromatic setup
 - [apps/web/README.md](../apps/web/README.md) — run locally, env setup
-- [CLAUDE.md](../CLAUDE.md) — agent / Nx conventions
+- [AGENTS.md](../AGENTS.md) — project conventions (agents, Nx, packages)
 - [Convex + Clerk](https://docs.convex.dev/auth/clerk)
 - [TanStack Start + Clerk](https://docs.convex.dev/client/tanstack/tanstack-start/clerk)

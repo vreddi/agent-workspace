@@ -1,6 +1,6 @@
 # Deployment
 
-How to deploy **`apps/web`** (TODO app) and **`apps/storybook`** (design system docs).
+How to deploy **`apps/web`** (the web app) and **`apps/storybook`** (design system docs).
 
 | App | Platform | Why |
 | --- | --- | --- |
@@ -229,7 +229,7 @@ Add `.github/workflows/chromatic.yml` (see [GitHub Actions examples](#github-act
 - [ ] `VITE_CONVEX_URL` points at production Convex
 - [ ] Cloudflare Worker secrets / CI env vars set
 - [ ] `pnpm deploy:web` succeeds
-- [ ] Sign-in and `/todos` work on the live URL
+- [ ] Sign-in and `/today` work on the live URL
 - [ ] Chromatic project connected; `CHROMATIC_PROJECT_TOKEN` in GitHub
 
 ## GitHub Actions examples
@@ -269,5 +269,5 @@ jobs:
 
 ## Related
 
-- [TECH_STACK.md](./TECH_STACK.md)
+- [tech-stack.md](./tech-stack.md)
 - [apps/web/README.md](../apps/web/README.md)

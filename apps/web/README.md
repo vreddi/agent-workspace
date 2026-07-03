@@ -63,7 +63,7 @@ Sign-out is via the **User** menu on `/todos` (Clerk `UserButton`).
 
 ## Deploy (Cloudflare Workers)
 
-See [docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md). Quick path:
+See [docs/deployment.md](../../docs/deployment.md). Quick path:
 
 ```bash
 pnpm exec wrangler login   # once, from apps/web
