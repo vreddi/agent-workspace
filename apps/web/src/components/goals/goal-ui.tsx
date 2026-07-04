@@ -116,6 +116,158 @@ export function TypeBadge({
   )
 }
 
+// Fallback glyphs for stub icon names (built-in types without authored art,
+// and custom types). Keyed by the `icon` string stored on the type.
+const STUB_ICON_EMOJI: Record<string, string> = {
+  heart: '❤️',
+  dumbbell: '🏋️',
+  briefcase: '💼',
+  'trending-up': '📈',
+  users: '🤝',
+  'piggy-bank': '🐷',
+  'book-open': '📖',
+  sprout: '🌱',
+  map: '🗺️',
+  sword: '⚔️',
+  mountain: '⛰️',
+}
+
+// Renders a goal type's icon at a fixed square size: authored art when the
+// type has an `image`, otherwise a tinted tile with a stub emoji (falling
+// back to the type's first letter).
+export function GoalTypeIcon({
+  name,
+  color,
+  icon,
+  image,
+  size = 48,
+  className,
+}: {
+  name: string
+  color: string
+  icon?: string | null
+  image?: string | null
+  size?: number
+  className?: string
+}) {
+  const dimensions = { width: size, height: size }
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt=""
+        aria-hidden
+        style={dimensions}
+        className={cn('shrink-0 rounded-xl object-contain', className)}
+      />
+    )
+  }
+  const classes = goalTypeColorClasses(color)
+  const emoji = icon ? STUB_ICON_EMOJI[icon] : undefined
+  return (
+    <div
+      aria-hidden
+      style={dimensions}
+      className={cn(
+        'flex shrink-0 items-center justify-center rounded-xl border',
+        classes.chip,
+        className,
+      )}
+    >
+      {emoji ? (
+        <span style={{ fontSize: size * 0.42 }} className="leading-none">
+          {emoji}
+        </span>
+      ) : (
+        <span className="text-base font-semibold uppercase leading-none">
+          {name.slice(0, 1)}
+        </span>
+      )}
+    </div>
+  )
+}
+
+type ResolvedTypeIcon = {
+  name: string
+  color: string
+  icon: string | null
+  image?: string | null
+}
+
+type GoalTypeList = {
+  system: readonly {
+    slug: string
+    name: string
+    color: string
+    icon: string
+    image?: string
+  }[]
+  custom: readonly Doc<'goalTypes'>[]
+}
+
+function resolveSelectionIcon(
+  value: string,
+  types: GoalTypeList | undefined,
+): ResolvedTypeIcon | null {
+  if (!value || !types) return null
+  const selection = parseTypeValue(value)
+  if (selection.kind === 'system') {
+    const type = types.system.find((t) => t.slug === selection.slug)
+    return type
+      ? { name: type.name, color: type.color, icon: type.icon, image: type.image }
+      : null
+  }
+  if (selection.kind === 'custom') {
+    const type = types.custom.find((t) => t._id === selection.id)
+    return type
+      ? { name: type.name, color: type.color, icon: type.icon, image: null }
+      : null
+  }
+  return null
+}
+
+// Header/preview icon that reflects the goal type currently chosen in a
+// GoalTypeSelect. Shows the type's art (or tinted glyph); falls back to a
+// neutral dashed tile when no type is selected.
+export function GoalTypeSelectionIcon({
+  value,
+  size = 44,
+  className,
+}: {
+  value: string
+  size?: number
+  className?: string
+}) {
+  const types = useQuery(api.goalTypes.list, {})
+  const resolved = resolveSelectionIcon(value, types)
+  if (!resolved) {
+    return (
+      <div
+        aria-hidden
+        style={{ width: size, height: size }}
+        className={cn(
+          'flex shrink-0 items-center justify-center rounded-xl border border-dashed bg-muted/40 text-muted-foreground',
+          className,
+        )}
+      >
+        <span style={{ fontSize: size * 0.4 }} className="leading-none">
+          ◎
+        </span>
+      </div>
+    )
+  }
+  return (
+    <GoalTypeIcon
+      name={resolved.name}
+      color={resolved.color}
+      icon={resolved.icon}
+      image={resolved.image}
+      size={size}
+      className={className}
+    />
+  )
+}
+
 export function describeDeadline(
   deadline: number,
   now: number,

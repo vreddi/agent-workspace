@@ -31,6 +31,9 @@ export default defineSchema({
   goalTypes: defineTable({
     creatorId: v.id('users'),
     name: v.string(),
+    // Optional one-line description shown on the Manage types page. Optional
+    // (not just nullable) so rows created before this field validate.
+    description: v.optional(v.union(v.string(), v.null())),
     color: v.string(),
     icon: v.union(v.string(), v.null()),
     updatedAt: v.number(),

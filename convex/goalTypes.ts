@@ -14,21 +14,102 @@ async function requireUserId(ctx: QueryCtx) {
 export type SystemGoalType = {
   slug: string
   name: string
+  description: string
   color: string
+  // Stub glyph name (rendered as a fallback emoji tile on the client).
   icon: string
+  // Optional path to authored icon art served from apps/web/public. When
+  // present the client shows this image instead of the stub glyph.
+  image?: string
 }
 
 // Built-in categories every user gets. Stored as code, not rows, so there is
 // nothing to seed or migrate; goals reference these by slug.
 export const SYSTEM_GOAL_TYPES: readonly SystemGoalType[] = [
-  { slug: 'health-wellness', name: 'Health & Wellness', color: 'emerald', icon: 'heart' },
-  { slug: 'fitness', name: 'Fitness', color: 'orange', icon: 'dumbbell' },
-  { slug: 'business', name: 'Business', color: 'indigo', icon: 'briefcase' },
-  { slug: 'career', name: 'Career', color: 'sky', icon: 'trending-up' },
-  { slug: 'relationships', name: 'Relationships', color: 'rose', icon: 'users' },
-  { slug: 'finance', name: 'Finance', color: 'amber', icon: 'piggy-bank' },
-  { slug: 'learning', name: 'Learning', color: 'violet', icon: 'book-open' },
-  { slug: 'personal-growth', name: 'Personal Growth', color: 'slate', icon: 'sprout' },
+  {
+    slug: 'health-wellness',
+    name: 'Health & Wellness',
+    description: 'Sleep, nutrition, mental health, and feeling your best.',
+    color: 'emerald',
+    icon: 'heart',
+    image: '/goal-types/health-wellness.png',
+  },
+  {
+    slug: 'fitness',
+    name: 'Fitness',
+    description: 'Training, movement, and physical performance.',
+    color: 'orange',
+    icon: 'dumbbell',
+  },
+  {
+    slug: 'business',
+    name: 'Business',
+    description: 'Building, running, or growing a venture.',
+    color: 'indigo',
+    icon: 'briefcase',
+  },
+  {
+    slug: 'career',
+    name: 'Career',
+    description: 'Roles, skills, and professional advancement.',
+    color: 'sky',
+    icon: 'trending-up',
+  },
+  {
+    slug: 'relationships',
+    name: 'Relationships',
+    description: 'Family, friends, and the people who matter.',
+    color: 'rose',
+    icon: 'users',
+    image: '/goal-types/relationships.png',
+  },
+  {
+    slug: 'finance',
+    name: 'Finance',
+    description: 'Saving, investing, and money milestones.',
+    color: 'amber',
+    icon: 'piggy-bank',
+    image: '/goal-types/finance.png',
+  },
+  {
+    slug: 'learning',
+    name: 'Learning',
+    description: 'Courses, books, and new skills to master.',
+    color: 'violet',
+    icon: 'book-open',
+    image: '/goal-types/learning.png',
+  },
+  {
+    slug: 'personal-growth',
+    name: 'Personal Growth',
+    description: 'Habits, mindset, and becoming who you want to be.',
+    color: 'slate',
+    icon: 'sprout',
+  },
+  {
+    slug: 'travel',
+    name: 'Travel',
+    description: 'Trips, destinations, and places to explore.',
+    color: 'sky',
+    icon: 'map',
+    image: '/goal-types/travel.png',
+  },
+  {
+    slug: 'skill-mastery',
+    name: 'Skill Mastery',
+    description: 'Deliberate practice toward real expertise.',
+    color: 'violet',
+    icon: 'sword',
+    image: '/goal-types/skill-mastery.png',
+  },
+  {
+    slug: 'adventure',
+    name: 'Adventure',
+    description: 'Bucket-list challenges and bold experiences.',
+    color: 'indigo',
+    icon: 'mountain',
+    image: '/goal-types/adventure.png',
+  },
 ]
 
 export function systemGoalType(slug: string): SystemGoalType | null {
@@ -83,6 +164,7 @@ export const list = query({
 export const create = mutation({
   args: {
     name: v.string(),
+    description: v.optional(v.union(v.string(), v.null())),
     color: v.optional(v.string()),
     icon: v.optional(v.union(v.string(), v.null())),
   },
@@ -94,10 +176,13 @@ export const create = mutation({
     assertNameAvailable(name, custom)
     const trimmedIcon = args.icon?.trim() ?? ''
     const icon = trimmedIcon === '' ? null : trimmedIcon
+    const trimmedDescription = args.description?.trim() ?? ''
+    const description = trimmedDescription === '' ? null : trimmedDescription
     const color = args.color?.trim() || 'slate'
     return await ctx.db.insert('goalTypes', {
       creatorId: userId,
       name,
+      description,
       color,
       icon,
       updatedAt: Date.now(),
@@ -109,6 +194,7 @@ export const update = mutation({
   args: {
     id: v.id('goalTypes'),
     name: v.optional(v.string()),
+    description: v.optional(v.union(v.string(), v.null())),
     color: v.optional(v.string()),
     icon: v.optional(v.union(v.string(), v.null())),
   },
@@ -125,6 +211,14 @@ export const update = mutation({
         assertNameAvailable(trimmed, custom, args.id)
       }
       patch.name = trimmed
+    }
+    if (args.description !== undefined) {
+      if (args.description === null) {
+        patch.description = null
+      } else {
+        const trimmed = args.description.trim()
+        patch.description = trimmed === '' ? null : trimmed
+      }
     }
     if (args.color !== undefined) {
       const trimmed = args.color.trim()
