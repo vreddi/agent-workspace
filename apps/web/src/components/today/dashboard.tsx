@@ -514,7 +514,6 @@ export function TodayDashboard() {
       title: input.title,
       estimateMinutes: input.estimateMinutes,
       softDeadline,
-      groupId: null,
     })
   }
 

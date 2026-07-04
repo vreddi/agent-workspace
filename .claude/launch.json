@@ -12,6 +12,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@org/web", "dev", "--host"],
       "port": 3000
+    },
+    {
+      "name": "web-worktree",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@org/web", "dev", "--host", "--port", "3131"],
+      "port": 3131
     }
   ]
 }

@@ -14,11 +14,11 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AuthenticatedTodayRouteImport } from './routes/_authenticated/today'
-import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedDayRouteImport } from './routes/_authenticated/day'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks.$taskId'
-import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
+import { Route as AuthenticatedGoalsGoalIdRouteImport } from './routes/_authenticated/goals.$goalId'
 
 const WorldRoute = WorldRouteImport.update({
   id: '/world',
@@ -44,9 +44,9 @@ const AuthenticatedTodayRoute = AuthenticatedTodayRouteImport.update({
   path: '/today',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
-  id: '/groups',
-  path: '/groups',
+const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDayRoute = AuthenticatedDayRouteImport.update({
@@ -65,11 +65,11 @@ const AuthenticatedTasksTaskIdRoute =
     path: '/tasks/$taskId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedGroupsGroupIdRoute =
-  AuthenticatedGroupsGroupIdRouteImport.update({
-    id: '/$groupId',
-    path: '/$groupId',
-    getParentRoute: () => AuthenticatedGroupsRoute,
+const AuthenticatedGoalsGoalIdRoute =
+  AuthenticatedGoalsGoalIdRouteImport.update({
+    id: '/$goalId',
+    path: '/$goalId',
+    getParentRoute: () => AuthenticatedGoalsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -77,10 +77,10 @@ export interface FileRoutesByFullPath {
   '/world': typeof WorldRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/day': typeof AuthenticatedDayRoute
-  '/groups': typeof AuthenticatedGroupsRouteWithChildren
+  '/goals': typeof AuthenticatedGoalsRouteWithChildren
   '/today': typeof AuthenticatedTodayRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
-  '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
+  '/goals/$goalId': typeof AuthenticatedGoalsGoalIdRoute
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
 }
 export interface FileRoutesByTo {
@@ -88,10 +88,10 @@ export interface FileRoutesByTo {
   '/world': typeof WorldRoute
   '/agents': typeof AuthenticatedAgentsRoute
   '/day': typeof AuthenticatedDayRoute
-  '/groups': typeof AuthenticatedGroupsRouteWithChildren
+  '/goals': typeof AuthenticatedGoalsRouteWithChildren
   '/today': typeof AuthenticatedTodayRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
-  '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
+  '/goals/$goalId': typeof AuthenticatedGoalsGoalIdRoute
   '/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
 }
 export interface FileRoutesById {
@@ -101,10 +101,10 @@ export interface FileRoutesById {
   '/world': typeof WorldRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
   '/_authenticated/day': typeof AuthenticatedDayRoute
-  '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
+  '/_authenticated/goals': typeof AuthenticatedGoalsRouteWithChildren
   '/_authenticated/today': typeof AuthenticatedTodayRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
-  '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRoute
+  '/_authenticated/goals/$goalId': typeof AuthenticatedGoalsGoalIdRoute
   '/_authenticated/tasks/$taskId': typeof AuthenticatedTasksTaskIdRoute
 }
 export interface FileRouteTypes {
@@ -114,10 +114,10 @@ export interface FileRouteTypes {
     | '/world'
     | '/agents'
     | '/day'
-    | '/groups'
+    | '/goals'
     | '/today'
     | '/api/uploadthing'
-    | '/groups/$groupId'
+    | '/goals/$goalId'
     | '/tasks/$taskId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -125,10 +125,10 @@ export interface FileRouteTypes {
     | '/world'
     | '/agents'
     | '/day'
-    | '/groups'
+    | '/goals'
     | '/today'
     | '/api/uploadthing'
-    | '/groups/$groupId'
+    | '/goals/$goalId'
     | '/tasks/$taskId'
   id:
     | '__root__'
@@ -137,10 +137,10 @@ export interface FileRouteTypes {
     | '/world'
     | '/_authenticated/agents'
     | '/_authenticated/day'
-    | '/_authenticated/groups'
+    | '/_authenticated/goals'
     | '/_authenticated/today'
     | '/api/uploadthing'
-    | '/_authenticated/groups/$groupId'
+    | '/_authenticated/goals/$goalId'
     | '/_authenticated/tasks/$taskId'
   fileRoutesById: FileRoutesById
 }
@@ -188,11 +188,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTodayRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/groups': {
-      id: '/_authenticated/groups'
-      path: '/groups'
-      fullPath: '/groups'
-      preLoaderRoute: typeof AuthenticatedGroupsRouteImport
+    '/_authenticated/goals': {
+      id: '/_authenticated/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof AuthenticatedGoalsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/day': {
@@ -216,31 +216,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksTaskIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/groups/$groupId': {
-      id: '/_authenticated/groups/$groupId'
-      path: '/$groupId'
-      fullPath: '/groups/$groupId'
-      preLoaderRoute: typeof AuthenticatedGroupsGroupIdRouteImport
-      parentRoute: typeof AuthenticatedGroupsRoute
+    '/_authenticated/goals/$goalId': {
+      id: '/_authenticated/goals/$goalId'
+      path: '/$goalId'
+      fullPath: '/goals/$goalId'
+      preLoaderRoute: typeof AuthenticatedGoalsGoalIdRouteImport
+      parentRoute: typeof AuthenticatedGoalsRoute
     }
   }
 }
 
-interface AuthenticatedGroupsRouteChildren {
-  AuthenticatedGroupsGroupIdRoute: typeof AuthenticatedGroupsGroupIdRoute
+interface AuthenticatedGoalsRouteChildren {
+  AuthenticatedGoalsGoalIdRoute: typeof AuthenticatedGoalsGoalIdRoute
 }
 
-const AuthenticatedGroupsRouteChildren: AuthenticatedGroupsRouteChildren = {
-  AuthenticatedGroupsGroupIdRoute: AuthenticatedGroupsGroupIdRoute,
+const AuthenticatedGoalsRouteChildren: AuthenticatedGoalsRouteChildren = {
+  AuthenticatedGoalsGoalIdRoute: AuthenticatedGoalsGoalIdRoute,
 }
 
-const AuthenticatedGroupsRouteWithChildren =
-  AuthenticatedGroupsRoute._addFileChildren(AuthenticatedGroupsRouteChildren)
+const AuthenticatedGoalsRouteWithChildren =
+  AuthenticatedGoalsRoute._addFileChildren(AuthenticatedGoalsRouteChildren)
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAgentsRoute: typeof AuthenticatedAgentsRoute
   AuthenticatedDayRoute: typeof AuthenticatedDayRoute
-  AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
+  AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRouteWithChildren
   AuthenticatedTodayRoute: typeof AuthenticatedTodayRoute
   AuthenticatedTasksTaskIdRoute: typeof AuthenticatedTasksTaskIdRoute
 }
@@ -248,7 +248,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAgentsRoute: AuthenticatedAgentsRoute,
   AuthenticatedDayRoute: AuthenticatedDayRoute,
-  AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
+  AuthenticatedGoalsRoute: AuthenticatedGoalsRouteWithChildren,
   AuthenticatedTodayRoute: AuthenticatedTodayRoute,
   AuthenticatedTasksTaskIdRoute: AuthenticatedTasksTaskIdRoute,
 }

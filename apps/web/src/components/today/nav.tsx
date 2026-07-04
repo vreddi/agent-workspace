@@ -16,12 +16,12 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { initialsFromName } from './helpers'
 
-export type NavPage = 'today' | 'day' | 'groups' | 'agents'
+export type NavPage = 'today' | 'day' | 'goals' | 'agents'
 
 const NAV_LINKS = [
   { page: 'today', to: '/today', label: 'Today' },
   { page: 'day', to: '/day', label: 'Day view' },
-  { page: 'groups', to: '/groups', label: 'Groups' },
+  { page: 'goals', to: '/goals', label: 'Goals' },
   { page: 'agents', to: '/agents', label: 'Agents' },
 ] as const
 
