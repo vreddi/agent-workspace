@@ -14,30 +14,37 @@ async function requireUserId(ctx: QueryCtx) {
   return user._id
 }
 
-async function assertOwnsGroup(
+async function assertOwnsGoal(
   ctx: QueryCtx,
-  groupId: Id<'taskGroups'> | null,
+  goalId: Id<'goals'> | null,
   userId: Id<'users'>,
 ) {
-  if (groupId === null) return
-  const group = await ctx.db.get(groupId)
-  if (!group) throw new ConvexError('Group not found')
-  if (group.creatorId !== userId) throw new ConvexError('Forbidden')
+  if (goalId === null) return
+  const goal = await ctx.db.get(goalId)
+  if (!goal) throw new ConvexError('Goal not found')
+  if (goal.creatorId !== userId) throw new ConvexError('Forbidden')
 }
 
-async function nextGroupTailPosition(
+async function nextGoalTailPosition(
   ctx: QueryCtx,
-  groupId: Id<'taskGroups'> | null,
+  goalId: Id<'goals'>,
 ): Promise<number> {
   const last = await ctx.db
     .query('tasks')
-    .withIndex('by_group_position', (q) => q.eq('groupId', groupId))
+    .withIndex('by_goal_position', (q) => q.eq('goalId', goalId))
     .order('desc')
     .take(1)
   if (last.length === 0) return POSITION_STEP
-  const lastPos = last[0]!.groupPosition
+  const lastPos = last[0]!.goalPosition
   if (lastPos === undefined) return Date.now()
   return lastPos + POSITION_STEP
+}
+
+function validateCostDays(costDays: number | null) {
+  if (costDays === null) return
+  if (!Number.isFinite(costDays) || costDays <= 0) {
+    throw new ConvexError('costDays must be a positive number of days')
+  }
 }
 
 const encode = (value: unknown): string => JSON.stringify(value)
@@ -65,7 +72,8 @@ type DiffableField =
   | 'softDeadline'
   | 'hardDeadline'
   | 'estimateMinutes'
-  | 'groupId'
+  | 'goalId'
+  | 'costDays'
 
 const DIFF_FIELDS: readonly DiffableField[] = [
   'title',
@@ -74,8 +82,13 @@ const DIFF_FIELDS: readonly DiffableField[] = [
   'softDeadline',
   'hardDeadline',
   'estimateMinutes',
-  'groupId',
+  'goalId',
+  'costDays',
 ]
+
+// Fields added after launch may be absent on older rows; treat undefined as
+// null when diffing.
+const OPTIONAL_DIFF_FIELDS = new Set<DiffableField>(['goalId', 'costDays'])
 
 type TaskChange = { field: string; before: string | null; after: string | null }
 
@@ -86,7 +99,8 @@ type UpdateArgs = {
   softDeadline?: number | null
   hardDeadline?: number | null
   estimateMinutes?: number | null
-  groupId?: Id<'taskGroups'> | null
+  goalId?: Id<'goals'> | null
+  costDays?: number | null
 }
 
 function diffFields(task: Doc<'tasks'>, args: UpdateArgs) {
@@ -95,8 +109,7 @@ function diffFields(task: Doc<'tasks'>, args: UpdateArgs) {
   for (const field of DIFF_FIELDS) {
     const next = args[field]
     if (next === undefined) continue
-    // Older rows may have no groupId field at all; treat undefined as null for diffs.
-    const current = field === 'groupId' ? (task.groupId ?? null) : task[field]
+    const current = OPTIONAL_DIFF_FIELDS.has(field) ? (task[field] ?? null) : task[field]
     if (current === next) continue
     changes.push({ field, before: current === null ? null : encode(current), after: next === null ? null : encode(next) })
     patch[field] = next
@@ -111,7 +124,8 @@ export const create = mutation({
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
     estimateMinutes: v.optional(v.union(v.number(), v.null())),
-    groupId: v.optional(v.union(v.id('taskGroups'), v.null())),
+    goalId: v.optional(v.union(v.id('goals'), v.null())),
+    costDays: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -124,12 +138,14 @@ export const create = mutation({
     const softDeadline = args.softDeadline ?? null
     const hardDeadline = args.hardDeadline ?? null
     const estimateMinutes = args.estimateMinutes ?? null
-    const groupId = args.groupId ?? null
+    const goalId = args.goalId ?? null
+    const costDays = args.costDays ?? null
     if (softDeadline !== null && hardDeadline !== null && softDeadline > hardDeadline) {
       throw new ConvexError('softDeadline must be on or before hardDeadline')
     }
-    await assertOwnsGroup(ctx, groupId, userId)
-    const groupPosition = await nextGroupTailPosition(ctx, groupId)
+    validateCostDays(costDays)
+    await assertOwnsGoal(ctx, goalId, userId)
+    const goalPosition = goalId === null ? undefined : await nextGoalTailPosition(ctx, goalId)
     const now = Date.now()
     const taskId = await ctx.db.insert('tasks', {
       title,
@@ -142,8 +158,9 @@ export const create = mutation({
       softDeadline,
       hardDeadline,
       estimateMinutes,
-      groupId,
-      groupPosition,
+      goalId,
+      goalPosition,
+      costDays,
       updatedAt: now,
     })
     const changes: TaskChange[] = [
@@ -163,8 +180,11 @@ export const create = mutation({
     if (estimateMinutes !== null) {
       changes.push({ field: 'estimateMinutes', before: null, after: encode(estimateMinutes) })
     }
-    if (groupId !== null) {
-      changes.push({ field: 'groupId', before: null, after: encode(groupId) })
+    if (goalId !== null) {
+      changes.push({ field: 'goalId', before: null, after: encode(goalId) })
+    }
+    if (costDays !== null) {
+      changes.push({ field: 'costDays', before: null, after: encode(costDays) })
     }
     await ctx.db.insert('taskEvents', {
       taskId,
@@ -185,7 +205,8 @@ export const update = mutation({
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
     estimateMinutes: v.optional(v.union(v.number(), v.null())),
-    groupId: v.optional(v.union(v.id('taskGroups'), v.null())),
+    goalId: v.optional(v.union(v.id('goals'), v.null())),
+    costDays: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -212,15 +233,22 @@ export const update = mutation({
     if (args.softDeadline !== undefined) normalized.softDeadline = args.softDeadline
     if (args.hardDeadline !== undefined) normalized.hardDeadline = args.hardDeadline
     if (args.estimateMinutes !== undefined) normalized.estimateMinutes = args.estimateMinutes
-    if (args.groupId !== undefined) {
-      await assertOwnsGroup(ctx, args.groupId, userId)
-      normalized.groupId = args.groupId
+    if (args.goalId !== undefined) {
+      await assertOwnsGoal(ctx, args.goalId, userId)
+      normalized.goalId = args.goalId
+    }
+    if (args.costDays !== undefined) {
+      validateCostDays(args.costDays)
+      normalized.costDays = args.costDays
     }
 
     const { changes, patch } = diffFields(task, normalized)
 
-    if (normalized.groupId !== undefined && normalized.groupId !== (task.groupId ?? null)) {
-      patch.groupPosition = await nextGroupTailPosition(ctx, normalized.groupId)
+    if (normalized.goalId !== undefined && normalized.goalId !== (task.goalId ?? null)) {
+      patch.goalPosition =
+        normalized.goalId === null
+          ? undefined
+          : await nextGoalTailPosition(ctx, normalized.goalId)
     }
 
     if (normalized.status !== undefined) {
@@ -352,93 +380,18 @@ async function hydrateAssignees(
 export const list = query({
   args: {
     status: v.optional(taskStatus),
-    // null = Inbox (ungrouped). Omit field = all groups.
-    groupId: v.optional(v.union(v.id('taskGroups'), v.null())),
   },
   handler: async (ctx, args): Promise<TaskListItem[]> => {
     const userId = await requireUserId(ctx)
     const status = args.status
-    let tasks: Doc<'tasks'>[]
-    if (args.groupId !== undefined) {
-      const groupId = args.groupId
-      tasks = await ctx.db
-        .query('tasks')
-        .withIndex('by_assignee_group_status', (q) =>
-          status
-            ? q.eq('assigneeUserId', userId).eq('groupId', groupId).eq('status', status)
-            : q.eq('assigneeUserId', userId).eq('groupId', groupId),
-        )
-        .order('desc')
-        .take(200)
-    } else {
-      tasks = await ctx.db
-        .query('tasks')
-        .withIndex('by_assignee_status', (q) =>
-          status ? q.eq('assigneeUserId', userId).eq('status', status) : q.eq('assigneeUserId', userId),
-        )
-        .order('desc')
-        .take(200)
-    }
-    return await hydrateAssignees(ctx, tasks)
-  },
-})
-
-export const listUngrouped = query({
-  args: {},
-  handler: async (ctx): Promise<TaskListItem[]> => {
-    const userId = await requireUserId(ctx)
-    // Only open/in_progress ungrouped tasks — what the user is likely to want to file.
-    const rows = await ctx.db
+    const tasks = await ctx.db
       .query('tasks')
-      .withIndex('by_assignee_group_status', (q) =>
-        q.eq('assigneeUserId', userId).eq('groupId', null),
+      .withIndex('by_assignee_status', (q) =>
+        status ? q.eq('assigneeUserId', userId).eq('status', status) : q.eq('assigneeUserId', userId),
       )
       .order('desc')
       .take(200)
-    const filtered = rows.filter(
-      (t) => t.status === 'open' || t.status === 'in_progress',
-    )
-    return await hydrateAssignees(ctx, filtered)
-  },
-})
-
-export const reorder = mutation({
-  args: {
-    id: v.id('tasks'),
-    groupId: v.union(v.id('taskGroups'), v.null()),
-    beforeId: v.union(v.id('tasks'), v.null()),
-    afterId: v.union(v.id('tasks'), v.null()),
-  },
-  handler: async (ctx, args) => {
-    const userId = await requireUserId(ctx)
-    const task = await ctx.db.get(args.id)
-    assertCanEditTask(task, userId)
-    await assertOwnsGroup(ctx, args.groupId, userId)
-    const before = args.beforeId ? await ctx.db.get(args.beforeId) : null
-    const after = args.afterId ? await ctx.db.get(args.afterId) : null
-    if (before && before.assigneeUserId !== userId) throw new ConvexError('Forbidden')
-    if (after && after.assigneeUserId !== userId) throw new ConvexError('Forbidden')
-    const beforePos = before?.groupPosition
-    const afterPos = after?.groupPosition
-    let nextPosition: number
-    if (beforePos !== undefined && afterPos !== undefined) {
-      nextPosition = (beforePos + afterPos) / 2
-    } else if (beforePos !== undefined) {
-      nextPosition = beforePos + POSITION_STEP
-    } else if (afterPos !== undefined) {
-      nextPosition = afterPos - POSITION_STEP
-    } else {
-      nextPosition = await nextGroupTailPosition(ctx, args.groupId)
-    }
-    const patch: Record<string, unknown> = {
-      groupPosition: nextPosition,
-      updatedAt: Date.now(),
-    }
-    if ((task.groupId ?? null) !== args.groupId) {
-      patch.groupId = args.groupId
-    }
-    await ctx.db.patch(args.id, patch)
-    return { groupPosition: nextPosition }
+    return await hydrateAssignees(ctx, tasks)
   },
 })
 

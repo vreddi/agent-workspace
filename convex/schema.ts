@@ -8,6 +8,12 @@ export const taskStatus = v.union(
   v.literal('cancelled'),
 )
 
+export const goalStatus = v.union(
+  v.literal('active'),
+  v.literal('achieved'),
+  v.literal('archived'),
+)
+
 export default defineSchema({
   users: defineTable({
     externalId: v.string(),
@@ -20,19 +26,49 @@ export default defineSchema({
     title: v.string(),
     completed: v.boolean(),
   }).index('by_user', ['userId']),
-  taskGroups: defineTable({
+  // Custom, user-defined goal categories. System categories (health, fitness,
+  // business, ...) are code constants in goalTypes.ts, not rows here.
+  goalTypes: defineTable({
     creatorId: v.id('users'),
     name: v.string(),
-    description: v.union(v.string(), v.null()),
     color: v.string(),
     icon: v.union(v.string(), v.null()),
-    iconImageUrl: v.optional(v.union(v.string(), v.null())),
-    position: v.number(),
-    archivedAt: v.union(v.number(), v.null()),
+    updatedAt: v.number(),
+  }).index('by_creator', ['creatorId']),
+  goals: defineTable({
+    creatorId: v.id('users'),
+    title: v.string(),
+    description: v.union(v.string(), v.null()),
+    // Achievement deadline (ms since epoch). Required — a goal without a
+    // deadline is a wish.
+    deadline: v.number(),
+    status: goalStatus,
+    achievedAt: v.union(v.number(), v.null()),
+    // Exactly one of these may be set: a built-in category slug or a custom
+    // goalTypes row. Both null = uncategorized.
+    typeSlug: v.union(v.string(), v.null()),
+    customTypeId: v.union(v.id('goalTypes'), v.null()),
+    // Reminders start firing once the deadline is within this many days.
+    reminderDaysBefore: v.number(),
+    lastRemindedAt: v.union(v.number(), v.null()),
     updatedAt: v.number(),
   })
-    .index('by_creator', ['creatorId'])
-    .index('by_creator_archived_position', ['creatorId', 'archivedAt', 'position']),
+    .index('by_creator_status', ['creatorId', 'status'])
+    .index('by_status_deadline', ['status', 'deadline'])
+    .index('by_customType', ['customTypeId']),
+  goalReminders: defineTable({
+    goalId: v.id('goals'),
+    userId: v.id('users'),
+    kind: v.union(v.literal('approaching'), v.literal('overdue')),
+    goalTitle: v.string(),
+    deadline: v.number(),
+    // Whole days until the deadline at the time the reminder fired; negative
+    // once overdue.
+    daysRemaining: v.number(),
+    readAt: v.union(v.number(), v.null()),
+  })
+    .index('by_user_read', ['userId', 'readAt'])
+    .index('by_goal', ['goalId']),
   tasks: defineTable({
     title: v.string(),
     description: v.union(v.string(), v.null()),
@@ -46,13 +82,16 @@ export default defineSchema({
     softDeadline: v.union(v.number(), v.null()),
     hardDeadline: v.union(v.number(), v.null()),
     estimateMinutes: v.union(v.number(), v.null()),
-    groupId: v.optional(v.union(v.id('taskGroups'), v.null())),
-    groupPosition: v.optional(v.number()),
+    // Goal this task contributes to, and its ordering within the goal's
+    // kanban board. Optional for rows created before goals existed.
+    goalId: v.optional(v.union(v.id('goals'), v.null())),
+    goalPosition: v.optional(v.number()),
+    // Effort estimate in days; goal cost totals sum these.
+    costDays: v.optional(v.union(v.number(), v.null())),
     updatedAt: v.number(),
   })
     .index('by_assignee_status', ['assigneeUserId', 'status'])
-    .index('by_assignee_group_status', ['assigneeUserId', 'groupId', 'status'])
-    .index('by_group_position', ['groupId', 'groupPosition']),
+    .index('by_goal_position', ['goalId', 'goalPosition']),
   agents: defineTable({
     ownerId: v.id('users'),
     name: v.string(),

@@ -1,0 +1,163 @@
+import { ConvexError, v } from 'convex/values'
+import { mutation, query, QueryCtx } from './_generated/server'
+import { Doc, Id } from './_generated/dataModel'
+import { getCurrentUser } from './users'
+
+async function requireUserId(ctx: QueryCtx) {
+  const user = await getCurrentUser(ctx)
+  if (!user) {
+    throw new ConvexError('Not authenticated')
+  }
+  return user._id
+}
+
+export type SystemGoalType = {
+  slug: string
+  name: string
+  color: string
+  icon: string
+}
+
+// Built-in categories every user gets. Stored as code, not rows, so there is
+// nothing to seed or migrate; goals reference these by slug.
+export const SYSTEM_GOAL_TYPES: readonly SystemGoalType[] = [
+  { slug: 'health-wellness', name: 'Health & Wellness', color: 'emerald', icon: 'heart' },
+  { slug: 'fitness', name: 'Fitness', color: 'orange', icon: 'dumbbell' },
+  { slug: 'business', name: 'Business', color: 'indigo', icon: 'briefcase' },
+  { slug: 'career', name: 'Career', color: 'sky', icon: 'trending-up' },
+  { slug: 'relationships', name: 'Relationships', color: 'rose', icon: 'users' },
+  { slug: 'finance', name: 'Finance', color: 'amber', icon: 'piggy-bank' },
+  { slug: 'learning', name: 'Learning', color: 'violet', icon: 'book-open' },
+  { slug: 'personal-growth', name: 'Personal Growth', color: 'slate', icon: 'sprout' },
+]
+
+export function systemGoalType(slug: string): SystemGoalType | null {
+  return SYSTEM_GOAL_TYPES.find((t) => t.slug === slug) ?? null
+}
+
+function assertCanEditType(
+  type: Doc<'goalTypes'> | null,
+  userId: Id<'users'>,
+): asserts type is Doc<'goalTypes'> {
+  if (!type) {
+    throw new ConvexError('Goal type not found')
+  }
+  if (type.creatorId !== userId) {
+    throw new ConvexError('Forbidden')
+  }
+}
+
+async function customTypesForUser(ctx: QueryCtx, userId: Id<'users'>) {
+  return await ctx.db
+    .query('goalTypes')
+    .withIndex('by_creator', (q) => q.eq('creatorId', userId))
+    .take(200)
+}
+
+function assertNameAvailable(
+  name: string,
+  custom: Doc<'goalTypes'>[],
+  excludeId?: Id<'goalTypes'>,
+) {
+  const lower = name.toLowerCase()
+  if (SYSTEM_GOAL_TYPES.some((t) => t.name.toLowerCase() === lower)) {
+    throw new ConvexError('A built-in type with this name already exists')
+  }
+  if (custom.some((t) => t._id !== excludeId && t.name.toLowerCase() === lower)) {
+    throw new ConvexError('A type with this name already exists')
+  }
+}
+
+export const list = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireUserId(ctx)
+    const custom = await customTypesForUser(ctx, userId)
+    return {
+      system: SYSTEM_GOAL_TYPES,
+      custom,
+    }
+  },
+})
+
+export const create = mutation({
+  args: {
+    name: v.string(),
+    color: v.optional(v.string()),
+    icon: v.optional(v.union(v.string(), v.null())),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx)
+    const name = args.name.trim()
+    if (!name) throw new ConvexError('Name is required')
+    const custom = await customTypesForUser(ctx, userId)
+    assertNameAvailable(name, custom)
+    const trimmedIcon = args.icon?.trim() ?? ''
+    const icon = trimmedIcon === '' ? null : trimmedIcon
+    const color = args.color?.trim() || 'slate'
+    return await ctx.db.insert('goalTypes', {
+      creatorId: userId,
+      name,
+      color,
+      icon,
+      updatedAt: Date.now(),
+    })
+  },
+})
+
+export const update = mutation({
+  args: {
+    id: v.id('goalTypes'),
+    name: v.optional(v.string()),
+    color: v.optional(v.string()),
+    icon: v.optional(v.union(v.string(), v.null())),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx)
+    const type = await ctx.db.get(args.id)
+    assertCanEditType(type, userId)
+    const patch: Record<string, unknown> = {}
+    if (args.name !== undefined) {
+      const trimmed = args.name.trim()
+      if (!trimmed) throw new ConvexError('Name is required')
+      if (trimmed.toLowerCase() !== type.name.toLowerCase()) {
+        const custom = await customTypesForUser(ctx, userId)
+        assertNameAvailable(trimmed, custom, args.id)
+      }
+      patch.name = trimmed
+    }
+    if (args.color !== undefined) {
+      const trimmed = args.color.trim()
+      if (trimmed) patch.color = trimmed
+    }
+    if (args.icon !== undefined) {
+      if (args.icon === null) {
+        patch.icon = null
+      } else {
+        const trimmed = args.icon.trim()
+        patch.icon = trimmed === '' ? null : trimmed
+      }
+    }
+    if (Object.keys(patch).length === 0) return { changed: false }
+    patch.updatedAt = Date.now()
+    await ctx.db.patch(args.id, patch)
+    return { changed: true }
+  },
+})
+
+export const remove = mutation({
+  args: { id: v.id('goalTypes') },
+  handler: async (ctx, args) => {
+    const userId = await requireUserId(ctx)
+    const type = await ctx.db.get(args.id)
+    assertCanEditType(type, userId)
+    const inUse = await ctx.db
+      .query('goals')
+      .withIndex('by_customType', (q) => q.eq('customTypeId', args.id))
+      .take(1)
+    if (inUse.length > 0) {
+      throw new ConvexError('This type is used by a goal. Change those goals first.')
+    }
+    await ctx.db.delete(args.id)
+  },
+})

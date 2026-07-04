@@ -10,7 +10,10 @@
 
 import type * as agents from "../agents.js";
 import type * as clerk from "../clerk.js";
-import type * as groups from "../groups.js";
+import type * as crons from "../crons.js";
+import type * as goalReminders from "../goalReminders.js";
+import type * as goalTypes from "../goalTypes.js";
+import type * as goals from "../goals.js";
 import type * as tasks from "../tasks.js";
 import type * as todos from "../todos.js";
 import type * as users from "../users.js";
@@ -24,7 +27,10 @@ import type {
 declare const fullApi: ApiFromModules<{
   agents: typeof agents;
   clerk: typeof clerk;
-  groups: typeof groups;
+  crons: typeof crons;
+  goalReminders: typeof goalReminders;
+  goalTypes: typeof goalTypes;
+  goals: typeof goals;
   tasks: typeof tasks;
   todos: typeof todos;
   users: typeof users;

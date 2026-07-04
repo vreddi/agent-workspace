@@ -4,6 +4,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.17.1",
   "scripts": {
+    "test": "vitest run --config vitest.convex.config.mts",
     "build": "nx run-many --target=build",
     "build:affected": "nx affected --target=build",
     "dev:web": "convex dev --env-file apps/web/.env.local --start \"pnpm --filter @org/web dev\"",
@@ -16,6 +17,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
     "@nx/js": "22.7.0",
     "@storybook/addon-docs": "catalog:",
     "@swc-node/register": "1.11.1",
@@ -23,10 +25,13 @@
     "@swc/helpers": "0.5.18",
     "@types/node": "^22.19.19",
     "convex": "^1.39.1",
+    "convex-test": "^0.0.54",
     "nx": "22.7.0",
     "prettier": "^3.8.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vite": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
     "@clerk/backend": "^3.4.9",
