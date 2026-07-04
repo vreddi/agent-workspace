@@ -1,6 +1,16 @@
 import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
 import { Button } from '@org/ui/components/button'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from '@org/ui/components/select'
 import { cn } from '@org/ui/lib/utils'
 import { useMutation, useQuery } from 'convex/react'
 import { useState } from 'react'
@@ -290,10 +300,37 @@ export function dateInputToMs(value: string): number | null {
   return Number.isFinite(ms) ? ms : null
 }
 
-// Value encoding for the goal type <select>: '' = none, 'sys:<slug>',
+// Parse a 'YYYY-MM-DD' value into a local Date for the calendar's selection.
+export function dateInputToDate(value: string): Date | undefined {
+  if (!value) return undefined
+  const d = new Date(`${value}T00:00:00`)
+  return Number.isNaN(d.getTime()) ? undefined : d
+}
+
+// Today at local midnight — the earliest selectable deadline.
+export function startOfToday(): Date {
+  const d = new Date()
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+// Human label for a picked deadline, e.g. "Jul 4, 2026".
+export function formatDeadlineLabel(value: string): string {
+  const d = dateInputToDate(value)
+  if (!d) return ''
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+// Value encoding for the goal type select: '' = none, 'sys:<slug>',
 // 'custom:<id>'. NEW_TYPE_VALUE opens the inline creator without changing
-// the current selection.
+// the current selection. Radix Select forbids empty-string item values, so
+// "None" is represented internally by NONE_VALUE and mapped back to ''.
 const NEW_TYPE_VALUE = '__new__'
+const NONE_VALUE = '__none__'
 
 export type TypeSelection =
   | { kind: 'none' }
@@ -346,37 +383,44 @@ export function GoalTypeSelect({
 
   return (
     <div className="space-y-2">
-      <select
-        className={INPUT_CLASSES}
-        value={value}
+      <Select
+        value={value === '' ? NONE_VALUE : value}
         disabled={disabled || types === undefined}
-        onChange={(e) => {
-          if (e.target.value === NEW_TYPE_VALUE) {
+        onValueChange={(next) => {
+          if (next === NEW_TYPE_VALUE) {
             setCreating(true)
             return
           }
-          onChange(e.target.value)
+          onChange(next === NONE_VALUE ? '' : next)
         }}
       >
-        <option value="">None</option>
-        <optgroup label="Built-in">
-          {(types?.system ?? []).map((t) => (
-            <option key={t.slug} value={`sys:${t.slug}`}>
-              {t.name}
-            </option>
-          ))}
-        </optgroup>
-        {types !== undefined && types.custom.length > 0 && (
-          <optgroup label="Custom">
-            {types.custom.map((t) => (
-              <option key={t._id} value={`custom:${t._id}`}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="None" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={NONE_VALUE}>None</SelectItem>
+          <SelectGroup>
+            <SelectLabel>Built-in</SelectLabel>
+            {(types?.system ?? []).map((t) => (
+              <SelectItem key={t.slug} value={`sys:${t.slug}`}>
                 {t.name}
-              </option>
+              </SelectItem>
             ))}
-          </optgroup>
-        )}
-        <option value={NEW_TYPE_VALUE}>+ New type…</option>
-      </select>
+          </SelectGroup>
+          {types !== undefined && types.custom.length > 0 && (
+            <SelectGroup>
+              <SelectLabel>Custom</SelectLabel>
+              {types.custom.map((t) => (
+                <SelectItem key={t._id} value={`custom:${t._id}`}>
+                  {t.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          )}
+          <SelectSeparator />
+          <SelectItem value={NEW_TYPE_VALUE}>+ New type…</SelectItem>
+        </SelectContent>
+      </Select>
 
       {creating && (
         <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
