@@ -3,6 +3,7 @@ import type { Id } from '@convex/_generated/dataModel'
 import type { GoalListItem } from '@convex/goals'
 import { UserButton, useUser } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
+import { Calendar } from '@org/ui/components/calendar'
 import {
   Drawer,
   DrawerContent,
@@ -11,7 +12,13 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@org/ui/components/drawer'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@org/ui/components/popover'
 import { cn } from '@org/ui/lib/utils'
+import { CalendarIcon } from 'lucide-react'
 import {
   createFileRoute,
   Link,
@@ -22,14 +29,17 @@ import {
 import { Authenticated, useMutation, useQuery } from 'convex/react'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import {
+  dateInputToDate,
   dateInputToMs,
   describeDeadline,
   formatDays,
+  formatDeadlineLabel,
   GoalTypeSelect,
   goalTypeColorClasses,
   INPUT_CLASSES,
   msToDateInput,
   parseTypeValue,
+  startOfToday,
   TEXTAREA_CLASSES,
   TypeBadge,
   type GoalStatus,
@@ -321,6 +331,7 @@ function NewGoalDrawer({
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [deadline, setDeadline] = useState('')
+  const [deadlineOpen, setDeadlineOpen] = useState(false)
   const [typeValue, setTypeValue] = useState('')
   const [reminderDays, setReminderDays] = useState('7')
   const [submitting, setSubmitting] = useState(false)
@@ -331,6 +342,7 @@ function NewGoalDrawer({
       setTitle('')
       setDescription('')
       setDeadline('')
+      setDeadlineOpen(false)
       setTypeValue('')
       setReminderDays('7')
       setSubmitting(false)
@@ -387,9 +399,14 @@ function NewGoalDrawer({
       <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg">
         <form onSubmit={handleSubmit} className="flex h-full flex-col">
           <DrawerHeader className="border-b">
-            <DrawerTitle>New goal</DrawerTitle>
+            <DrawerTitle
+              className={cn(!title.trim() && 'text-muted-foreground')}
+            >
+              {title.trim() || 'New goal'}
+            </DrawerTitle>
             <DrawerDescription>
-              An objective with a deadline. Organize tasks toward it.
+              {description.trim() ||
+                'An objective with a deadline. Organize tasks toward it.'}
             </DrawerDescription>
           </DrawerHeader>
 
@@ -397,7 +414,7 @@ function NewGoalDrawer({
             <Field label="Title">
               <input
                 autoFocus
-                className={INPUT_CLASSES}
+                className={cn(INPUT_CLASSES, 'w-full')}
                 value={title}
                 disabled={submitting}
                 onChange={(e) => setTitle(e.target.value)}
@@ -417,14 +434,36 @@ function NewGoalDrawer({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Deadline">
-                <input
-                  type="date"
-                  className={INPUT_CLASSES}
-                  value={deadline}
-                  disabled={submitting}
-                  min={msToDateInput(Date.now())}
-                  onChange={(e) => setDeadline(e.target.value)}
-                />
+                <Popover open={deadlineOpen} onOpenChange={setDeadlineOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      disabled={submitting}
+                      className={cn(
+                        INPUT_CLASSES,
+                        'w-full items-center justify-between gap-2 text-left',
+                        !deadline && 'text-muted-foreground',
+                      )}
+                    >
+                      {deadline
+                        ? formatDeadlineLabel(deadline)
+                        : 'Pick a date'}
+                      <CalendarIcon className="size-4 shrink-0 opacity-60" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      autoFocus
+                      selected={dateInputToDate(deadline)}
+                      onSelect={(date) => {
+                        setDeadline(date ? msToDateInput(date.getTime()) : '')
+                        setDeadlineOpen(false)
+                      }}
+                      disabled={{ before: startOfToday() }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </Field>
               <Field label="Remind me (days before)">
                 <input
