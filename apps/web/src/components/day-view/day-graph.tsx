@@ -1,5 +1,4 @@
 import { api } from '@convex/_generated/api'
-import { Link } from '@tanstack/react-router'
 import { useQuery } from 'convex/react'
 import {
   Background,
@@ -13,6 +12,9 @@ import {
 import '@xyflow/react/dist/style.css'
 import { useEffect, useMemo, useState } from 'react'
 import { sortForToday, toDisplayTask, type DisplayTask } from '../today/helpers'
+import { Nav } from '../today/nav'
+import { todayStyles } from '../today/styles'
+import { TWEAKS_STORAGE_KEY, loadTweaks } from '../today/tweaks'
 import { bucketize } from './buckets'
 import { buildGraph, type DayNode } from './layout'
 import { nodeTypes } from './nodes'
@@ -41,18 +43,16 @@ function dayName(d: Date): string {
   return d.toLocaleDateString('en-US', { weekday: 'long' })
 }
 
-function loadTheme(): Theme {
-  if (typeof window === 'undefined') return 'light'
+/** Flip the theme and persist it to the shared tweaks so all pages agree. */
+function saveTheme(theme: Theme) {
   try {
-    const raw = window.localStorage.getItem('today.tweaks.v1')
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      if (parsed && parsed.theme === 'dark') return 'dark'
-    }
+    window.localStorage.setItem(
+      TWEAKS_STORAGE_KEY,
+      JSON.stringify({ ...loadTweaks(), theme }),
+    )
   } catch {
     /* ignore */
   }
-  return 'light'
 }
 
 function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
@@ -120,17 +120,26 @@ function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
 
 export function DayGraph() {
   const rawTasks = useQuery(api.tasks.list, {})
-  const [theme, setTheme] = useState<Theme>(() => loadTheme())
+  const [tweaks] = useState(() => loadTweaks())
+  const [theme, setTheme] = useState<Theme>(tweaks.theme)
   const now = useNow(30_000)
 
   useEffect(() => {
     // Keep in sync with Today dashboard tweaks if the user toggles theme there.
     function onStorage(e: StorageEvent) {
-      if (e.key === 'today.tweaks.v1') setTheme(loadTheme())
+      if (e.key === TWEAKS_STORAGE_KEY) setTheme(loadTweaks().theme)
     }
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
   }, [])
+
+  // Portaled menus (the nav's avatar dropdown) live outside .today-root and
+  // follow the shadcn dark class, so keep it in sync.
+  useEffect(() => {
+    const root = document.documentElement
+    if (theme === 'dark') root.classList.add('dark')
+    else root.classList.remove('dark')
+  }, [theme])
 
   const display = useMemo<DisplayTask[]>(() => {
     if (!rawTasks) return []
@@ -144,22 +153,26 @@ export function DayGraph() {
   const inProgress = display.filter((t) => t.raw.status === 'in_progress').length
 
   return (
-    <div className="day-root" data-theme={theme}>
+    <div
+      className="today-root day-shell"
+      data-today-theme={theme}
+      style={{ ['--t-accent-raw' as never]: tweaks.accent }}
+    >
+      <style>{todayStyles}</style>
       <style>{dayViewStyles}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
       />
 
+      <div className="day-shell__nav">
+        <Nav active="day" />
+      </div>
+
+      <div className="day-root" data-theme={theme}>
       <div className="d-topbar">
-        <Link to="/" className="d-back" aria-label="Back to Today">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-          Today
-        </Link>
         <div className="d-title">
           <div className="d-title__main">Day view</div>
           <div className="d-title__sub">
@@ -179,7 +192,13 @@ export function DayGraph() {
         <button
           type="button"
           className="d-back"
-          onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+          onClick={() =>
+            setTheme((t) => {
+              const next = t === 'dark' ? 'light' : 'dark'
+              saveTheme(next)
+              return next
+            })
+          }
           aria-label="Toggle theme"
           style={{ paddingRight: 14 }}
         >
@@ -217,6 +236,7 @@ export function DayGraph() {
         <div className="d-legend__row">
           <span className="d-legend__chip d-legend__chip--overdue" /> Overdue
         </div>
+      </div>
       </div>
     </div>
   )

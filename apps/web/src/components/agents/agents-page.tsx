@@ -1,6 +1,5 @@
 import { api } from '@convex/_generated/api'
 import type { Doc } from '@convex/_generated/dataModel'
-import { Link } from '@tanstack/react-router'
 import {
   Select,
   SelectContent,
@@ -21,6 +20,7 @@ import {
   useState,
 } from 'react'
 import { useUploadThing } from '~/lib/uploadthing'
+import { Nav } from '../today/nav'
 import { todayStyles } from '../today/styles'
 import { loadTweaks } from '../today/tweaks'
 import { DEFAULT_MODEL_ID, MODEL_OPTIONS, MODEL_PROVIDERS, modelById } from './models'
@@ -451,29 +451,16 @@ export function AgentsPage() {
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
       />
 
       <div className="t-main">
-        <div className="ag-head">
-          <Link to="/today" className="ag-back">
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-            Today
-          </Link>
+        <Nav active="agents" />
+
+        <div className="t-page-head">
           <h1>Agents</h1>
           {agents !== undefined && (
-            <span className="ag-count">
+            <span className="t-page-head__count">
               {agents.length} agent{agents.length === 1 ? '' : 's'}
             </span>
           )}

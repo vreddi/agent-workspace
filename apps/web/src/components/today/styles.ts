@@ -92,6 +92,14 @@ export const todayStyles = `
 }
 .t-btn-create:hover { filter: brightness(1.06); }
 
+/* ── Page section header (title + count + page-local actions) ── */
+.t-page-head {
+  display: flex; align-items: center; gap: 14px;
+  padding: 26px 12px 6px;
+}
+.t-page-head h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; color: var(--t-ink-1); }
+.t-page-head__count { font-size: 13px; color: var(--t-ink-3); font-weight: 600; font-variant-numeric: tabular-nums; }
+
 /* ── Greeting ─────────────────────────────────────────────── */
 .t-hello { padding: 34px 12px 26px; }
 .t-hello h1 {

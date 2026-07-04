@@ -1,13 +1,15 @@
 import '@uploadthing/react/styles.css'
 import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
-import { UserButton, useUser } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
 import { cn } from '@org/ui/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Authenticated, useMutation, useQuery } from 'convex/react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { UploadDropzone } from '~/lib/uploadthing'
+import { Nav } from '~/components/today/nav'
+import { todayStyles } from '~/components/today/styles'
+import { loadTweaks } from '~/components/today/tweaks'
 
 export const Route = createFileRoute('/_authenticated/groups')({
   component: GroupsPage,
@@ -48,29 +50,38 @@ const TEXTAREA_CLASSES = cn(
 )
 
 function GroupsPage() {
-  const { user } = useUser()
+  const [tweaks] = useState(() => loadTweaks())
+
+  // Portaled menus (the nav's avatar dropdown) live outside .today-root and
+  // follow the shadcn dark class, so keep it in sync on direct landings.
+  useEffect(() => {
+    const root = document.documentElement
+    if (tweaks.theme === 'dark') root.classList.add('dark')
+    else root.classList.remove('dark')
+  }, [tweaks.theme])
 
   return (
-    <main className="mx-auto max-w-5xl p-8">
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Groups</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {user?.primaryEmailAddress?.emailAddress ?? user?.id}
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/">Today</Link>
-          </Button>
-          <UserButton />
-        </div>
-      </header>
+    <div
+      className="today-root"
+      data-today-theme={tweaks.theme}
+      style={{ ['--t-accent-raw' as never]: tweaks.accent }}
+    >
+      <style>{todayStyles}</style>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
+      />
 
-      <Authenticated>
-        <GroupsList />
-      </Authenticated>
-    </main>
+      <div className="t-main">
+        <Nav active="groups" />
+
+        <Authenticated>
+          <GroupsList />
+        </Authenticated>
+      </div>
+    </div>
   )
 }
 
@@ -79,16 +90,23 @@ function GroupsList() {
   const [createOpen, setCreateOpen] = useState(false)
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {groups === undefined
-            ? 'Loading…'
-            : `${groups.length} group${groups.length === 1 ? '' : 's'}`}
-        </p>
-        <Button size="sm" onClick={() => setCreateOpen(true)}>
-          + New group
-        </Button>
+    <div className="pb-16">
+      <div className="t-page-head mb-6">
+        <h1>Groups</h1>
+        {groups !== undefined && (
+          <span className="t-page-head__count">
+            {groups.length} group{groups.length === 1 ? '' : 's'}
+          </span>
+        )}
+        <span style={{ flex: 1 }} />
+        <button
+          type="button"
+          className="t-btn-create"
+          onClick={() => setCreateOpen(true)}
+        >
+          <span style={{ fontSize: 18, lineHeight: 1, marginTop: -2 }}>＋</span>
+          New group
+        </button>
       </div>
 
       {groups === undefined ? (

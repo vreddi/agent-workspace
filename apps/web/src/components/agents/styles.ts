@@ -3,19 +3,6 @@
  * (and light/dark theming) come from `todayStyles`.
  */
 export const agentStyles = `
-.ag-head {
-  display: flex; align-items: center; gap: 14px;
-  padding: 26px 12px 6px;
-}
-.ag-head h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; color: var(--t-ink-1); }
-.ag-head .ag-count { font-size: 13px; color: var(--t-ink-3); font-weight: 600; font-variant-numeric: tabular-nums; }
-.ag-back {
-  display: inline-flex; align-items: center; gap: 6px;
-  color: var(--t-ink-2); text-decoration: none;
-  font-size: 13px; font-weight: 600;
-  height: 34px; padding: 0 12px 0 8px; border-radius: 10px;
-}
-.ag-back:hover { background: var(--t-hover); color: var(--t-ink-1); }
 .ag-sub {
   padding: 0 12px 26px;
   font-size: 15px; color: var(--t-ink-2); font-weight: 500;

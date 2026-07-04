@@ -1,4 +1,15 @@
 export const dayViewStyles = `
+/* Shell: shared nav in normal flow on top, the graph fills the rest. */
+.day-shell {
+  display: flex; flex-direction: column;
+  height: 100vh; overflow: hidden;
+}
+.day-shell__nav {
+  width: 100%; max-width: 1240px;
+  margin: 0 auto; padding: 0 24px;
+  flex-shrink: 0;
+}
+
 .day-root {
   --d-bg: #f6f5f1;
   --d-bg-2: #ecebe5;
@@ -15,8 +26,9 @@ export const dayViewStyles = `
   --d-shadow-md: 0 4px 10px rgba(20, 22, 28, 0.05), 0 12px 24px rgba(20, 22, 28, 0.08);
   --d-shadow-lg: 0 10px 30px rgba(20, 22, 28, 0.08), 0 30px 60px rgba(20, 22, 28, 0.12);
 
-  position: fixed;
-  inset: 0;
+  position: relative;
+  flex: 1;
+  min-height: 0;
   background:
     radial-gradient(1200px 800px at 20% -10%, rgba(43, 110, 245, 0.10), transparent 60%),
     radial-gradient(1000px 700px at 110% 110%, rgba(120, 80, 240, 0.10), transparent 55%),

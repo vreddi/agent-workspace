@@ -1,20 +1,7 @@
 import { api } from '@convex/_generated/api'
 import type { Doc } from '@convex/_generated/dataModel'
-import { useClerk, useUser } from '@clerk/tanstack-react-start'
-import { Link } from '@tanstack/react-router'
-import {
-  Avatar as UIAvatar,
-  AvatarFallback as UIAvatarFallback,
-  AvatarImage as UIAvatarImage,
-} from '@org/ui/components/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@org/ui/components/dropdown-menu'
+import { useUser } from '@clerk/tanstack-react-start'
+import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
 import type { SpriteSheet } from '@worldkit/sprite-actor'
 import { VillageCanvas } from '@worldkit/world-canvas'
 import { useMutation, useQuery } from 'convex/react'
@@ -34,10 +21,10 @@ import {
   fmtDateBadge,
   firstName,
   greetingFor,
-  initialsFromName,
   sortForToday,
   toDisplayTask,
 } from './helpers'
+import { Nav } from './nav'
 import { buildOfficeScene, OFFICE_CAPACITY, type OfficeAgent } from './office-scene'
 import { todayStyles } from './styles'
 import {
@@ -47,6 +34,8 @@ import {
   loadTweaks,
 } from './tweaks'
 
+const todayRoute = getRouteApi('/_authenticated/today')
+
 function useLiveTime(intervalMs: number): Date {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
@@ -54,148 +43,6 @@ function useLiveTime(intervalMs: number): Date {
     return () => window.clearInterval(id)
   }, [intervalMs])
   return now
-}
-
-function UserMenu({ onOpenSettings }: { onOpenSettings: () => void }) {
-  const { user } = useUser()
-  const { signOut } = useClerk()
-  const fullName =
-    user?.fullName ??
-    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ??
-    user?.primaryEmailAddress?.emailAddress ??
-    'You'
-  const email = user?.primaryEmailAddress?.emailAddress
-  const initials = initialsFromName(fullName, 'Y')
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          aria-label="Open account menu"
-          className="inline-flex shrink-0 cursor-pointer items-center justify-center rounded-[10px] border-0 bg-transparent p-0 outline-none transition-transform focus-visible:ring-2 focus-visible:ring-ring/50 active:translate-y-px"
-        >
-          <UIAvatar className="size-9 rounded-[10px] after:rounded-[10px]">
-            <UIAvatarImage
-              src={user?.imageUrl}
-              alt={fullName}
-              className="rounded-[10px]"
-            />
-            <UIAvatarFallback className="rounded-[10px] bg-gradient-to-br from-[#18a86b] to-[#0e7a4d] text-sm font-extrabold tracking-tight text-white">
-              {initials}
-            </UIAvatarFallback>
-          </UIAvatar>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-        <DropdownMenuLabel className="flex flex-col gap-0.5">
-          <span className="truncate text-sm font-semibold text-foreground">
-            {fullName}
-          </span>
-          {email && (
-            <span className="truncate text-xs font-normal text-muted-foreground">
-              {email}
-            </span>
-          )}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onSelect={(event) => {
-            event.preventDefault()
-            onOpenSettings()
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.36.39.58.91.6 1.51H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-          Settings
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          variant="destructive"
-          onSelect={() => {
-            void signOut({ redirectUrl: '/' })
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Log out
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
-
-function Nav({
-  onCreate,
-  onOpenSettings,
-}: {
-  onCreate: () => void
-  onOpenSettings: () => void
-}) {
-  return (
-    <header className="t-nav">
-      <div className="t-nav__brand" aria-hidden="true">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M4 11l8-7 8 7" />
-          <path d="M6 9.5V20h12V9.5" />
-          <path d="M10 20v-6h4v6" />
-        </svg>
-      </div>
-      <nav className="t-nav__links" aria-label="Main">
-        <Link to="/today" className="t-nav__link" data-active="true">
-          Today
-        </Link>
-        <Link to="/day" className="t-nav__link">
-          Day view
-        </Link>
-        <Link to="/groups" className="t-nav__link">
-          Groups
-        </Link>
-        <Link to="/agents" className="t-nav__link">
-          Agents
-        </Link>
-      </nav>
-      <span style={{ flex: 1 }} />
-      <button className="t-btn-create" onClick={onCreate} type="button">
-        New task
-        <span className="t-kbd t-kbd--on-accent">N</span>
-      </button>
-      <UserMenu onOpenSettings={onOpenSettings} />
-    </header>
-  )
 }
 
 /** Sheets for every agent: stubs resolve immediately, uploads once measured. */
@@ -625,20 +472,25 @@ export function TodayDashboard() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [tweaksOpen, setTweaksOpen] = useState(false)
 
+  // The N shortcut lives in the shared Nav; Escape closes the palette here.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setPaletteOpen(false)
-      if ((e.key === 'n' || e.key === 'N') && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        const tag = ((e.target as HTMLElement | null)?.tagName ?? '').toLowerCase()
-        const editable = (e.target as HTMLElement | null)?.isContentEditable
-        if (tag === 'input' || tag === 'textarea' || editable) return
-        e.preventDefault()
-        setPaletteOpen(true)
-      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
+
+  // Arriving with ?capture=1 (the nav's "New task" from other pages) opens
+  // the palette once, then cleans the URL.
+  const { capture } = todayRoute.useSearch()
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (capture) {
+      setPaletteOpen(true)
+      void navigate({ to: '/today', search: {}, replace: true })
+    }
+  }, [capture, navigate])
 
   const display = useMemo<DisplayTask[]>(() => {
     if (!rawTasks) return []
@@ -689,7 +541,8 @@ export function TodayDashboard() {
 
       <div className="t-main">
         <Nav
-          onCreate={() => setPaletteOpen(true)}
+          active="today"
+          onNewTask={() => setPaletteOpen(true)}
           onOpenSettings={() => setTweaksOpen(true)}
         />
 
