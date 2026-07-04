@@ -26,6 +26,7 @@ import {
   describeDeadline,
   formatDays,
   GoalTypeSelect,
+  GoalTypeSelectionIcon,
   INPUT_CLASSES,
   msToDateInput,
   parseTypeValue,
@@ -356,6 +357,18 @@ function GoalEditor({
       onSubmit={handleSave}
       className="space-y-4 rounded-xl border bg-card p-4"
     >
+      <div className="flex items-center gap-3 border-b pb-4">
+        <GoalTypeSelectionIcon value={typeValue} size={44} />
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-medium leading-tight">
+            {title.trim() || 'Untitled goal'}
+          </div>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {description.trim() || 'No description yet'}
+          </p>
+        </div>
+      </div>
+
       <label className="block space-y-1 text-xs text-muted-foreground">
         <span>Title</span>
         <input

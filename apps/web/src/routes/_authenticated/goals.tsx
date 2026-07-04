@@ -1,5 +1,4 @@
 import { api } from '@convex/_generated/api'
-import type { Id } from '@convex/_generated/dataModel'
 import type { GoalListItem } from '@convex/goals'
 import { UserButton, useUser } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
@@ -26,7 +25,7 @@ import {
   describeDeadline,
   formatDays,
   GoalTypeSelect,
-  goalTypeColorClasses,
+  GoalTypeSelectionIcon,
   INPUT_CLASSES,
   msToDateInput,
   parseTypeValue,
@@ -160,7 +159,6 @@ function GoalsList() {
   const [status, setStatus] = useState<GoalStatus>('active')
   const goals = useQuery(api.goals.list, { status })
   const [createOpen, setCreateOpen] = useState(false)
-  const [typesOpen, setTypesOpen] = useState(false)
 
   return (
     <div>
@@ -183,8 +181,8 @@ function GoalsList() {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setTypesOpen(true)}>
-            Manage types
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/goals/types">Manage types</Link>
           </Button>
           <Button size="sm" onClick={() => setCreateOpen(true)}>
             + New goal
@@ -212,7 +210,6 @@ function GoalsList() {
       )}
 
       <NewGoalDrawer open={createOpen} onClose={() => setCreateOpen(false)} />
-      <ManageTypesModal open={typesOpen} onClose={() => setTypesOpen(false)} />
     </div>
   )
 }
@@ -387,10 +384,15 @@ function NewGoalDrawer({
       <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg">
         <form onSubmit={handleSubmit} className="flex h-full flex-col">
           <DrawerHeader className="border-b">
-            <DrawerTitle>New goal</DrawerTitle>
-            <DrawerDescription>
-              An objective with a deadline. Organize tasks toward it.
-            </DrawerDescription>
+            <div className="flex items-center gap-3">
+              <GoalTypeSelectionIcon value={typeValue} size={44} />
+              <div className="min-w-0 space-y-0.5">
+                <DrawerTitle>New goal</DrawerTitle>
+                <DrawerDescription>
+                  An objective with a deadline. Organize tasks toward it.
+                </DrawerDescription>
+              </div>
+            </div>
           </DrawerHeader>
 
           <div className="flex-1 space-y-5 overflow-y-auto p-5">
@@ -474,184 +476,5 @@ function NewGoalDrawer({
         </form>
       </DrawerContent>
     </Drawer>
-  )
-}
-
-function ManageTypesModal({
-  open,
-  onClose,
-}: {
-  open: boolean
-  onClose: () => void
-}) {
-  const types = useQuery(api.goalTypes.list, {})
-  const updateType = useMutation(api.goalTypes.update)
-  const removeType = useMutation(api.goalTypes.remove)
-  const [editingId, setEditingId] = useState<Id<'goalTypes'> | null>(null)
-  const [editingName, setEditingName] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (open) {
-      setEditingId(null)
-      setEditingName('')
-      setBusy(false)
-      setError(null)
-    }
-  }, [open])
-
-  if (!open) return null
-
-  async function handleRename() {
-    if (editingId === null || busy) return
-    const trimmed = editingName.trim()
-    if (!trimmed) return
-    setBusy(true)
-    setError(null)
-    try {
-      await updateType({ id: editingId, name: trimmed })
-      setEditingId(null)
-      setEditingName('')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to rename type')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function handleDelete(id: Id<'goalTypes'>) {
-    if (busy) return
-    setBusy(true)
-    setError(null)
-    try {
-      await removeType({ id })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete type')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pt-[10vh]"
-      onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') onClose()
-      }}
-    >
-      <div
-        className="w-full max-w-lg rounded-2xl border bg-background p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="mb-1 text-lg font-semibold tracking-tight">
-          Custom goal types
-        </h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Built-in types can't be edited. Types in use by a goal can't be
-          deleted.
-        </p>
-
-        {types === undefined ? (
-          <p className="text-sm text-muted-foreground">Loading types…</p>
-        ) : types.custom.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-            No custom types yet. Create one from the type select when creating
-            a goal.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {types.custom.map((type) => (
-              <li
-                key={type._id}
-                className="flex items-center gap-3 rounded-lg border px-3 py-2"
-              >
-                <span
-                  className={cn(
-                    'h-2.5 w-2.5 shrink-0 rounded-full',
-                    goalTypeColorClasses(type.color).dot,
-                  )}
-                />
-                {editingId === type._id ? (
-                  <>
-                    <input
-                      className={INPUT_CLASSES}
-                      value={editingName}
-                      disabled={busy}
-                      autoFocus
-                      onChange={(e) => setEditingName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          void handleRename()
-                        }
-                      }}
-                    />
-                    <Button
-                      size="sm"
-                      disabled={busy || editingName.trim() === ''}
-                      onClick={() => {
-                        void handleRename()
-                      }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={busy}
-                      onClick={() => setEditingId(null)}
-                    >
-                      Cancel
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <span className="min-w-0 flex-1 truncate text-sm">
-                      {type.name}
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={busy}
-                      onClick={() => {
-                        setEditingId(type._id)
-                        setEditingName(type.name)
-                        setError(null)
-                      }}
-                    >
-                      Rename
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      disabled={busy}
-                      onClick={() => {
-                        void handleDelete(type._id)
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {error && (
-          <div className="mt-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-            {error}
-          </div>
-        )}
-
-        <div className="mt-6 flex justify-end">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-        </div>
-      </div>
-    </div>
   )
 }
