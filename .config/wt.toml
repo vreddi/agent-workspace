@@ -7,18 +7,9 @@ set -e
 cd "$WT_PATH"
 
 # 1. Symlink env files from the canonical store (~/.config/agent-workspace).
-#    Add new lines here when more apps need their own .env.local.
-ENV_HOME="$HOME/.config/agent-workspace"
-link_env() {
-  local target="$1"   # canonical filename inside $ENV_HOME
-  local dest="$2"     # path inside the worktree
-  if [ -e "$ENV_HOME/$target" ] && [ ! -e "$dest" ]; then
-    mkdir -p "$(dirname "$dest")"
-    ln -s "$ENV_HOME/$target" "$dest"
-    echo "linked $dest -> $ENV_HOME/$target"
-  fi
-}
-link_env web.env.local apps/web/.env.local
+#    Shared with the Claude Code worktree hooks in .claude/settings.json;
+#    add new env files inside the script.
+bash scripts/link-worktree-env.sh
 
 # 2. Install workspace deps (fast — pnpm hardlinks from the global store).
 pnpm install --frozen-lockfile

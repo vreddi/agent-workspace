@@ -1,4 +1,31 @@
 {
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "root=$(git rev-parse --show-toplevel 2>/dev/null); [ -n \"$root\" ] && [ -f \"$root/scripts/link-worktree-env.sh\" ] && bash \"$root/scripts/link-worktree-env.sh\" || true",
+            "timeout": 15,
+            "statusMessage": "Linking worktree env files"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "EnterWorktree",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "root=$(git rev-parse --show-toplevel 2>/dev/null); [ -n \"$root\" ] && [ -f \"$root/scripts/link-worktree-env.sh\" ] && bash \"$root/scripts/link-worktree-env.sh\" || true",
+            "timeout": 15,
+            "statusMessage": "Linking worktree env files"
+          }
+        ]
+      }
+    ]
+  },
   "extraKnownMarketplaces": {
     "nx-claude-plugins": {
       "source": {
