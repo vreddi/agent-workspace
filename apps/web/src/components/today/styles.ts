@@ -191,6 +191,10 @@ export const todayStyles = `
   border: 1.5px solid var(--t-ink-4);
 }
 .t-task-row__dot--overdue { border-color: var(--t-overdue); background: var(--t-overdue-soft); }
+.t-task-row__emoji {
+  width: 18px; flex-shrink: 0;
+  font-size: 15px; line-height: 1; text-align: center;
+}
 .t-task-row__title {
   flex: 1; min-width: 0;
   font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
@@ -228,8 +232,8 @@ export const todayStyles = `
   background: rgba(30,28,22,0.32);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  display: flex; align-items: flex-start; justify-content: center;
-  padding-top: 18vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
   z-index: 50;
   animation: t-fade-in 0.14s ease-out;
 }
@@ -240,8 +244,17 @@ export const todayStyles = `
   border-radius: 16px;
   box-shadow: 0 30px 70px -20px rgba(0,0,0,0.4);
   border: 1px solid var(--t-divider);
-  overflow: hidden;
+  /* Visible so the emoji / goal picker panels can overflow the card. */
+  overflow: visible;
   animation: t-pop-in 0.18s cubic-bezier(0.2,0.9,0.3,1);
+}
+.t-palette__row {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+.t-palette__hints {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 @keyframes t-fade-in { from{opacity:0} to{opacity:1} }
 @keyframes t-pop-in { from{opacity:0;transform:translateY(-8px) scale(0.98)} to{opacity:1;transform:translateY(0) scale(1)} }
@@ -249,11 +262,99 @@ export const todayStyles = `
   display: flex; align-items: center; gap: 12px; padding: 18px 20px;
   border-bottom: 1px solid var(--t-divider);
 }
-.t-palette__plus {
-  width: 22px; height: 22px; border-radius: 7px;
+/* ── Emoji picker ────────────────────────────────────────── */
+.t-emoji { position: relative; flex-shrink: 0; }
+.t-emoji__trigger {
+  width: 30px; height: 30px; border-radius: 8px;
   background: var(--t-accent-soft); color: var(--t-accent);
+  border: 1px solid transparent;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; flex-shrink: 0;
+  cursor: pointer; flex-shrink: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.t-emoji__trigger:hover { border-color: var(--t-accent); }
+.t-emoji__trigger[data-has-emoji] { background: var(--t-bg); }
+.t-emoji__trigger:disabled { opacity: 0.5; cursor: not-allowed; }
+.t-emoji__glyph { font-size: 18px; line-height: 1; }
+.t-emoji__panel {
+  position: absolute; top: calc(100% + 8px); left: 0;
+  width: 268px; padding: 10px;
+  background: var(--t-surface);
+  border: 1px solid var(--t-divider);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px -14px rgba(0,0,0,0.35);
+  z-index: 60;
+  animation: t-pop-in 0.14s cubic-bezier(0.2,0.9,0.3,1);
+}
+.t-emoji__grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px;
+}
+.t-emoji__cell {
+  aspect-ratio: 1; border: none; background: transparent;
+  border-radius: 8px; cursor: pointer;
+  font-size: 18px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.1s ease;
+}
+.t-emoji__cell:hover { background: var(--t-bg); }
+.t-emoji__cell[data-active] { background: var(--t-accent-soft); }
+.t-emoji__clear {
+  margin-top: 8px; width: 100%;
+  padding: 7px; border-radius: 8px;
+  border: 1px solid var(--t-divider); background: transparent;
+  color: var(--t-ink-2); font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.t-emoji__clear:hover { background: var(--t-bg); color: var(--t-ink-1); }
+
+/* ── Goal picker ─────────────────────────────────────────── */
+.t-goalpick { position: relative; }
+.t-goalpick__trigger {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px 10px;
+  background: var(--t-bg);
+  border: 1px solid var(--t-divider);
+  border-radius: 9px;
+  cursor: pointer; text-align: left;
+  transition: border-color 0.12s ease;
+}
+.t-goalpick__trigger:hover,
+.t-goalpick__trigger[aria-expanded="true"] { border-color: var(--t-accent); }
+.t-goalpick__trigger:disabled { opacity: 0.5; cursor: not-allowed; }
+.t-goalpick__value {
+  flex: 1; min-width: 0;
+  font-size: 14px; font-weight: 500; color: var(--t-ink-1);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.t-goalpick__trigger[data-empty] .t-goalpick__value { color: var(--t-ink-3); }
+.t-goalpick__caret { color: var(--t-ink-3); flex-shrink: 0; }
+.t-goalpick__panel {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  max-height: 220px; overflow-y: auto;
+  padding: 5px;
+  background: var(--t-surface);
+  border: 1px solid var(--t-divider);
+  border-radius: 11px;
+  box-shadow: 0 18px 40px -14px rgba(0,0,0,0.35);
+  z-index: 60;
+  animation: t-pop-in 0.14s cubic-bezier(0.2,0.9,0.3,1);
+}
+.t-goalpick__opt {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 10px; border: none; background: transparent;
+  border-radius: 7px; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: var(--t-ink-1);
+  font-family: inherit;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: background 0.1s ease;
+}
+.t-goalpick__opt:hover { background: var(--t-bg); }
+.t-goalpick__opt[data-active] {
+  background: var(--t-accent-soft); color: var(--t-accent-ink);
+}
+.t-goalpick__empty {
+  padding: 8px 10px; font-size: 13px; color: var(--t-ink-3);
 }
 .t-palette__input {
   flex: 1; border: none; outline: none; background: transparent;

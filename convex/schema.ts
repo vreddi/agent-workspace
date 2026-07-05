@@ -75,6 +75,10 @@ export default defineSchema({
   tasks: defineTable({
     title: v.string(),
     description: v.union(v.string(), v.null()),
+    // Optional emoji chosen at capture time, shown as the task's glyph.
+    // Optional (not just nullable) so rows created before emoji existed
+    // validate.
+    emoji: v.optional(v.union(v.string(), v.null())),
     creatorId: v.id('users'),
     assigneeUserId: v.id('users'),
     // Full set of assignees (primary first). Optional for rows created before

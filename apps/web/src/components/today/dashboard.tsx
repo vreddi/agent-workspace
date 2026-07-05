@@ -1,5 +1,5 @@
 import { api } from '@convex/_generated/api'
-import type { Doc } from '@convex/_generated/dataModel'
+import type { Doc, Id } from '@convex/_generated/dataModel'
 import { useUser } from '@clerk/tanstack-react-start'
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
 import type { SpriteSheet } from '@worldkit/sprite-actor'
@@ -173,11 +173,17 @@ function TaskRow({ task, now }: { task: DisplayTask; now: Date }) {
       params={{ taskId: task.raw._id }}
       className="t-task-row"
     >
-      <span
-        className={
-          't-task-row__dot' + (task.overdue ? ' t-task-row__dot--overdue' : '')
-        }
-      />
+      {task.raw.emoji ? (
+        <span className="t-task-row__emoji" aria-hidden>
+          {task.raw.emoji}
+        </span>
+      ) : (
+        <span
+          className={
+            't-task-row__dot' + (task.overdue ? ' t-task-row__dot--overdue' : '')
+          }
+        />
+      )}
       <span className="t-task-row__title">{task.title}</span>
       {task.source && (
         <span className="t-task-row__src" title={task.source.label}>
@@ -205,6 +211,8 @@ export type CaptureInput = {
   title: string
   estimateMinutes: number | null
   targetDate: string | null
+  emoji: string | null
+  goalId: Id<'goals'> | null
 }
 
 function todayDateString(): string {
@@ -213,18 +221,203 @@ function todayDateString(): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
+/** A curated palette of task-friendly emoji for the quick-capture picker. */
+const TASK_EMOJIS = [
+  '✅', '📝', '💡', '🎯', '🔥', '⭐', '📌', '🚀',
+  '🐛', '🔧', '🧹', '📞', '✉️', '📅', '💼', '💰',
+  '📚', '🎨', '🧠', '💪', '🏃', '🍽️', '🛒', '🏠',
+  '🌱', '☕', '🎁', '✈️', '🎉', '❤️', '⏰', '📦',
+]
+
+function EmojiGlyphButton({
+  value,
+  disabled,
+  onSelect,
+}: {
+  value: string | null
+  disabled: boolean
+  onSelect: (emoji: string | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (!open) return
+    function onDown(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [open])
+  return (
+    <div className="t-emoji" ref={ref}>
+      <button
+        type="button"
+        className="t-emoji__trigger"
+        data-has-emoji={value ? true : undefined}
+        disabled={disabled}
+        aria-label={value ? 'Change task emoji' : 'Add a task emoji'}
+        onClick={() => setOpen((o) => !o)}
+      >
+        {value ? (
+          <span className="t-emoji__glyph">{value}</span>
+        ) : (
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+            <line x1="9" y1="9" x2="9.01" y2="9" />
+            <line x1="15" y1="9" x2="15.01" y2="9" />
+          </svg>
+        )}
+      </button>
+      {open && (
+        <div className="t-emoji__panel" role="dialog" aria-label="Pick an emoji">
+          <div className="t-emoji__grid">
+            {TASK_EMOJIS.map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                className="t-emoji__cell"
+                data-active={value === emoji ? true : undefined}
+                onClick={() => {
+                  onSelect(emoji)
+                  setOpen(false)
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          {value && (
+            <button
+              type="button"
+              className="t-emoji__clear"
+              onClick={() => {
+                onSelect(null)
+                setOpen(false)
+              }}
+            >
+              Remove emoji
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+type GoalOption = { _id: Id<'goals'>; title: string }
+
+function GoalPicker({
+  goals,
+  value,
+  disabled,
+  onSelect,
+}: {
+  goals: GoalOption[] | undefined
+  value: Id<'goals'> | null
+  disabled: boolean
+  onSelect: (goalId: Id<'goals'> | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    if (!open) return
+    function onDown(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [open])
+  const selected = goals?.find((g) => g._id === value) ?? null
+  return (
+    <div className="t-goalpick" ref={ref}>
+      <button
+        type="button"
+        className="t-goalpick__trigger"
+        data-empty={selected ? undefined : true}
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <span className="t-goalpick__value">
+          {selected ? selected.title : 'No goal'}
+        </span>
+        <svg
+          className="t-goalpick__caret"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div className="t-goalpick__panel" role="listbox">
+          <button
+            type="button"
+            className="t-goalpick__opt"
+            data-active={value === null ? true : undefined}
+            onClick={() => {
+              onSelect(null)
+              setOpen(false)
+            }}
+          >
+            No goal
+          </button>
+          {goals?.map((g) => (
+            <button
+              key={g._id}
+              type="button"
+              className="t-goalpick__opt"
+              data-active={value === g._id ? true : undefined}
+              onClick={() => {
+                onSelect(g._id)
+                setOpen(false)
+              }}
+            >
+              {g.title}
+            </button>
+          ))}
+          {goals && goals.length === 0 && (
+            <div className="t-goalpick__empty">No active goals yet.</div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function CapturePalette({
   open,
+  goals,
   onClose,
   onSubmit,
 }: {
   open: boolean
+  goals: GoalOption[] | undefined
   onClose: () => void
   onSubmit: (input: CaptureInput) => Promise<void>
 }) {
   const [val, setVal] = useState('')
   const [estimate, setEstimate] = useState('')
   const [targetDate, setTargetDate] = useState('')
+  const [emoji, setEmoji] = useState<string | null>(null)
+  const [goalId, setGoalId] = useState<Id<'goals'> | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -233,6 +426,8 @@ function CapturePalette({
       setVal('')
       setEstimate('')
       setTargetDate('')
+      setEmoji(null)
+      setGoalId(null)
       setError(null)
       setSubmitting(false)
       window.requestAnimationFrame(() => inputRef.current?.focus())
@@ -260,6 +455,8 @@ function CapturePalette({
         title: trimmed,
         estimateMinutes,
         targetDate: targetDate || null,
+        emoji,
+        goalId,
       })
       onClose()
     } catch (err) {
@@ -282,7 +479,11 @@ function CapturePalette({
         onSubmit={handleSubmit}
       >
         <div className="t-palette__row">
-          <span className="t-palette__plus">+</span>
+          <EmojiGlyphButton
+            value={emoji}
+            disabled={submitting}
+            onSelect={setEmoji}
+          />
           <input
             ref={inputRef}
             className="t-palette__input"
@@ -341,6 +542,15 @@ function CapturePalette({
                 </button>
               )}
             </div>
+          </label>
+          <label className="t-palette__field">
+            <span className="t-palette__label">Goal</span>
+            <GoalPicker
+              goals={goals}
+              value={goalId}
+              disabled={submitting}
+              onSelect={setGoalId}
+            />
           </label>
         </div>
         {error && <div className="t-palette__error">{error}</div>}
@@ -449,6 +659,7 @@ export function TodayDashboard() {
 
   const rawTasks = useQuery(api.tasks.list, {})
   const agents = useQuery(api.agents.list, {})
+  const goals = useQuery(api.goals.list, {})
   const createTask = useMutation(api.tasks.create)
 
   const [tweaks, setTweaksState] = useState<Tweaks>(() => loadTweaks())
@@ -514,6 +725,8 @@ export function TodayDashboard() {
       title: input.title,
       estimateMinutes: input.estimateMinutes,
       softDeadline,
+      emoji: input.emoji,
+      goalId: input.goalId,
     })
   }
 
@@ -596,6 +809,7 @@ export function TodayDashboard() {
 
       <CapturePalette
         open={paletteOpen}
+        goals={goals}
         onClose={() => setPaletteOpen(false)}
         onSubmit={handleCapture}
       />
