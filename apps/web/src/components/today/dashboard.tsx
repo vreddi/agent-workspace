@@ -7,6 +7,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@org/ui/components/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@org/ui/components/select'
 import { Slider } from '@org/ui/components/slider'
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
 import type { SpriteSheet } from '@worldkit/sprite-actor'
@@ -16,12 +23,10 @@ import {
   type FormEvent,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react'
-import { createPortal } from 'react-dom'
 import { customSheet, stubSheet } from '../agents/sprites'
 import { GoalTypeSelectionIcon, goalTypeValue } from '../goals/goal-ui'
 import { PRIORITY_LABELS, type TaskPriority } from '../tasks/priority'
@@ -305,7 +310,9 @@ function GoalOptIcon({ goal }: { goal: GoalOption | null }) {
   )
 }
 
-type PanelCoords = { left: number; width: number; top?: number; bottom?: number }
+// Radix Select forbids empty-string item values, so "No goal" gets a
+// sentinel that maps back to null.
+const NO_GOAL_VALUE = '__none__'
 
 function GoalPicker({
   goals,
@@ -318,134 +325,41 @@ function GoalPicker({
   disabled: boolean
   onSelect: (goalId: Id<'goals'> | null) => void
 }) {
-  const [open, setOpen] = useState(false)
-  const [coords, setCoords] = useState<PanelCoords | null>(null)
-  const wrapRef = useRef<HTMLDivElement | null>(null)
-  const panelRef = useRef<HTMLDivElement | null>(null)
-
-  // Anchor the (portaled) panel to the trigger with fixed positioning so it
-  // escapes the scrolling details container and can overflow the footer.
-  const place = useCallback(() => {
-    const el = wrapRef.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    const gap = 6
-    const estPanel = 240
-    const spaceBelow = window.innerHeight - r.bottom
-    if (spaceBelow < estPanel && r.top > spaceBelow) {
-      setCoords({
-        left: r.left,
-        width: r.width,
-        bottom: window.innerHeight - r.top + gap,
-      })
-    } else {
-      setCoords({ left: r.left, width: r.width, top: r.bottom + gap })
-    }
-  }, [])
-
-  useLayoutEffect(() => {
-    if (!open) return
-    place()
-    window.addEventListener('scroll', place, true)
-    window.addEventListener('resize', place)
-    return () => {
-      window.removeEventListener('scroll', place, true)
-      window.removeEventListener('resize', place)
-    }
-  }, [open, place])
-
-  useEffect(() => {
-    if (!open) return
-    function onDown(e: MouseEvent) {
-      const t = e.target as Node
-      if (wrapRef.current?.contains(t)) return
-      if (panelRef.current?.contains(t)) return
-      setOpen(false)
-    }
-    document.addEventListener('mousedown', onDown)
-    return () => document.removeEventListener('mousedown', onDown)
-  }, [open])
-
-  const selected = goals?.find((g) => g._id === value) ?? null
   return (
-    <div className="t-goalpick" ref={wrapRef}>
-      <button
-        type="button"
-        className="t-goalpick__trigger"
-        data-empty={selected ? undefined : true}
-        disabled={disabled}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+    <Select
+      value={value ?? NO_GOAL_VALUE}
+      disabled={disabled || goals === undefined}
+      onValueChange={(next) =>
+        onSelect(next === NO_GOAL_VALUE ? null : (next as Id<'goals'>))
+      }
+    >
+      <SelectTrigger
+        className="w-full"
+        data-empty={value === null ? true : undefined}
+        aria-label="Goal"
       >
-        {selected && <GoalOptIcon goal={selected} />}
-        <span className="t-goalpick__value">
-          {selected ? selected.title : 'No goal'}
-        </span>
-        <svg
-          className="t-goalpick__caret"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
-      </button>
-      {open &&
-        coords &&
-        createPortal(
-          <div
-            ref={panelRef}
-            className="t-goalpick__panel"
-            role="listbox"
-            style={{
-              position: 'fixed',
-              left: coords.left,
-              width: coords.width,
-              ...(coords.top !== undefined
-                ? { top: coords.top }
-                : { bottom: coords.bottom }),
-            }}
-          >
-            <button
-              type="button"
-              className="t-goalpick__opt"
-              data-active={value === null ? true : undefined}
-              onClick={() => {
-                onSelect(null)
-                setOpen(false)
-              }}
-            >
-              <GoalOptIcon goal={null} />
-              <span className="t-goalpick__opt-label">No goal</span>
-            </button>
-            {goals?.map((g) => (
-              <button
-                key={g._id}
-                type="button"
-                className="t-goalpick__opt"
-                data-active={value === g._id ? true : undefined}
-                onClick={() => {
-                  onSelect(g._id)
-                  setOpen(false)
-                }}
-              >
-                <GoalOptIcon goal={g} />
-                <span className="t-goalpick__opt-label">{g.title}</span>
-              </button>
-            ))}
-            {goals && goals.length === 0 && (
-              <div className="t-goalpick__empty">No active goals yet.</div>
-            )}
-          </div>,
-          document.body,
+        <SelectValue placeholder="No goal" />
+      </SelectTrigger>
+      <SelectContent
+        className="z-[70]"
+        // Dismiss only the dropdown, not the whole capture palette.
+        onEscapeKeyDown={(e) => e.stopPropagation()}
+      >
+        <SelectItem value={NO_GOAL_VALUE}>
+          <GoalOptIcon goal={null} />
+          No goal
+        </SelectItem>
+        {goals?.map((g) => (
+          <SelectItem key={g._id} value={g._id}>
+            <GoalOptIcon goal={g} />
+            {g.title}
+          </SelectItem>
+        ))}
+        {goals && goals.length === 0 && (
+          <div className="t-goalpick__empty">No active goals yet.</div>
         )}
-    </div>
+      </SelectContent>
+    </Select>
   )
 }
 
