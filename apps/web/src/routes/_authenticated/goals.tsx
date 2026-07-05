@@ -33,6 +33,7 @@ import {
   describeDeadline,
   formatDays,
   formatDeadlineLabel,
+  goalTypeValue,
   GoalTypeSelect,
   GoalTypeSelectionIcon,
   INPUT_CLASSES,
@@ -41,6 +42,8 @@ import {
   startOfToday,
   TEXTAREA_CLASSES,
   TypeBadge,
+  useViewMode,
+  ViewToggle,
   type GoalStatus,
 } from '~/components/goals/goal-ui'
 
@@ -169,6 +172,7 @@ function GoalsList() {
   const [status, setStatus] = useState<GoalStatus>('active')
   const goals = useQuery(api.goals.list, { status })
   const [createOpen, setCreateOpen] = useState(false)
+  const [view, setView] = useViewMode('goals:view', 'card')
 
   return (
     <div>
@@ -191,6 +195,7 @@ function GoalsList() {
           ))}
         </div>
         <div className="flex items-center gap-2">
+          <ViewToggle value={view} onChange={setView} />
           <Button variant="outline" size="sm" asChild>
             <Link to="/goals/types">Manage types</Link>
           </Button>
@@ -201,20 +206,37 @@ function GoalsList() {
       </div>
 
       {goals === undefined ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-40 animate-pulse rounded-xl border bg-muted/40"
-            />
-          ))}
-        </div>
+        view === 'card' ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-40 animate-pulse rounded-xl border bg-muted/40"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-[72px] animate-pulse rounded-xl border bg-muted/40"
+              />
+            ))}
+          </div>
+        )
       ) : goals.length === 0 ? (
         <EmptyState status={status} onCreate={() => setCreateOpen(true)} />
-      ) : (
+      ) : view === 'card' ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {goals.map((goal) => (
             <GoalCard key={goal._id} goal={goal} />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {goals.map((goal) => (
+            <GoalRow key={goal._id} goal={goal} />
           ))}
         </div>
       )}
@@ -255,16 +277,16 @@ function EmptyState({
   )
 }
 
+function goalProgressPct(goal: GoalListItem): number {
+  const { totalCostDays, completeCostDays } = goal.progress
+  if (totalCostDays <= 0) return 0
+  return Math.min(100, Math.round((completeCostDays / totalCostDays) * 100))
+}
+
 function GoalCard({ goal }: { goal: GoalListItem }) {
   const deadline = describeDeadline(goal.deadline, Date.now())
   const progress = goal.progress
-  const pct =
-    progress.totalCostDays > 0
-      ? Math.min(
-          100,
-          Math.round((progress.completeCostDays / progress.totalCostDays) * 100),
-        )
-      : 0
+  const pct = goalProgressPct(goal)
 
   return (
     <Link
@@ -272,13 +294,18 @@ function GoalCard({ goal }: { goal: GoalListItem }) {
       params={{ goalId: goal._id }}
       className="flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition hover:border-ring hover:shadow-sm"
     >
-      <div className="min-w-0">
-        <div className="truncate font-semibold leading-tight">{goal.title}</div>
-        {goal.type && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            <TypeBadge type={goal.type} />
+      <div className="flex items-start gap-3">
+        <GoalTypeSelectionIcon value={goalTypeValue(goal)} size={40} />
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-semibold leading-tight">
+            {goal.title}
           </div>
-        )}
+          {goal.type && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <TypeBadge type={goal.type} />
+            </div>
+          )}
+        </div>
       </div>
       <div className="text-xs text-muted-foreground">
         {new Date(goal.deadline).toLocaleDateString()} ·{' '}
@@ -293,6 +320,50 @@ function GoalCard({ goal }: { goal: GoalListItem }) {
           {progress.completeTasks}/{progress.totalTasks} tasks ·{' '}
           {formatDays(progress.completeCostDays)} of{' '}
           {formatDays(progress.totalCostDays)} days done
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-primary transition-[width]"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function GoalRow({ goal }: { goal: GoalListItem }) {
+  const deadline = describeDeadline(goal.deadline, Date.now())
+  const progress = goal.progress
+  const pct = goalProgressPct(goal)
+
+  return (
+    <Link
+      to="/goals/$goalId"
+      params={{ goalId: goal._id }}
+      className="flex items-center gap-4 rounded-xl border bg-card px-4 py-3 transition hover:border-ring hover:shadow-sm"
+    >
+      <GoalTypeSelectionIcon value={goalTypeValue(goal)} size={44} />
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate font-medium leading-tight">
+            {goal.title}
+          </span>
+          {goal.type && <TypeBadge type={goal.type} />}
+        </div>
+        <div className="mt-0.5 text-xs text-muted-foreground">
+          {new Date(goal.deadline).toLocaleDateString()} ·{' '}
+          <span
+            className={cn(deadline.overdue && 'font-medium text-destructive')}
+          >
+            {deadline.label}
+          </span>{' '}
+          · {progress.completeTasks}/{progress.totalTasks} tasks
+        </div>
+      </div>
+      <div className="hidden w-36 shrink-0 sm:block">
+        <div className="mb-1 text-right text-xs tabular-nums text-muted-foreground">
+          {pct}%
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div
