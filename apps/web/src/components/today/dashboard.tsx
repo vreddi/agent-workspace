@@ -16,11 +16,14 @@ import {
   type FormEvent,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { customSheet, stubSheet } from '../agents/sprites'
+import { GoalTypeIcon } from '../goals/goal-ui'
 import { PRIORITY_LABELS, type TaskPriority } from '../tasks/priority'
 import { BrandIcon } from './brand-icons'
 import { EmojiGlyphButton } from './emoji-picker'
@@ -282,7 +285,35 @@ function fmtSlotTime(minutes: number): string {
   return m === 0 ? `${hh} ${ampm}` : `${hh}:${String(m).padStart(2, '0')} ${ampm}`
 }
 
-type GoalOption = { _id: Id<'goals'>; title: string }
+type GoalTypeMeta = {
+  name: string
+  color: string
+  icon: string | null
+} | null
+type GoalOption = { _id: Id<'goals'>; title: string; type: GoalTypeMeta }
+
+// Small leading tile for a goal row. Reuses the goal type art, or a neutral
+// dashed placeholder for the "No goal" row / typeless goals so titles align.
+function GoalOptIcon({ type }: { type: GoalTypeMeta }) {
+  if (!type) {
+    return (
+      <span aria-hidden className="t-goalpick__icon t-goalpick__icon--none">
+        ◎
+      </span>
+    )
+  }
+  return (
+    <GoalTypeIcon
+      name={type.name}
+      color={type.color}
+      icon={type.icon}
+      size={20}
+      className="t-goalpick__icon"
+    />
+  )
+}
+
+type PanelCoords = { left: number; width: number; top?: number; bottom?: number }
 
 function GoalPicker({
   goals,
@@ -296,18 +327,56 @@ function GoalPicker({
   onSelect: (goalId: Id<'goals'> | null) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement | null>(null)
+  const [coords, setCoords] = useState<PanelCoords | null>(null)
+  const wrapRef = useRef<HTMLDivElement | null>(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
+
+  // Anchor the (portaled) panel to the trigger with fixed positioning so it
+  // escapes the scrolling details container and can overflow the footer.
+  const place = useCallback(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const gap = 6
+    const estPanel = 240
+    const spaceBelow = window.innerHeight - r.bottom
+    if (spaceBelow < estPanel && r.top > spaceBelow) {
+      setCoords({
+        left: r.left,
+        width: r.width,
+        bottom: window.innerHeight - r.top + gap,
+      })
+    } else {
+      setCoords({ left: r.left, width: r.width, top: r.bottom + gap })
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!open) return
+    place()
+    window.addEventListener('scroll', place, true)
+    window.addEventListener('resize', place)
+    return () => {
+      window.removeEventListener('scroll', place, true)
+      window.removeEventListener('resize', place)
+    }
+  }, [open, place])
+
   useEffect(() => {
     if (!open) return
     function onDown(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      const t = e.target as Node
+      if (wrapRef.current?.contains(t)) return
+      if (panelRef.current?.contains(t)) return
+      setOpen(false)
     }
     document.addEventListener('mousedown', onDown)
     return () => document.removeEventListener('mousedown', onDown)
   }, [open])
+
   const selected = goals?.find((g) => g._id === value) ?? null
   return (
-    <div className="t-goalpick" ref={ref}>
+    <div className="t-goalpick" ref={wrapRef}>
       <button
         type="button"
         className="t-goalpick__trigger"
@@ -317,6 +386,7 @@ function GoalPicker({
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
+        {selected && <GoalOptIcon type={selected.type} />}
         <span className="t-goalpick__value">
           {selected ? selected.title : 'No goal'}
         </span>
@@ -334,38 +404,55 @@ function GoalPicker({
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
-      {open && (
-        <div className="t-goalpick__panel" role="listbox">
-          <button
-            type="button"
-            className="t-goalpick__opt"
-            data-active={value === null ? true : undefined}
-            onClick={() => {
-              onSelect(null)
-              setOpen(false)
+      {open &&
+        coords &&
+        createPortal(
+          <div
+            ref={panelRef}
+            className="t-goalpick__panel"
+            role="listbox"
+            style={{
+              position: 'fixed',
+              left: coords.left,
+              width: coords.width,
+              ...(coords.top !== undefined
+                ? { top: coords.top }
+                : { bottom: coords.bottom }),
             }}
           >
-            No goal
-          </button>
-          {goals?.map((g) => (
             <button
-              key={g._id}
               type="button"
               className="t-goalpick__opt"
-              data-active={value === g._id ? true : undefined}
+              data-active={value === null ? true : undefined}
               onClick={() => {
-                onSelect(g._id)
+                onSelect(null)
                 setOpen(false)
               }}
             >
-              {g.title}
+              <GoalOptIcon type={null} />
+              <span className="t-goalpick__opt-label">No goal</span>
             </button>
-          ))}
-          {goals && goals.length === 0 && (
-            <div className="t-goalpick__empty">No active goals yet.</div>
-          )}
-        </div>
-      )}
+            {goals?.map((g) => (
+              <button
+                key={g._id}
+                type="button"
+                className="t-goalpick__opt"
+                data-active={value === g._id ? true : undefined}
+                onClick={() => {
+                  onSelect(g._id)
+                  setOpen(false)
+                }}
+              >
+                <GoalOptIcon type={g.type} />
+                <span className="t-goalpick__opt-label">{g.title}</span>
+              </button>
+            ))}
+            {goals && goals.length === 0 && (
+              <div className="t-goalpick__empty">No active goals yet.</div>
+            )}
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }
@@ -513,6 +600,9 @@ function CapturePalette({
     const n = Number(trimmed)
     return Number.isFinite(n) && n > 0 ? n : null
   })()
+  // A time slot's end is derived from the estimate, so the slider only makes
+  // sense once we know how long the task takes.
+  const hasEstimate = estimateMinutesOrNull !== null
   const slotLength = estimateMinutesOrNull ?? DEFAULT_SLOT_LENGTH
   const slotEnd =
     slotStart === null ? null : Math.min(slotStart + slotLength, 24 * 60)
@@ -686,7 +776,16 @@ function CapturePalette({
                       inputMode="numeric"
                       disabled={submitting}
                       value={estimate}
-                      onChange={(e) => setEstimate(e.target.value)}
+                      onChange={(e) => {
+                        const next = e.target.value
+                        setEstimate(next)
+                        // Without a valid estimate the slot length is unknown,
+                        // so drop any chosen start time.
+                        const n = Number(next.trim())
+                        if (!(next.trim() !== '' && Number.isFinite(n) && n > 0)) {
+                          setSlotStart(null)
+                        }
+                      }}
                       placeholder="—"
                     />
                     <span className="t-palette__suffix">min</span>
@@ -698,11 +797,13 @@ function CapturePalette({
                   <div className="t-palette__slot-head">
                     <span className="t-palette__label">Time slot</span>
                     <span className="t-palette__slot-value">
-                      {slotStart === null || slotEnd === null
-                        ? 'Anytime'
-                        : `${fmtSlotTime(slotStart)} – ${fmtSlotTime(slotEnd)}`}
+                      {!hasEstimate
+                        ? 'Set an estimate first'
+                        : slotStart === null || slotEnd === null
+                          ? 'Anytime'
+                          : `${fmtSlotTime(slotStart)} – ${fmtSlotTime(slotEnd)}`}
                     </span>
-                    {slotStart !== null && (
+                    {hasEstimate && slotStart !== null && (
                       <button
                         type="button"
                         className="t-palette__chip t-palette__chip--ghost"
@@ -713,12 +814,16 @@ function CapturePalette({
                       </button>
                     )}
                   </div>
-                  <div data-unset={slotStart === null ? true : undefined}>
+                  <div
+                    data-unset={
+                      !hasEstimate || slotStart === null ? true : undefined
+                    }
+                  >
                     <Slider
                       min={0}
                       max={SLOT_MAX}
                       step={SLOT_STEP}
-                      disabled={submitting}
+                      disabled={submitting || !hasEstimate}
                       value={[slotStart ?? SLOT_DEFAULT]}
                       onValueChange={([v]) => setSlotStart(v ?? SLOT_DEFAULT)}
                       aria-label="Time slot start"

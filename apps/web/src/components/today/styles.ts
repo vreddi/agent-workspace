@@ -389,25 +389,36 @@ export const todayStyles = `
 }
 .t-goalpick__trigger[data-empty] .t-goalpick__value { color: var(--t-ink-3); }
 .t-goalpick__caret { color: var(--t-ink-3); flex-shrink: 0; }
+.t-goalpick__icon { flex-shrink: 0; }
+.t-goalpick__icon--none {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px;
+  border: 1px dashed var(--t-divider); border-radius: 6px;
+  color: var(--t-ink-3); font-size: 12px; line-height: 1;
+}
+/* Positioned inline (fixed, anchored to the trigger) so the panel escapes the
+   scrolling details container and overflows the footer. */
 .t-goalpick__panel {
-  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
   max-height: 220px; overflow-y: auto;
   padding: 5px;
   background: var(--t-surface);
   border: 1px solid var(--t-divider);
   border-radius: 11px;
   box-shadow: 0 18px 40px -14px rgba(0,0,0,0.35);
-  z-index: 60;
+  z-index: 70;
   animation: t-pop-in 0.14s cubic-bezier(0.2,0.9,0.3,1);
 }
 .t-goalpick__opt {
-  display: block; width: 100%; text-align: left;
-  padding: 8px 10px; border: none; background: transparent;
+  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  padding: 7px 8px; border: none; background: transparent;
   border-radius: 7px; cursor: pointer;
   font-size: 14px; font-weight: 500; color: var(--t-ink-1);
   font-family: inherit;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   transition: background 0.1s ease;
+}
+.t-goalpick__opt-label {
+  min-width: 0; flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .t-goalpick__opt:hover { background: var(--t-bg); }
 .t-goalpick__opt[data-active] {
@@ -516,6 +527,7 @@ export const todayStyles = `
 }
 .t-palette [data-unset] [data-slot=slider-range] { background: var(--t-ink-4); }
 .t-palette [data-unset] [data-slot=slider-thumb] { border-color: var(--t-ink-4); }
+.t-palette [data-slot=slider][data-disabled] { opacity: 0.5; cursor: not-allowed; }
 
 /* Segmented control (priority). */
 .t-seg {
