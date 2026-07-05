@@ -2,7 +2,7 @@ import { ConvexError, v } from 'convex/values'
 import { mutation, query, QueryCtx } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
 import { getCurrentUser } from './users'
-import { taskStatus } from './schema'
+import { taskPriority, taskStatus } from './schema'
 
 const POSITION_STEP = 1024
 
@@ -47,6 +47,20 @@ function validateCostDays(costDays: number | null) {
   }
 }
 
+function validateDifficulty(difficulty: number | null) {
+  if (difficulty === null) return
+  if (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5) {
+    throw new ConvexError('difficulty must be an integer from 1 (easy) to 5 (challenging)')
+  }
+}
+
+function validateScheduledStartMinutes(minutes: number | null) {
+  if (minutes === null) return
+  if (!Number.isInteger(minutes) || minutes < 0 || minutes >= 24 * 60) {
+    throw new ConvexError('scheduledStartMinutes must be a whole number of minutes within the day (0–1439)')
+  }
+}
+
 const encode = (value: unknown): string => JSON.stringify(value)
 
 function taskAssigneeIds(task: Doc<'tasks'>): Id<'users'>[] {
@@ -73,6 +87,9 @@ type DiffableField =
   | 'softDeadline'
   | 'hardDeadline'
   | 'estimateMinutes'
+  | 'priority'
+  | 'difficulty'
+  | 'scheduledStartMinutes'
   | 'goalId'
   | 'costDays'
 
@@ -84,13 +101,23 @@ const DIFF_FIELDS: readonly DiffableField[] = [
   'softDeadline',
   'hardDeadline',
   'estimateMinutes',
+  'priority',
+  'difficulty',
+  'scheduledStartMinutes',
   'goalId',
   'costDays',
 ]
 
 // Fields added after launch may be absent on older rows; treat undefined as
 // null when diffing.
-const OPTIONAL_DIFF_FIELDS = new Set<DiffableField>(['emoji', 'goalId', 'costDays'])
+const OPTIONAL_DIFF_FIELDS = new Set<DiffableField>([
+  'emoji',
+  'priority',
+  'difficulty',
+  'scheduledStartMinutes',
+  'goalId',
+  'costDays',
+])
 
 type TaskChange = { field: string; before: string | null; after: string | null }
 
@@ -102,6 +129,9 @@ type UpdateArgs = {
   softDeadline?: number | null
   hardDeadline?: number | null
   estimateMinutes?: number | null
+  priority?: 'high' | 'medium' | 'low' | null
+  difficulty?: number | null
+  scheduledStartMinutes?: number | null
   goalId?: Id<'goals'> | null
   costDays?: number | null
 }
@@ -128,6 +158,9 @@ export const create = mutation({
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
     estimateMinutes: v.optional(v.union(v.number(), v.null())),
+    priority: v.optional(v.union(taskPriority, v.null())),
+    difficulty: v.optional(v.union(v.number(), v.null())),
+    scheduledStartMinutes: v.optional(v.union(v.number(), v.null())),
     goalId: v.optional(v.union(v.id('goals'), v.null())),
     costDays: v.optional(v.union(v.number(), v.null())),
   },
@@ -143,11 +176,16 @@ export const create = mutation({
     const softDeadline = args.softDeadline ?? null
     const hardDeadline = args.hardDeadline ?? null
     const estimateMinutes = args.estimateMinutes ?? null
+    const priority = args.priority ?? null
+    const difficulty = args.difficulty ?? null
+    const scheduledStartMinutes = args.scheduledStartMinutes ?? null
     const goalId = args.goalId ?? null
     const costDays = args.costDays ?? null
     if (softDeadline !== null && hardDeadline !== null && softDeadline > hardDeadline) {
       throw new ConvexError('softDeadline must be on or before hardDeadline')
     }
+    validateDifficulty(difficulty)
+    validateScheduledStartMinutes(scheduledStartMinutes)
     validateCostDays(costDays)
     await assertOwnsGoal(ctx, goalId, userId)
     const goalPosition = goalId === null ? undefined : await nextGoalTailPosition(ctx, goalId)
@@ -164,6 +202,9 @@ export const create = mutation({
       softDeadline,
       hardDeadline,
       estimateMinutes,
+      priority,
+      difficulty,
+      scheduledStartMinutes,
       goalId,
       goalPosition,
       costDays,
@@ -188,6 +229,15 @@ export const create = mutation({
     }
     if (estimateMinutes !== null) {
       changes.push({ field: 'estimateMinutes', before: null, after: encode(estimateMinutes) })
+    }
+    if (priority !== null) {
+      changes.push({ field: 'priority', before: null, after: encode(priority) })
+    }
+    if (difficulty !== null) {
+      changes.push({ field: 'difficulty', before: null, after: encode(difficulty) })
+    }
+    if (scheduledStartMinutes !== null) {
+      changes.push({ field: 'scheduledStartMinutes', before: null, after: encode(scheduledStartMinutes) })
     }
     if (goalId !== null) {
       changes.push({ field: 'goalId', before: null, after: encode(goalId) })
@@ -215,6 +265,9 @@ export const update = mutation({
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
     estimateMinutes: v.optional(v.union(v.number(), v.null())),
+    priority: v.optional(v.union(taskPriority, v.null())),
+    difficulty: v.optional(v.union(v.number(), v.null())),
+    scheduledStartMinutes: v.optional(v.union(v.number(), v.null())),
     goalId: v.optional(v.union(v.id('goals'), v.null())),
     costDays: v.optional(v.union(v.number(), v.null())),
   },
@@ -246,6 +299,15 @@ export const update = mutation({
     if (args.softDeadline !== undefined) normalized.softDeadline = args.softDeadline
     if (args.hardDeadline !== undefined) normalized.hardDeadline = args.hardDeadline
     if (args.estimateMinutes !== undefined) normalized.estimateMinutes = args.estimateMinutes
+    if (args.priority !== undefined) normalized.priority = args.priority
+    if (args.difficulty !== undefined) {
+      validateDifficulty(args.difficulty)
+      normalized.difficulty = args.difficulty
+    }
+    if (args.scheduledStartMinutes !== undefined) {
+      validateScheduledStartMinutes(args.scheduledStartMinutes)
+      normalized.scheduledStartMinutes = args.scheduledStartMinutes
+    }
     if (args.goalId !== undefined) {
       await assertOwnsGoal(ctx, args.goalId, userId)
       normalized.goalId = args.goalId

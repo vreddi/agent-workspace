@@ -8,6 +8,14 @@ export const taskStatus = v.union(
   v.literal('cancelled'),
 )
 
+// How critical it is to finish the task by its target date. Absent/null =
+// no priority.
+export const taskPriority = v.union(
+  v.literal('high'),
+  v.literal('medium'),
+  v.literal('low'),
+)
+
 export const goalStatus = v.union(
   v.literal('active'),
   v.literal('achieved'),
@@ -89,6 +97,14 @@ export default defineSchema({
     softDeadline: v.union(v.number(), v.null()),
     hardDeadline: v.union(v.number(), v.null()),
     estimateMinutes: v.union(v.number(), v.null()),
+    // Optional (not just nullable) so rows created before these fields
+    // existed validate.
+    priority: v.optional(v.union(taskPriority, v.null())),
+    // Perceived difficulty, 1 (easy) to 5 (challenging).
+    difficulty: v.optional(v.union(v.number(), v.null())),
+    // Planned slot within the target date's day: minutes after local
+    // midnight when work starts. Slot length comes from estimateMinutes.
+    scheduledStartMinutes: v.optional(v.union(v.number(), v.null())),
     // Goal this task contributes to, and its ordering within the goal's
     // kanban board. Optional for rows created before goals existed.
     goalId: v.optional(v.union(v.id('goals'), v.null())),

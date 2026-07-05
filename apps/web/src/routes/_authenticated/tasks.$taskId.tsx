@@ -2,10 +2,16 @@ import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
 import { UserButton, useUser } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
+import { Slider } from '@org/ui/components/slider'
 import { cn } from '@org/ui/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Authenticated, useMutation, useQuery } from 'convex/react'
 import { useEffect, useState, type FormEvent } from 'react'
+import {
+  PRIORITY_LABELS,
+  PRIORITY_ORDER,
+  type TaskPriority,
+} from '~/components/tasks/priority'
 
 export const Route = createFileRoute('/_authenticated/tasks/$taskId')({
   component: TaskDetailPage,
@@ -36,6 +42,9 @@ const FIELD_LABELS: Record<string, string> = {
   softDeadline: 'soft deadline',
   hardDeadline: 'hard deadline',
   estimateMinutes: 'estimate (minutes)',
+  priority: 'priority',
+  difficulty: 'difficulty',
+  scheduledStartMinutes: 'time slot',
   completedAt: 'completed at',
 }
 
@@ -117,6 +126,15 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
   const [estimateMinutes, setEstimateMinutes] = useState(
     task.estimateMinutes === null ? '' : String(task.estimateMinutes),
   )
+  const [priority, setPriority] = useState<TaskPriority | ''>(
+    task.priority ?? '',
+  )
+  const [difficulty, setDifficulty] = useState<number | null>(
+    task.difficulty ?? null,
+  )
+  const [scheduledStart, setScheduledStart] = useState(
+    minutesToTimeInput(task.scheduledStartMinutes ?? null),
+  )
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -130,6 +148,9 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
     setEstimateMinutes(
       task.estimateMinutes === null ? '' : String(task.estimateMinutes),
     )
+    setPriority(task.priority ?? '')
+    setDifficulty(task.difficulty ?? null)
+    setScheduledStart(minutesToTimeInput(task.scheduledStartMinutes ?? null))
   }, [
     task._id,
     task.title,
@@ -138,6 +159,9 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
     task.softDeadline,
     task.hardDeadline,
     task.estimateMinutes,
+    task.priority,
+    task.difficulty,
+    task.scheduledStartMinutes,
     task.updatedAt,
   ])
 
@@ -158,6 +182,9 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
       softDeadline?: number | null
       hardDeadline?: number | null
       estimateMinutes?: number | null
+      priority?: TaskPriority | null
+      difficulty?: number | null
+      scheduledStartMinutes?: number | null
     } = { id: task._id }
 
     if (trimmedTitle !== task.title) patch.title = trimmedTitle
@@ -181,6 +208,18 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
     }
     if (nextEstimate !== task.estimateMinutes) {
       patch.estimateMinutes = nextEstimate
+    }
+
+    const nextPriority = priority === '' ? null : priority
+    if (nextPriority !== (task.priority ?? null)) {
+      patch.priority = nextPriority
+    }
+    if (difficulty !== (task.difficulty ?? null)) {
+      patch.difficulty = difficulty
+    }
+    const nextScheduledStart = timeInputToMinutes(scheduledStart)
+    if (nextScheduledStart !== (task.scheduledStartMinutes ?? null)) {
+      patch.scheduledStartMinutes = nextScheduledStart
     }
 
     setSaving(true)
@@ -270,6 +309,61 @@ function TaskEditor({ task }: { task: Doc<'tasks'> }) {
               className={INPUT_CLASSES}
             />
           </label>
+          <label className="space-y-1 text-xs text-muted-foreground">
+            <span>Priority</span>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as TaskPriority | '')}
+              className={INPUT_CLASSES}
+            >
+              <option value="">No priority</option>
+              {PRIORITY_ORDER.map((p) => (
+                <option key={p} value={p}>
+                  {PRIORITY_LABELS[p]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="space-y-1 text-xs text-muted-foreground">
+            <span>Time slot (start of day slot)</span>
+            <input
+              type="time"
+              step={900}
+              value={scheduledStart}
+              onChange={(e) => setScheduledStart(e.target.value)}
+              className={INPUT_CLASSES}
+            />
+          </label>
+          <div className="space-y-1 text-xs text-muted-foreground sm:col-span-2">
+            <div className="flex items-center justify-between">
+              <span>Difficulty</span>
+              <span className="tabular-nums">
+                {difficulty === null ? 'Not set' : `${difficulty}/5`}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 pt-1.5">
+              <span className="shrink-0">Easy</span>
+              <Slider
+                min={1}
+                max={5}
+                step={1}
+                value={[difficulty ?? 3]}
+                onValueChange={([v]) => setDifficulty(v ?? 3)}
+                className={cn(difficulty === null && 'opacity-50')}
+                aria-label="Difficulty"
+              />
+              <span className="shrink-0">Challenging</span>
+              <Button
+                type="button"
+                variant="outline"
+                size="xs"
+                disabled={difficulty === null}
+                onClick={() => setDifficulty(null)}
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
         </div>
 
         {error && <p className="text-sm text-destructive">{error}</p>}
@@ -368,6 +462,15 @@ function formatChangeValue(field: string, raw: string | null): string {
   if (field === 'status' && typeof parsed === 'string') {
     return STATUS_LABELS[parsed as TaskStatus] ?? parsed
   }
+  if (field === 'priority' && typeof parsed === 'string') {
+    return PRIORITY_LABELS[parsed as TaskPriority] ?? parsed
+  }
+  if (field === 'difficulty' && typeof parsed === 'number') {
+    return `${parsed}/5`
+  }
+  if (field === 'scheduledStartMinutes' && typeof parsed === 'number') {
+    return minutesToTimeInput(parsed)
+  }
   if (typeof parsed === 'string') return parsed
   if (typeof parsed === 'number') return String(parsed)
   return JSON.stringify(parsed)
@@ -387,4 +490,17 @@ function dateTimeLocalToMs(value: string): number | null {
   if (!value) return null
   const ms = new Date(value).getTime()
   return Number.isFinite(ms) ? ms : null
+}
+
+function minutesToTimeInput(minutes: number | null): string {
+  if (minutes === null) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`
+}
+
+function timeInputToMinutes(value: string): number | null {
+  if (!value) return null
+  const [h, m] = value.split(':').map(Number)
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return null
+  return (h ?? 0) * 60 + (m ?? 0)
 }

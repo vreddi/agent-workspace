@@ -42,6 +42,7 @@ import {
   TEXTAREA_CLASSES,
   TypeBadge,
 } from '~/components/goals/goal-ui'
+import { PriorityBadge } from '~/components/tasks/priority'
 
 export const Route = createFileRoute('/_authenticated/goals/$goalId')({
   component: GoalDetailPage,
@@ -732,6 +733,11 @@ function BoardCard({
           draggable={false}
           className="min-w-0 flex-1 text-sm font-medium leading-snug underline-offset-2 hover:underline"
         >
+          {task.emoji && (
+            <span aria-hidden className="mr-1.5">
+              {task.emoji}
+            </span>
+          )}
           {task.title}
         </Link>
         <DropdownMenu>
@@ -767,10 +773,16 @@ function BoardCard({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {task.costDays !== undefined && task.costDays !== null && (
-        <span className="mt-2 inline-block rounded-full border px-1.5 py-0.5 text-[11px] tabular-nums text-muted-foreground">
-          {formatDays(task.costDays)}d
-        </span>
+      {(task.priority != null ||
+        (task.costDays !== undefined && task.costDays !== null)) && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          {task.priority != null && <PriorityBadge priority={task.priority} />}
+          {task.costDays !== undefined && task.costDays !== null && (
+            <span className="inline-block rounded-full border px-1.5 py-0.5 text-[11px] tabular-nums text-muted-foreground">
+              {formatDays(task.costDays)}d
+            </span>
+          )}
+        </div>
       )}
     </div>
   )
