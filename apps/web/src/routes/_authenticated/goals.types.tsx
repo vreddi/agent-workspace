@@ -1,9 +1,8 @@
 import { api } from '@convex/_generated/api'
 import type { Doc } from '@convex/_generated/dataModel'
-import { UserButton } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
 import { cn } from '@org/ui/lib/utils'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { Authenticated, useMutation, useQuery } from 'convex/react'
 import { useState } from 'react'
 import {
@@ -17,6 +16,8 @@ import {
   type GoalTypeColorToken,
   type ViewMode,
 } from '~/components/goals/goal-ui'
+import { AppShell } from '~/components/today/app-shell'
+import { AppBreadcrumbs } from '~/components/today/breadcrumbs'
 
 export const Route = createFileRoute('/_authenticated/goals/types')({
   component: GoalTypesPage,
@@ -24,26 +25,25 @@ export const Route = createFileRoute('/_authenticated/goals/types')({
 
 function GoalTypesPage() {
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <header className="mb-6 flex items-start justify-between gap-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/goals">← Goals</Link>
-        </Button>
-        <UserButton />
-      </header>
+    <AppShell active="goals">
+      <main className="mx-auto max-w-3xl px-3 pb-16 pt-2.5">
+        <AppBreadcrumbs
+          items={[{ label: 'Goals', to: '/goals' }, { label: 'Goal types' }]}
+        />
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Goal types</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Categories you can tag goals with. Built-in types are always
-          available; create your own for anything else.
-        </p>
-      </div>
+        <div className="mb-8 mt-4">
+          <h1 className="text-2xl font-semibold tracking-tight">Goal types</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Categories you can tag goals with. Built-in types are always
+            available; create your own for anything else.
+          </p>
+        </div>
 
-      <Authenticated>
-        <TypesManager />
-      </Authenticated>
-    </main>
+        <Authenticated>
+          <TypesManager />
+        </Authenticated>
+      </main>
+    </AppShell>
   )
 }
 

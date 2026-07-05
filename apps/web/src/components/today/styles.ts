@@ -92,6 +92,34 @@ export const todayStyles = `
 }
 .t-btn-create:hover { filter: brightness(1.06); }
 
+/* ── Breadcrumbs on detail pages ──────────────────────────── */
+/* Skins the shadcn Breadcrumb primitives (data-slot attributes) to the
+   app chrome. Top-level pages don't render one — the nav marks them. */
+.t-crumbs [data-slot=breadcrumb-list] {
+  display: flex; align-items: center; gap: 1px; flex-wrap: wrap;
+  margin: 0 0 0 -8px; padding: 0; list-style: none;
+  font-size: 12.5px; font-weight: 600; color: var(--t-ink-3);
+}
+.t-crumbs [data-slot=breadcrumb-item] {
+  display: inline-flex; align-items: center; min-width: 0;
+}
+.t-crumbs [data-slot=breadcrumb-link] {
+  display: inline-block; height: 28px; line-height: 28px;
+  padding: 0 8px; border-radius: 8px;
+  color: var(--t-ink-3); text-decoration: none;
+  max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: background 0.12s, color 0.12s;
+}
+.t-crumbs [data-slot=breadcrumb-link]:hover { background: var(--t-hover); color: var(--t-ink-1); }
+.t-crumbs [data-slot=breadcrumb-page] {
+  padding: 0 8px; color: var(--t-ink-2);
+  max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.t-crumbs [data-slot=breadcrumb-separator] {
+  display: flex; color: var(--t-ink-4); list-style: none;
+}
+.t-crumbs [data-slot=breadcrumb-separator] svg { width: 13px; height: 13px; }
+
 /* ── Page section header (title + count + page-local actions) ── */
 .t-page-head {
   display: flex; align-items: center; gap: 14px;

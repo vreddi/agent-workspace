@@ -1,6 +1,5 @@
 import { api } from '@convex/_generated/api'
 import type { GoalListItem } from '@convex/goals'
-import { UserButton, useUser } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
 import { Calendar } from '@org/ui/components/calendar'
 import {
@@ -46,6 +45,7 @@ import {
   ViewToggle,
   type GoalStatus,
 } from '~/components/goals/goal-ui'
+import { AppShell } from '~/components/today/app-shell'
 
 export const Route = createFileRoute('/_authenticated/goals')({
   component: GoalsRoute,
@@ -60,30 +60,18 @@ function GoalsRoute() {
 }
 
 function GoalsPage() {
-  const { user } = useUser()
-
   return (
-    <main className="mx-auto max-w-5xl p-8">
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Goals</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {user?.primaryEmailAddress?.emailAddress ?? user?.id}
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/">Today</Link>
-          </Button>
-          <UserButton />
-        </div>
-      </header>
-
-      <Authenticated>
-        <RemindersBanner />
-        <GoalsList />
-      </Authenticated>
-    </main>
+    <AppShell active="goals">
+      <div className="t-page-head">
+        <h1>Goals</h1>
+      </div>
+      <main className="px-3 pb-16 pt-4">
+        <Authenticated>
+          <RemindersBanner />
+          <GoalsList />
+        </Authenticated>
+      </main>
+    </AppShell>
   )
 }
 

@@ -470,26 +470,69 @@ export const list = query({
   },
 })
 
+// Compact goal summary attached to a task detail so the task page can show
+// and link the goal it belongs to without a second round-trip.
+export type TaskGoalSummary = {
+  _id: Id<'goals'>
+  title: string
+  status: Doc<'goals'>['status']
+  deadline: number
+  typeSlug: string | null
+  customTypeId: Id<'goalTypes'> | null
+}
+
+export type TaskDetail = Doc<'tasks'> & { goal: TaskGoalSummary | null }
+
 export const get = query({
   args: { id: v.id('tasks') },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<TaskDetail> => {
     const userId = await requireUserId(ctx)
     const task = await ctx.db.get(args.id)
     assertCanEditTask(task, userId)
-    return task
+    let goal: TaskGoalSummary | null = null
+    if (task.goalId) {
+      const doc = await ctx.db.get(task.goalId)
+      if (doc) {
+        goal = {
+          _id: doc._id,
+          title: doc.title,
+          status: doc.status,
+          deadline: doc.deadline,
+          typeSlug: doc.typeSlug,
+          customTypeId: doc.customTypeId,
+        }
+      }
+    }
+    return { ...task, goal }
   },
 })
 
+export type TaskHistoryEvent = Doc<'taskEvents'> & {
+  actorName: string
+  actorIsYou: boolean
+}
+
 export const history = query({
   args: { taskId: v.id('tasks') },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<TaskHistoryEvent[]> => {
     const userId = await requireUserId(ctx)
     const task = await ctx.db.get(args.taskId)
     assertCanEditTask(task, userId)
-    return await ctx.db
+    const events = await ctx.db
       .query('taskEvents')
       .withIndex('by_task', (q) => q.eq('taskId', args.taskId))
       .order('desc')
       .take(100)
+    const names = new Map<Id<'users'>, string>()
+    for (const event of events) {
+      if (names.has(event.actorId)) continue
+      const actor = await ctx.db.get(event.actorId)
+      names.set(event.actorId, actor?.name.trim() || actor?.email || 'Someone')
+    }
+    return events.map((event) => ({
+      ...event,
+      actorName: names.get(event.actorId) ?? 'Someone',
+      actorIsYou: event.actorId === userId,
+    }))
   },
 })
