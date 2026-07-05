@@ -15,6 +15,7 @@ import {
 } from 'react'
 import { customSheet, stubSheet } from '../agents/sprites'
 import { BrandIcon } from './brand-icons'
+import { EmojiGlyphButton } from './emoji-picker'
 import {
   type DisplayTask,
   fmtCountdown,
@@ -219,99 +220,6 @@ function todayDateString(): string {
   const d = new Date()
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
-
-/** A curated palette of task-friendly emoji for the quick-capture picker. */
-const TASK_EMOJIS = [
-  '✅', '📝', '💡', '🎯', '🔥', '⭐', '📌', '🚀',
-  '🐛', '🔧', '🧹', '📞', '✉️', '📅', '💼', '💰',
-  '📚', '🎨', '🧠', '💪', '🏃', '🍽️', '🛒', '🏠',
-  '🌱', '☕', '🎁', '✈️', '🎉', '❤️', '⏰', '📦',
-]
-
-function EmojiGlyphButton({
-  value,
-  disabled,
-  onSelect,
-}: {
-  value: string | null
-  disabled: boolean
-  onSelect: (emoji: string | null) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement | null>(null)
-  useEffect(() => {
-    if (!open) return
-    function onDown(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDown)
-    return () => document.removeEventListener('mousedown', onDown)
-  }, [open])
-  return (
-    <div className="t-emoji" ref={ref}>
-      <button
-        type="button"
-        className="t-emoji__trigger"
-        data-has-emoji={value ? true : undefined}
-        disabled={disabled}
-        aria-label={value ? 'Change task emoji' : 'Add a task emoji'}
-        onClick={() => setOpen((o) => !o)}
-      >
-        {value ? (
-          <span className="t-emoji__glyph">{value}</span>
-        ) : (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="9" />
-            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-            <line x1="9" y1="9" x2="9.01" y2="9" />
-            <line x1="15" y1="9" x2="15.01" y2="9" />
-          </svg>
-        )}
-      </button>
-      {open && (
-        <div className="t-emoji__panel" role="dialog" aria-label="Pick an emoji">
-          <div className="t-emoji__grid">
-            {TASK_EMOJIS.map((emoji) => (
-              <button
-                key={emoji}
-                type="button"
-                className="t-emoji__cell"
-                data-active={value === emoji ? true : undefined}
-                onClick={() => {
-                  onSelect(emoji)
-                  setOpen(false)
-                }}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
-          {value && (
-            <button
-              type="button"
-              className="t-emoji__clear"
-              onClick={() => {
-                onSelect(null)
-                setOpen(false)
-              }}
-            >
-              Remove emoji
-            </button>
-          )}
-        </div>
-      )}
-    </div>
-  )
 }
 
 type GoalOption = { _id: Id<'goals'>; title: string }
