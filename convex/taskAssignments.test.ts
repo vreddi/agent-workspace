@@ -49,12 +49,25 @@ describe('task creation and assignment defaults', () => {
     expect(list[0]?.assignees.map((a) => a.userId)).toEqual([alice.userId])
   })
 
-  test('create can assign the task entirely to someone else', async () => {
+  test('creation always self-assigns; handing off happens afterwards', async () => {
     const t = setup()
     const alice = await signUp(t, 'alice')
     const bob = await signUp(t, 'bob')
     const taskId = await alice.as.mutation(api.tasks.create, {
-      title: 'Delegated at birth',
+      title: 'Delegated after capture',
+    })
+
+    // Fresh task belongs to its creator only.
+    const freshRows = await t.run((ctx) =>
+      ctx.db
+        .query('taskAssignments')
+        .withIndex('by_task', (q) => q.eq('taskId', taskId))
+        .collect(),
+    )
+    expect(freshRows.map((row) => row.userId)).toEqual([alice.userId])
+
+    await alice.as.mutation(api.taskAssignments.setAssignees, {
+      taskId,
       assigneeIds: [bob.userId],
     })
 
@@ -65,26 +78,6 @@ describe('task creation and assignment defaults', () => {
     // assigned, so delegated work doesn't disappear.
     const aliceList = await alice.as.query(api.tasks.list, {})
     expect(aliceList.map((item) => item._id)).toContain(taskId)
-  })
-
-  test('create rejects unknown assignees and an oversized assignee set', async () => {
-    const t = setup()
-    const alice = await signUp(t, 'alice')
-    const ghost = await t.run(async (ctx) => {
-      const id = await ctx.db.insert('users', {
-        externalId: 'ghost',
-        email: 'ghost@example.com',
-        name: 'Ghost',
-      })
-      await ctx.db.delete(id)
-      return id
-    })
-    await expect(
-      alice.as.mutation(api.tasks.create, { title: 'Bad', assigneeIds: [ghost] }),
-    ).rejects.toThrowError(/Assignee not found/)
-    await expect(
-      alice.as.mutation(api.tasks.create, { title: 'Bad', assigneeIds: [] }),
-    ).rejects.toThrowError(/at least one assignee/)
   })
 })
 
@@ -188,13 +181,29 @@ describe('taskAssignments.setAssignees', () => {
     expect(bobList.map((item) => item._id)).not.toContain(taskId)
   })
 
-  test('rejects an empty assignee set', async () => {
+  test('rejects an empty assignee set and unknown accounts', async () => {
     const t = setup()
     const alice = await signUp(t, 'alice')
     const taskId = await alice.as.mutation(api.tasks.create, { title: 'Keep one' })
     await expect(
       alice.as.mutation(api.taskAssignments.setAssignees, { taskId, assigneeIds: [] }),
     ).rejects.toThrowError(/at least one assignee/)
+
+    const ghost = await t.run(async (ctx) => {
+      const id = await ctx.db.insert('users', {
+        externalId: 'ghost',
+        email: 'ghost@example.com',
+        name: 'Ghost',
+      })
+      await ctx.db.delete(id)
+      return id
+    })
+    await expect(
+      alice.as.mutation(api.taskAssignments.setAssignees, {
+        taskId,
+        assigneeIds: [ghost],
+      }),
+    ).rejects.toThrowError(/Assignee not found/)
   })
 })
 

@@ -7,7 +7,6 @@ import {
   assigneeIdsForTask,
   canUserEditTask,
   deleteAssignmentsForTask,
-  normalizeAssigneeIds,
   syncAssignmentStatus,
 } from './taskAssignments'
 
@@ -169,8 +168,6 @@ export const create = mutation({
     scheduledStartMinutes: v.optional(v.union(v.number(), v.null())),
     goalId: v.optional(v.union(v.id('goals'), v.null())),
     costDays: v.optional(v.union(v.number(), v.null())),
-    // Who works on it. Omitted = you; may be any accounts, with or without you.
-    assigneeIds: v.optional(v.array(v.id('users'))),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -196,13 +193,10 @@ export const create = mutation({
     validateScheduledStartMinutes(scheduledStartMinutes)
     validateCostDays(costDays)
     await assertOwnsGoal(ctx, goalId, userId)
-    const assigneeIds = normalizeAssigneeIds(args.assigneeIds ?? [userId])
-    const assigneeNames: string[] = []
-    for (const assigneeId of assigneeIds) {
-      const assignee = await ctx.db.get(assigneeId)
-      if (!assignee) throw new ConvexError('Assignee not found')
-      assigneeNames.push(assignee.name.trim() || assignee.email)
-    }
+    // A new task always starts assigned to whoever captured it; sharing and
+    // handoff happen afterwards through taskAssignments.setAssignees.
+    const creator = await ctx.db.get(userId)
+    const creatorName = creator ? creator.name.trim() || creator.email : 'Someone'
     const goalPosition = goalId === null ? undefined : await nextGoalTailPosition(ctx, goalId)
     const now = Date.now()
     const taskId = await ctx.db.insert('tasks', {
@@ -223,18 +217,16 @@ export const create = mutation({
       costDays,
       updatedAt: now,
     })
-    for (const assigneeId of assigneeIds) {
-      await ctx.db.insert('taskAssignments', {
-        taskId,
-        userId: assigneeId,
-        assignedById: userId,
-        status: 'open',
-      })
-    }
+    await ctx.db.insert('taskAssignments', {
+      taskId,
+      userId,
+      assignedById: userId,
+      status: 'open',
+    })
     const changes: TaskChange[] = [
       { field: 'title', before: null, after: encode(title) },
       { field: 'status', before: null, after: encode('open') },
-      { field: 'assignees', before: null, after: encode(assigneeNames) },
+      { field: 'assignees', before: null, after: encode([creatorName]) },
     ]
     if (description !== null) {
       changes.push({ field: 'description', before: null, after: encode(description) })
