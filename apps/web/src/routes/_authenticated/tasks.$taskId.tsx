@@ -26,6 +26,7 @@ import {
   type ReactNode,
 } from 'react'
 import { goalTypeValue, GoalTypeSelectionIcon } from '~/components/goals/goal-ui'
+import { TaskPeopleSection } from '~/components/tasks/assignees'
 import {
   PRIORITY_LABELS,
   PRIORITY_ORDER,
@@ -389,6 +390,7 @@ function TaskView({ task }: { task: TaskDetail }) {
           >
             Edit
           </button>
+          {(open || task.viewerIsCreator) && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -418,23 +420,32 @@ function TaskView({ task }: { task: TaskDetail }) {
                   Cancel task
                 </DropdownMenuItem>
               )}
-              {open && <DropdownMenuSeparator />}
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => {
-                  void handleDelete()
-                }}
-              >
-                Delete task
-              </DropdownMenuItem>
+              {open && task.viewerIsCreator && <DropdownMenuSeparator />}
+              {task.viewerIsCreator && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => {
+                    void handleDelete()
+                  }}
+                >
+                  Delete task
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
+          )}
         </div>
       </div>
 
       {error && <p className="tdp-form__error" style={{ margin: '14px 0 0' }}>{error}</p>}
 
       <DetailsSection task={task} />
+      <TaskPeopleSection
+        taskId={task._id}
+        assignees={task.assignees}
+        creatorId={task.creatorId}
+        viewerId={task.viewerId}
+      />
       <ActivitySection taskId={task._id} />
     </>
   )
@@ -539,7 +550,7 @@ function parseValue(raw: string | null): unknown {
 }
 
 // One change → one plain-English phrase, or null to hide bookkeeping
-// fields (completedAt trails status; assignees aren't editable yet).
+// fields (completedAt trails status).
 function phraseForChange(
   change: TaskHistoryEvent['changes'][number],
   prevStatus?: unknown,
@@ -593,6 +604,20 @@ function phraseForChange(
       if (after === null) return 'cleared the cost'
       if (typeof after !== 'number') return 'changed the cost'
       return `set the cost to ${fmtCost(after)}`
+    case 'assignees': {
+      // Creation events carry the initial set; the "created this task" lead
+      // already covers that.
+      if (change.before === null) return null
+      const beforeNames = Array.isArray(before) ? before.map(String) : []
+      const afterNames = Array.isArray(after) ? after.map(String) : []
+      const added = afterNames.filter((name) => !beforeNames.includes(name))
+      const removed = beforeNames.filter((name) => !afterNames.includes(name))
+      if (added.length > 0 && removed.length === 0)
+        return `assigned ${added.join(', ')}`
+      if (removed.length > 0 && added.length === 0)
+        return `unassigned ${removed.join(', ')}`
+      return `changed the assignees to ${afterNames.join(', ')}`
+    }
     case 'completedAt':
     case 'assigneeUserId':
       return null

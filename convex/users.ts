@@ -1,11 +1,63 @@
 import { internalMutation, query, QueryCtx } from './_generated/server'
 import { Validator, v } from 'convex/values'
 import { UserJSON } from '@clerk/backend'
+import { Id } from './_generated/dataModel'
 
 export const current = query({
   args: {},
   handler: async (ctx) => {
     return await getCurrentUser(ctx)
+  },
+})
+
+export type UserSearchResult = {
+  userId: Id<'users'>
+  name: string
+  email: string
+  imageUrl: string | null
+  isYou: boolean
+}
+
+const SEARCH_LIMIT = 8
+
+// Open directory search for the assignee picker: any signed-in user can find
+// any account by name (full-text) or email (prefix). Deliberately unscoped —
+// there are no teams yet, sharing is between any two accounts.
+export const search = query({
+  args: { query: v.string() },
+  handler: async (ctx, args): Promise<UserSearchResult[]> => {
+    const me = await getCurrentUser(ctx)
+    if (!me) return []
+    const term = args.query.trim()
+    if (term === '') return []
+
+    const byName = await ctx.db
+      .query('users')
+      .withSearchIndex('search_name', (q) => q.search('name', term))
+      .take(SEARCH_LIMIT)
+    const emailPrefix = term.toLowerCase()
+    const byEmail = await ctx.db
+      .query('users')
+      .withIndex('by_email', (q) =>
+        q.gte('email', emailPrefix).lt('email', emailPrefix + '\uffff'),
+      )
+      .take(SEARCH_LIMIT)
+
+    const seen = new Set<Id<'users'>>()
+    const results: UserSearchResult[] = []
+    for (const user of [...byName, ...byEmail]) {
+      if (seen.has(user._id)) continue
+      seen.add(user._id)
+      results.push({
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        imageUrl: user.imageUrl ?? null,
+        isYou: user._id === me._id,
+      })
+      if (results.length >= SEARCH_LIMIT) break
+    }
+    return results
   },
 })
 

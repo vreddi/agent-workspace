@@ -28,7 +28,11 @@ export default defineSchema({
     email: v.string(),
     name: v.string(),
     imageUrl: v.optional(v.string()),
-  }).index('by_externalId', ['externalId']),
+  })
+    .index('by_externalId', ['externalId'])
+    // Assignee picker: prefix match on email, full-text match on name.
+    .index('by_email', ['email'])
+    .searchIndex('search_name', { searchField: 'name' }),
   todos: defineTable({
     userId: v.id('users'),
     title: v.string(),
@@ -88,9 +92,12 @@ export default defineSchema({
     // validate.
     emoji: v.optional(v.union(v.string(), v.null())),
     creatorId: v.id('users'),
-    assigneeUserId: v.id('users'),
-    // Full set of assignees (primary first). Optional for rows created before
-    // multi-assign existed; readers should fall back to [assigneeUserId].
+    // DEPRECATED: assignment lives in the taskAssignments join table now.
+    // These two fields (and the by_assignee_status index) remain only so rows
+    // written before that table existed keep validating and listing until
+    // migrations.backfillTaskAssignments clears them; readers go through the
+    // taskAssignments helpers, which fall back to these for unmigrated rows.
+    assigneeUserId: v.optional(v.id('users')),
     assigneeUserIds: v.optional(v.array(v.id('users'))),
     status: taskStatus,
     completedAt: v.union(v.number(), v.null()),
@@ -114,7 +121,24 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index('by_assignee_status', ['assigneeUserId', 'status'])
+    .index('by_creator_status', ['creatorId', 'status'])
     .index('by_goal_position', ['goalId', 'goalPosition']),
+  // One row per (task, user) assignment — the many-to-many source of truth.
+  // A task can be shared with any account, so "tasks assigned to me" must be
+  // an index scan, which an array field on the task can never give us.
+  taskAssignments: defineTable({
+    taskId: v.id('tasks'),
+    userId: v.id('users'),
+    // Who made the assignment; self-assignment on create points at the creator.
+    assignedById: v.id('users'),
+    // Denormalized copy of tasks.status so a user's task list can filter by
+    // status inside one index scan. Every task-status write must go through
+    // syncAssignmentStatus in taskAssignments.ts to keep this in step.
+    status: taskStatus,
+  })
+    .index('by_task', ['taskId'])
+    .index('by_task_and_user', ['taskId', 'userId'])
+    .index('by_user_and_status', ['userId', 'status']),
   agents: defineTable({
     ownerId: v.id('users'),
     name: v.string(),

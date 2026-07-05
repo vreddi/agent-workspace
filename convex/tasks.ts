@@ -3,6 +3,12 @@ import { mutation, query, QueryCtx } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
 import { getCurrentUser } from './users'
 import { taskPriority, taskStatus } from './schema'
+import {
+  assigneeIdsForTask,
+  canUserEditTask,
+  deleteAssignmentsForTask,
+  syncAssignmentStatus,
+} from './taskAssignments'
 
 const POSITION_STEP = 1024
 
@@ -63,20 +69,19 @@ function validateScheduledStartMinutes(minutes: number | null) {
 
 const encode = (value: unknown): string => JSON.stringify(value)
 
-function taskAssigneeIds(task: Doc<'tasks'>): Id<'users'>[] {
-  if (task.assigneeUserIds && task.assigneeUserIds.length > 0) {
-    return task.assigneeUserIds
-  }
-  return [task.assigneeUserId]
-}
-
-function assertCanEditTask(task: Doc<'tasks'> | null, userId: Id<'users'>): asserts task is Doc<'tasks'> {
+async function requireEditableTask(
+  ctx: QueryCtx,
+  taskId: Id<'tasks'>,
+  userId: Id<'users'>,
+): Promise<Doc<'tasks'>> {
+  const task = await ctx.db.get(taskId)
   if (!task) {
     throw new ConvexError('Task not found')
   }
-  if (task.creatorId === userId) return
-  if (taskAssigneeIds(task).includes(userId)) return
-  throw new ConvexError('Forbidden')
+  if (!(await canUserEditTask(ctx, task, userId))) {
+    throw new ConvexError('Forbidden')
+  }
+  return task
 }
 
 type DiffableField =
@@ -188,6 +193,10 @@ export const create = mutation({
     validateScheduledStartMinutes(scheduledStartMinutes)
     validateCostDays(costDays)
     await assertOwnsGoal(ctx, goalId, userId)
+    // A new task always starts assigned to whoever captured it; sharing and
+    // handoff happen afterwards through taskAssignments.setAssignees.
+    const creator = await ctx.db.get(userId)
+    const creatorName = creator ? creator.name.trim() || creator.email : 'Someone'
     const goalPosition = goalId === null ? undefined : await nextGoalTailPosition(ctx, goalId)
     const now = Date.now()
     const taskId = await ctx.db.insert('tasks', {
@@ -195,8 +204,6 @@ export const create = mutation({
       description,
       emoji,
       creatorId: userId,
-      assigneeUserId: userId,
-      assigneeUserIds: [userId],
       status: 'open',
       completedAt: null,
       softDeadline,
@@ -210,10 +217,16 @@ export const create = mutation({
       costDays,
       updatedAt: now,
     })
+    await ctx.db.insert('taskAssignments', {
+      taskId,
+      userId,
+      assignedById: userId,
+      status: 'open',
+    })
     const changes: TaskChange[] = [
       { field: 'title', before: null, after: encode(title) },
       { field: 'status', before: null, after: encode('open') },
-      { field: 'assigneeUserId', before: null, after: encode(userId) },
+      { field: 'assignees', before: null, after: encode([creatorName]) },
     ]
     if (description !== null) {
       changes.push({ field: 'description', before: null, after: encode(description) })
@@ -273,8 +286,7 @@ export const update = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
-    const task = await ctx.db.get(args.id)
-    assertCanEditTask(task, userId)
+    const task = await requireEditableTask(ctx, args.id, userId)
 
     const normalized: UpdateArgs = {}
     if (args.title !== undefined) {
@@ -355,6 +367,9 @@ export const update = mutation({
 
     const now = Date.now()
     await ctx.db.patch(args.id, { ...patch, updatedAt: now })
+    if (typeof patch.status === 'string') {
+      await syncAssignmentStatus(ctx, args.id, patch.status as Doc<'tasks'>['status'])
+    }
     await ctx.db.insert('taskEvents', {
       taskId: args.id,
       actorId: userId,
@@ -370,7 +385,15 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
     const task = await ctx.db.get(args.id)
-    assertCanEditTask(task, userId)
+    if (!task) {
+      throw new ConvexError('Task not found')
+    }
+    // Deleting is destructive for everyone on the task, so only its creator
+    // may do it; an assignee who wants out removes themselves via
+    // taskAssignments.setAssignees instead.
+    if (task.creatorId !== userId) {
+      throw new ConvexError('Only the task creator can delete it')
+    }
 
     const snapshot: TaskChange[] = [
       { field: 'title', before: encode(task.title), after: null },
@@ -380,7 +403,6 @@ export const remove = mutation({
         after: null,
       },
       { field: 'status', before: encode(task.status), after: null },
-      { field: 'assigneeUserId', before: encode(task.assigneeUserId), after: null },
       {
         field: 'completedAt',
         before: task.completedAt === null ? null : encode(task.completedAt),
@@ -408,6 +430,7 @@ export const remove = mutation({
       kind: 'deleted',
       changes: snapshot,
     })
+    await deleteAssignmentsForTask(ctx, args.id)
     await ctx.db.delete(args.id)
   },
 })
@@ -427,10 +450,15 @@ async function hydrateAssignees(
   ctx: QueryCtx,
   tasks: Doc<'tasks'>[],
 ): Promise<TaskListItem[]> {
+  const idsByTask = new Map<Id<'tasks'>, Id<'users'>[]>()
   const ids = new Set<Id<'users'>>()
-  for (const task of tasks) {
-    for (const id of taskAssigneeIds(task)) ids.add(id)
-  }
+  await Promise.all(
+    tasks.map(async (task) => {
+      const assigneeIds = await assigneeIdsForTask(ctx, task)
+      idsByTask.set(task._id, assigneeIds)
+      for (const id of assigneeIds) ids.add(id)
+    }),
+  )
   const cache = new Map<Id<'users'>, TaskAssignee>()
   await Promise.all(
     Array.from(ids).map(async (id) => {
@@ -446,12 +474,18 @@ async function hydrateAssignees(
   )
   return tasks.map((task) => ({
     ...task,
-    assignees: taskAssigneeIds(task)
+    assignees: (idsByTask.get(task._id) ?? [])
       .map((id) => cache.get(id))
       .filter((a): a is TaskAssignee => a !== undefined),
   }))
 }
 
+const LIST_LIMIT = 200
+
+// Your task list is the union of what you're assigned to and what you
+// created (so a task you delegated entirely doesn't vanish on you). The
+// legacy by_assignee_status scan covers rows written before the
+// taskAssignments table existed and not yet backfilled.
 export const list = query({
   args: {
     status: v.optional(taskStatus),
@@ -459,13 +493,37 @@ export const list = query({
   handler: async (ctx, args): Promise<TaskListItem[]> => {
     const userId = await requireUserId(ctx)
     const status = args.status
-    const tasks = await ctx.db
+
+    const assignments = await ctx.db
+      .query('taskAssignments')
+      .withIndex('by_user_and_status', (q) =>
+        status ? q.eq('userId', userId).eq('status', status) : q.eq('userId', userId),
+      )
+      .order('desc')
+      .take(LIST_LIMIT)
+    const assigned = await Promise.all(assignments.map((row) => ctx.db.get(row.taskId)))
+    const legacyAssigned = await ctx.db
       .query('tasks')
       .withIndex('by_assignee_status', (q) =>
         status ? q.eq('assigneeUserId', userId).eq('status', status) : q.eq('assigneeUserId', userId),
       )
       .order('desc')
-      .take(200)
+      .take(LIST_LIMIT)
+    const created = await ctx.db
+      .query('tasks')
+      .withIndex('by_creator_status', (q) =>
+        status ? q.eq('creatorId', userId).eq('status', status) : q.eq('creatorId', userId),
+      )
+      .order('desc')
+      .take(LIST_LIMIT)
+
+    const byId = new Map<Id<'tasks'>, Doc<'tasks'>>()
+    for (const task of [...assigned, ...legacyAssigned, ...created]) {
+      if (task) byId.set(task._id, task)
+    }
+    const tasks = Array.from(byId.values())
+      .sort((a, b) => b._creationTime - a._creationTime)
+      .slice(0, LIST_LIMIT)
     return await hydrateAssignees(ctx, tasks)
   },
 })
@@ -481,14 +539,18 @@ export type TaskGoalSummary = {
   customTypeId: Id<'goalTypes'> | null
 }
 
-export type TaskDetail = Doc<'tasks'> & { goal: TaskGoalSummary | null }
+export type TaskDetail = Doc<'tasks'> & {
+  goal: TaskGoalSummary | null
+  assignees: TaskAssignee[]
+  viewerIsCreator: boolean
+  viewerId: Id<'users'>
+}
 
 export const get = query({
   args: { id: v.id('tasks') },
   handler: async (ctx, args): Promise<TaskDetail> => {
     const userId = await requireUserId(ctx)
-    const task = await ctx.db.get(args.id)
-    assertCanEditTask(task, userId)
+    const task = await requireEditableTask(ctx, args.id, userId)
     let goal: TaskGoalSummary | null = null
     if (task.goalId) {
       const doc = await ctx.db.get(task.goalId)
@@ -503,7 +565,14 @@ export const get = query({
         }
       }
     }
-    return { ...task, goal }
+    const hydrated = await hydrateAssignees(ctx, [task])
+    return {
+      ...task,
+      goal,
+      assignees: hydrated[0]?.assignees ?? [],
+      viewerIsCreator: task.creatorId === userId,
+      viewerId: userId,
+    }
   },
 })
 
@@ -516,8 +585,7 @@ export const history = query({
   args: { taskId: v.id('tasks') },
   handler: async (ctx, args): Promise<TaskHistoryEvent[]> => {
     const userId = await requireUserId(ctx)
-    const task = await ctx.db.get(args.taskId)
-    assertCanEditTask(task, userId)
+    await requireEditableTask(ctx, args.taskId, userId)
     const events = await ctx.db
       .query('taskEvents')
       .withIndex('by_task', (q) => q.eq('taskId', args.taskId))
