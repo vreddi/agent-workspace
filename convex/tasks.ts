@@ -68,6 +68,7 @@ function assertCanEditTask(task: Doc<'tasks'> | null, userId: Id<'users'>): asse
 type DiffableField =
   | 'title'
   | 'description'
+  | 'emoji'
   | 'status'
   | 'softDeadline'
   | 'hardDeadline'
@@ -78,6 +79,7 @@ type DiffableField =
 const DIFF_FIELDS: readonly DiffableField[] = [
   'title',
   'description',
+  'emoji',
   'status',
   'softDeadline',
   'hardDeadline',
@@ -88,13 +90,14 @@ const DIFF_FIELDS: readonly DiffableField[] = [
 
 // Fields added after launch may be absent on older rows; treat undefined as
 // null when diffing.
-const OPTIONAL_DIFF_FIELDS = new Set<DiffableField>(['goalId', 'costDays'])
+const OPTIONAL_DIFF_FIELDS = new Set<DiffableField>(['emoji', 'goalId', 'costDays'])
 
 type TaskChange = { field: string; before: string | null; after: string | null }
 
 type UpdateArgs = {
   title?: string
   description?: string | null
+  emoji?: string | null
   status?: Doc<'tasks'>['status']
   softDeadline?: number | null
   hardDeadline?: number | null
@@ -121,6 +124,7 @@ export const create = mutation({
   args: {
     title: v.string(),
     description: v.optional(v.string()),
+    emoji: v.optional(v.union(v.string(), v.null())),
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
     estimateMinutes: v.optional(v.union(v.number(), v.null())),
@@ -135,6 +139,7 @@ export const create = mutation({
     }
     const trimmedDescription = args.description?.trim() ?? ''
     const description = trimmedDescription === '' ? null : trimmedDescription
+    const emoji = args.emoji?.trim() || null
     const softDeadline = args.softDeadline ?? null
     const hardDeadline = args.hardDeadline ?? null
     const estimateMinutes = args.estimateMinutes ?? null
@@ -150,6 +155,7 @@ export const create = mutation({
     const taskId = await ctx.db.insert('tasks', {
       title,
       description,
+      emoji,
       creatorId: userId,
       assigneeUserId: userId,
       assigneeUserIds: [userId],
@@ -170,6 +176,9 @@ export const create = mutation({
     ]
     if (description !== null) {
       changes.push({ field: 'description', before: null, after: encode(description) })
+    }
+    if (emoji !== null) {
+      changes.push({ field: 'emoji', before: null, after: encode(emoji) })
     }
     if (softDeadline !== null) {
       changes.push({ field: 'softDeadline', before: null, after: encode(softDeadline) })
@@ -201,6 +210,7 @@ export const update = mutation({
     id: v.id('tasks'),
     title: v.optional(v.string()),
     description: v.optional(v.union(v.string(), v.null())),
+    emoji: v.optional(v.union(v.string(), v.null())),
     status: v.optional(taskStatus),
     softDeadline: v.optional(v.union(v.number(), v.null())),
     hardDeadline: v.optional(v.union(v.number(), v.null())),
@@ -228,6 +238,9 @@ export const update = mutation({
         const trimmed = args.description.trim()
         normalized.description = trimmed === '' ? null : trimmed
       }
+    }
+    if (args.emoji !== undefined) {
+      normalized.emoji = args.emoji === null ? null : args.emoji.trim() || null
     }
     if (args.status !== undefined) normalized.status = args.status
     if (args.softDeadline !== undefined) normalized.softDeadline = args.softDeadline
