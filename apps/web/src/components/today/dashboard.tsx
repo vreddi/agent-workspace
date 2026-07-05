@@ -23,7 +23,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { customSheet, stubSheet } from '../agents/sprites'
-import { GoalTypeIcon } from '../goals/goal-ui'
+import { GoalTypeSelectionIcon, goalTypeValue } from '../goals/goal-ui'
 import { PRIORITY_LABELS, type TaskPriority } from '../tasks/priority'
 import { BrandIcon } from './brand-icons'
 import { EmojiGlyphButton } from './emoji-picker'
@@ -285,28 +285,20 @@ function fmtSlotTime(minutes: number): string {
   return m === 0 ? `${hh} ${ampm}` : `${hh}:${String(m).padStart(2, '0')} ${ampm}`
 }
 
-type GoalTypeMeta = {
-  name: string
-  color: string
-  icon: string | null
-} | null
-type GoalOption = { _id: Id<'goals'>; title: string; type: GoalTypeMeta }
+type GoalOption = {
+  _id: Id<'goals'>
+  title: string
+  typeSlug: string | null
+  customTypeId: Id<'goalTypes'> | null
+}
 
-// Small leading tile for a goal row. Reuses the goal type art, or a neutral
-// dashed placeholder for the "No goal" row / typeless goals so titles align.
-function GoalOptIcon({ type }: { type: GoalTypeMeta }) {
-  if (!type) {
-    return (
-      <span aria-hidden className="t-goalpick__icon t-goalpick__icon--none">
-        ◎
-      </span>
-    )
-  }
+// Small leading tile for a goal row. Uses the same resolver as the goal
+// detail header (authored type art, tinted glyph, or a neutral dashed
+// placeholder) so the dropdown shows the goal's exact icon.
+function GoalOptIcon({ goal }: { goal: GoalOption | null }) {
   return (
-    <GoalTypeIcon
-      name={type.name}
-      color={type.color}
-      icon={type.icon}
+    <GoalTypeSelectionIcon
+      value={goal ? goalTypeValue(goal) : ''}
       size={20}
       className="t-goalpick__icon"
     />
@@ -386,7 +378,7 @@ function GoalPicker({
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
-        {selected && <GoalOptIcon type={selected.type} />}
+        {selected && <GoalOptIcon goal={selected} />}
         <span className="t-goalpick__value">
           {selected ? selected.title : 'No goal'}
         </span>
@@ -429,7 +421,7 @@ function GoalPicker({
                 setOpen(false)
               }}
             >
-              <GoalOptIcon type={null} />
+              <GoalOptIcon goal={null} />
               <span className="t-goalpick__opt-label">No goal</span>
             </button>
             {goals?.map((g) => (
@@ -443,7 +435,7 @@ function GoalPicker({
                   setOpen(false)
                 }}
               >
-                <GoalOptIcon type={g.type} />
+                <GoalOptIcon goal={g} />
                 <span className="t-goalpick__opt-label">{g.title}</span>
               </button>
             ))}
