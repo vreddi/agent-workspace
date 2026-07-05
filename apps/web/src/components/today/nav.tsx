@@ -137,7 +137,8 @@ export function Nav({
   onNewTask,
   onOpenSettings,
 }: {
-  active: NavPage
+  /** Omit on detail pages (task, goal) — no top-level link is current. */
+  active?: NavPage
   onNewTask?: () => void
   onOpenSettings?: () => void
 }) {

@@ -1,7 +1,6 @@
 import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
 import type { GoalListItem } from '@convex/goals'
-import { UserButton } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
 import {
   Drawer,
@@ -43,6 +42,8 @@ import {
   TypeBadge,
 } from '~/components/goals/goal-ui'
 import { PriorityBadge } from '~/components/tasks/priority'
+import { AppShell } from '~/components/today/app-shell'
+import { AppBreadcrumbs } from '~/components/today/breadcrumbs'
 
 export const Route = createFileRoute('/_authenticated/goals/$goalId')({
   component: GoalDetailPage,
@@ -92,20 +93,15 @@ function GoalDetailPage() {
   const id = goalId as Id<'goals'>
 
   return (
-    <main className="mx-auto max-w-5xl p-8">
-      <header className="mb-6 flex items-start justify-between gap-4">
-        <Button variant="outline" size="sm" asChild>
-          <Link to="/goals">← All goals</Link>
-        </Button>
-        <UserButton />
-      </header>
-
-      <Authenticated>
-        <GoalErrorBoundary>
-          <GoalDetail id={id} />
-        </GoalErrorBoundary>
-      </Authenticated>
-    </main>
+    <AppShell active="goals">
+      <main className="px-3 pb-16 pt-2.5">
+        <Authenticated>
+          <GoalErrorBoundary>
+            <GoalDetail id={id} />
+          </GoalErrorBoundary>
+        </Authenticated>
+      </main>
+    </AppShell>
   )
 }
 
@@ -113,15 +109,27 @@ function GoalDetail({ id }: { id: Id<'goals'> }) {
   const goal = useQuery(api.goals.get, { id })
 
   if (goal === undefined) {
-    return <p className="text-sm text-muted-foreground">Loading goal…</p>
+    return (
+      <>
+        <AppBreadcrumbs
+          items={[{ label: 'Goals', to: '/goals' }, { label: '…' }]}
+        />
+        <p className="mt-4 text-sm text-muted-foreground">Loading goal…</p>
+      </>
+    )
   }
 
   return (
-    <div className="space-y-8">
-      <GoalHeader goal={goal} />
-      <CostStrip goal={goal} />
-      <GoalBoard goalId={goal._id} />
-    </div>
+    <>
+      <AppBreadcrumbs
+        items={[{ label: 'Goals', to: '/goals' }, { label: goal.title }]}
+      />
+      <div className="mt-4 space-y-8">
+        <GoalHeader goal={goal} />
+        <CostStrip goal={goal} />
+        <GoalBoard goalId={goal._id} />
+      </div>
+    </>
   )
 }
 
