@@ -10,6 +10,8 @@ import {
 } from '@tanstack/react-router'
 import { Authenticated, useQuery } from 'convex/react'
 import { useMemo, useState } from 'react'
+import type { Id } from '@convex/_generated/dataModel'
+import { AssigneeStack } from '~/components/tasks/assignees'
 import { PriorityBadge } from '~/components/tasks/priority'
 import { AppShell } from '~/components/today/app-shell'
 import {
@@ -82,6 +84,7 @@ const STATUS_PILL: Record<TaskStatus, { label: string; className: string }> = {
 
 function TasksList() {
   const [status, setStatus] = useState<StatusFilter>('all')
+  const me = useQuery(api.users.current)
   const tasks = useQuery(
     api.tasks.list,
     status === 'all' ? {} : { status },
@@ -129,7 +132,12 @@ function TasksList() {
       ) : (
         <div className="space-y-2.5">
           {sorted.map((task) => (
-            <TaskRow key={task.id} task={task.raw} now={now} />
+            <TaskRow
+              key={task.id}
+              task={task.raw}
+              now={now}
+              viewerId={me?._id ?? null}
+            />
           ))}
         </div>
       )}
@@ -164,10 +172,23 @@ function EmptyState({ status }: { status: StatusFilter }) {
   )
 }
 
-function TaskRow({ task, now }: { task: TaskListItem; now: number }) {
+function TaskRow({
+  task,
+  now,
+  viewerId,
+}: {
+  task: TaskListItem
+  now: number
+  viewerId: Id<'users'> | null
+}) {
   const display = toDisplayTask(task, now)
   const cd = display.deadline ? fmtCountdown(display.deadline, now) : null
   const pill = STATUS_PILL[task.status]
+  // Avatars only when the task involves someone besides you; the common
+  // solo case stays quiet.
+  const shared =
+    task.assignees.length > 1 ||
+    task.assignees.some((a) => viewerId !== null && a.userId !== viewerId)
 
   return (
     <Link
@@ -210,6 +231,11 @@ function TaskRow({ task, now }: { task: TaskListItem; now: number }) {
           </div>
         )}
       </div>
+      {shared && (
+        <span className="shrink-0" aria-label="Shared task">
+          <AssigneeStack assignees={task.assignees} />
+        </span>
+      )}
       <span
         className={cn(
           'shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium',

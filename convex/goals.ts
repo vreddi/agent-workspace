@@ -4,6 +4,7 @@ import { Doc, Id } from './_generated/dataModel'
 import { getCurrentUser } from './users'
 import { goalStatus } from './schema'
 import { systemGoalType, SystemGoalType } from './goalTypes'
+import { canUserEditTask, syncAssignmentStatus } from './taskAssignments'
 
 const POSITION_STEP = 1024
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -336,17 +337,6 @@ export const board = query({
   },
 })
 
-function taskAssigneeIds(task: Doc<'tasks'>): Id<'users'>[] {
-  if (task.assigneeUserIds && task.assigneeUserIds.length > 0) {
-    return task.assigneeUserIds
-  }
-  return [task.assigneeUserId]
-}
-
-function canEditTask(task: Doc<'tasks'>, userId: Id<'users'>): boolean {
-  return task.creatorId === userId || taskAssigneeIds(task).includes(userId)
-}
-
 async function nextGoalTailPosition(ctx: QueryCtx, goalId: Id<'goals'>): Promise<number> {
   const last = await ctx.db
     .query('tasks')
@@ -377,7 +367,7 @@ export const addTasks = mutation({
     let moved = 0
     for (const taskId of args.taskIds) {
       const task = await ctx.db.get(taskId)
-      if (!task || !canEditTask(task, userId)) continue
+      if (!task || !(await canUserEditTask(ctx, task, userId))) continue
       if ((task.goalId ?? null) === args.goalId) continue
       await ctx.db.patch(taskId, {
         goalId: args.goalId,
@@ -408,7 +398,7 @@ export const removeTask = mutation({
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
     const task = await ctx.db.get(args.taskId)
-    if (!task || !canEditTask(task, userId)) {
+    if (!task || !(await canUserEditTask(ctx, task, userId))) {
       throw new ConvexError('Task not found')
     }
     const goalId = task.goalId ?? null
@@ -438,7 +428,7 @@ export const moveTask = mutation({
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
     const task = await ctx.db.get(args.taskId)
-    if (!task || !canEditTask(task, userId)) {
+    if (!task || !(await canUserEditTask(ctx, task, userId))) {
       throw new ConvexError('Task not found')
     }
     const goalId = task.goalId ?? null
@@ -488,6 +478,9 @@ export const moveTask = mutation({
       })
     }
     await ctx.db.patch(args.taskId, patch)
+    if (task.status !== nextStatus) {
+      await syncAssignmentStatus(ctx, args.taskId, nextStatus)
+    }
     return { goalPosition: nextPosition, status: nextStatus }
   },
 })

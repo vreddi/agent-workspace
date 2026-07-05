@@ -261,4 +261,58 @@ textarea.tdp-input { min-height: 96px; resize: vertical; line-height: 1.55; }
   .tdp-details__row { grid-template-columns: 1fr; gap: 2px; }
   .tdp-head { flex-wrap: wrap; }
 }
+
+/* ── People / assignees ─────────────────────────────────── */
+.tdp-people { list-style: none; margin: 0; padding: 0; }
+.tdp-people__row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 2px;
+}
+.tdp-people__row + .tdp-people__row { border-top: 1px solid var(--t-divider); }
+.tdp-people__text { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.tdp-people__name {
+  font-size: 14px; font-weight: 600; color: var(--t-ink-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tdp-people__you { font-weight: 500; color: var(--t-ink-3); }
+.tdp-people__email {
+  font-size: 12px; font-weight: 500; color: var(--t-ink-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tdp-people__tag {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--t-ink-3); flex-shrink: 0;
+  border: 1px solid var(--t-divider); border-radius: 999px; padding: 2px 8px;
+}
+.tdp-people__remove {
+  width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+  border: none; background: transparent; cursor: pointer;
+  font-size: 16px; line-height: 1; color: var(--t-ink-3);
+  transition: background 0.12s, color 0.12s;
+}
+.tdp-people__remove:hover { background: var(--t-hover); color: var(--t-overdue); }
+.tdp-people__remove:disabled { opacity: 0.5; cursor: not-allowed; }
+.tdp-people__add { margin-top: 10px; }
+
+.tdp-people__search {
+  width: 100%; padding: 8px 10px;
+  background: var(--t-bg); border: 1px solid var(--t-divider); border-radius: 9px;
+  font-family: inherit; font-size: 13.5px; font-weight: 500; color: var(--t-ink-1);
+}
+.tdp-people__search:focus { outline: none; border-color: var(--t-accent); }
+.tdp-people__results {
+  list-style: none; margin: 6px 0 0; padding: 0;
+  max-height: 240px; overflow-y: auto;
+}
+.tdp-people__hint {
+  padding: 10px 6px; font-size: 12.5px; font-weight: 500; color: var(--t-ink-3);
+}
+.tdp-people__result {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 7px 8px; border: none; border-radius: 9px;
+  background: transparent; cursor: pointer; text-align: left;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+.tdp-people__result:hover { background: var(--t-hover); }
 `
