@@ -390,12 +390,6 @@ export const todayStyles = `
 .t-goalpick__trigger[data-empty] .t-goalpick__value { color: var(--t-ink-3); }
 .t-goalpick__caret { color: var(--t-ink-3); flex-shrink: 0; }
 .t-goalpick__icon { flex-shrink: 0; }
-.t-goalpick__icon--none {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px;
-  border: 1px dashed var(--t-divider); border-radius: 6px;
-  color: var(--t-ink-3); font-size: 12px; line-height: 1;
-}
 /* Positioned inline (fixed, anchored to the trigger) so the panel escapes the
    scrolling details container and overflows the footer. */
 .t-goalpick__panel {
