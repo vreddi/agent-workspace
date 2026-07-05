@@ -1,6 +1,13 @@
 import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
 import { useUser } from '@clerk/tanstack-react-start'
+import { Calendar } from '@org/ui/components/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@org/ui/components/popover'
+import { Slider } from '@org/ui/components/slider'
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
 import type { SpriteSheet } from '@worldkit/sprite-actor'
 import { VillageCanvas } from '@worldkit/world-canvas'
@@ -14,6 +21,7 @@ import {
   useState,
 } from 'react'
 import { customSheet, stubSheet } from '../agents/sprites'
+import { PRIORITY_LABELS, type TaskPriority } from '../tasks/priority'
 import { BrandIcon } from './brand-icons'
 import { EmojiGlyphButton } from './emoji-picker'
 import {
@@ -212,14 +220,66 @@ export type CaptureInput = {
   title: string
   estimateMinutes: number | null
   targetDate: string | null
+  scheduledStartMinutes: number | null
+  priority: TaskPriority | null
+  difficulty: number | null
   emoji: string | null
   goalId: Id<'goals'> | null
 }
 
-function todayDateString(): string {
-  const d = new Date()
+const SLOT_STEP = 15
+const SLOT_MAX = 24 * 60 - SLOT_STEP
+const SLOT_DEFAULT = 9 * 60
+const DEFAULT_SLOT_LENGTH = 30
+
+const DIFFICULTY_WORDS: Record<number, string> = {
+  1: 'Breezy',
+  2: 'Easy',
+  3: 'Moderate',
+  4: 'Tough',
+  5: 'Challenging',
+}
+
+function toDateString(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+function todayDateString(): string {
+  return toDateString(new Date())
+}
+
+/** Parse YYYY-MM-DD as a local date (Date-only strings parse as UTC). */
+function parseDateString(s: string): Date {
+  const [y, m, d] = s.split('-').map(Number)
+  return new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1)
+}
+
+function addDays(dateStr: string, days: number): string {
+  const d = parseDateString(dateStr)
+  d.setDate(d.getDate() + days)
+  return toDateString(d)
+}
+
+/** "Today", "Tomorrow", or "Mon, Jul 7" for a YYYY-MM-DD string. */
+function fmtTargetDate(dateStr: string): string {
+  const today = todayDateString()
+  if (dateStr === today) return 'Today'
+  if (dateStr === addDays(today, 1)) return 'Tomorrow'
+  return parseDateString(dateStr).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
+/** Minutes after midnight → "9 AM" / "1:30 PM". */
+function fmtSlotTime(minutes: number): string {
+  const h = Math.floor(minutes / 60) % 24
+  const m = minutes % 60
+  const ampm = h < 12 ? 'AM' : 'PM'
+  const hh = h % 12 === 0 ? 12 : h % 12
+  return m === 0 ? `${hh} ${ampm}` : `${hh}:${String(m).padStart(2, '0')} ${ampm}`
 }
 
 type GoalOption = { _id: Id<'goals'>; title: string }
@@ -310,6 +370,102 @@ function GoalPicker({
   )
 }
 
+const PRIORITY_CHOICES: { value: TaskPriority | null; label: string }[] = [
+  { value: null, label: 'None' },
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+]
+
+function TargetDatePicker({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: string
+  disabled: boolean
+  onChange: (next: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const today = todayDateString()
+  return (
+    <div className="t-palette__date">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="t-palette__date-btn"
+            data-empty={value ? undefined : true}
+            disabled={disabled}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+            {value ? fmtTargetDate(value) : 'No date'}
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="z-[60] w-auto p-0"
+          align="start"
+          onEscapeKeyDown={(e) => e.stopPropagation()}
+        >
+          <Calendar
+            mode="single"
+            selected={value ? parseDateString(value) : undefined}
+            defaultMonth={value ? parseDateString(value) : undefined}
+            onSelect={(day) => {
+              onChange(day ? toDateString(day) : '')
+              setOpen(false)
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+      {value !== today && (
+        <button
+          type="button"
+          className="t-palette__chip"
+          onClick={() => onChange(today)}
+          disabled={disabled}
+        >
+          Today
+        </button>
+      )}
+      {value !== addDays(today, 1) && (
+        <button
+          type="button"
+          className="t-palette__chip"
+          onClick={() => onChange(addDays(today, 1))}
+          disabled={disabled}
+        >
+          Tomorrow
+        </button>
+      )}
+      {value !== '' && (
+        <button
+          type="button"
+          className="t-palette__chip t-palette__chip--ghost"
+          onClick={() => onChange('')}
+          disabled={disabled}
+          aria-label="Clear target date"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  )
+}
+
 function CapturePalette({
   open,
   goals,
@@ -324,8 +480,12 @@ function CapturePalette({
   const [val, setVal] = useState('')
   const [estimate, setEstimate] = useState('')
   const [targetDate, setTargetDate] = useState('')
+  const [slotStart, setSlotStart] = useState<number | null>(null)
+  const [priority, setPriority] = useState<TaskPriority | null>(null)
+  const [difficulty, setDifficulty] = useState<number | null>(null)
   const [emoji, setEmoji] = useState<string | null>(null)
   const [goalId, setGoalId] = useState<Id<'goals'> | null>(null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -334,14 +494,29 @@ function CapturePalette({
       setVal('')
       setEstimate('')
       setTargetDate('')
+      setSlotStart(null)
+      setPriority(null)
+      setDifficulty(null)
       setEmoji(null)
       setGoalId(null)
+      setDetailsOpen(false)
       setError(null)
       setSubmitting(false)
       window.requestAnimationFrame(() => inputRef.current?.focus())
     }
   }, [open])
   if (!open) return null
+
+  const estimateMinutesOrNull = (() => {
+    const trimmed = estimate.trim()
+    if (trimmed === '') return null
+    const n = Number(trimmed)
+    return Number.isFinite(n) && n > 0 ? n : null
+  })()
+  const slotLength = estimateMinutesOrNull ?? DEFAULT_SLOT_LENGTH
+  const slotEnd =
+    slotStart === null ? null : Math.min(slotStart + slotLength, 24 * 60)
+
   async function handleSubmit(e?: FormEvent) {
     e?.preventDefault()
     const trimmed = val.trim()
@@ -363,6 +538,10 @@ function CapturePalette({
         title: trimmed,
         estimateMinutes,
         targetDate: targetDate || null,
+        // A slot only means something on a concrete day.
+        scheduledStartMinutes: targetDate ? slotStart : null,
+        priority,
+        difficulty,
         emoji,
         goalId,
       })
@@ -373,6 +552,35 @@ function CapturePalette({
       setSubmitting(false)
     }
   }
+
+  const summaryChips: { key: string; label: string; dot?: TaskPriority }[] = []
+  if (targetDate) {
+    summaryChips.push({
+      key: 'date',
+      label:
+        slotStart === null
+          ? fmtTargetDate(targetDate)
+          : `${fmtTargetDate(targetDate)} · ${fmtSlotTime(slotStart)}`,
+    })
+  }
+  if (estimateMinutesOrNull !== null) {
+    summaryChips.push({ key: 'estimate', label: `${estimateMinutesOrNull} min` })
+  }
+  if (priority !== null) {
+    summaryChips.push({
+      key: 'priority',
+      label: `${PRIORITY_LABELS[priority]} priority`,
+      dot: priority,
+    })
+  }
+  if (difficulty !== null) {
+    summaryChips.push({ key: 'difficulty', label: `Difficulty ${difficulty}/5` })
+  }
+  const selectedGoal = goals?.find((g) => g._id === goalId)
+  if (selectedGoal) {
+    summaryChips.push({ key: 'goal', label: selectedGoal.title })
+  }
+
   return (
     <div
       className="t-palette-bd"
@@ -410,68 +618,204 @@ function CapturePalette({
             <span className="t-kbd">↵</span>
           </button>
         </div>
-        <div className="t-palette__meta">
-          <label className="t-palette__field">
-            <span className="t-palette__label">Estimate</span>
-            <div className="t-palette__field-input">
-              <input
-                type="number"
-                min={0}
-                step={5}
-                inputMode="numeric"
-                disabled={submitting}
-                value={estimate}
-                onChange={(e) => setEstimate(e.target.value)}
-                placeholder="—"
-              />
-              <span className="t-palette__suffix">min</span>
-            </div>
-          </label>
-          <label className="t-palette__field">
-            <span className="t-palette__label">Target date</span>
-            <div className="t-palette__field-input">
-              <input
-                type="date"
-                disabled={submitting}
-                value={targetDate}
-                onChange={(e) => setTargetDate(e.target.value)}
-              />
-              {targetDate !== todayDateString() && (
+
+        <div className="t-palette__more">
+          <button
+            type="button"
+            className="t-palette__more-toggle"
+            aria-expanded={detailsOpen}
+            onClick={() => setDetailsOpen((o) => !o)}
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+            {detailsOpen ? 'Hide details' : 'Fine-tune'}
+          </button>
+          {!detailsOpen && summaryChips.length > 0 && (
+            <div className="t-palette__summary">
+              {summaryChips.map((chip) => (
                 <button
+                  key={chip.key}
                   type="button"
-                  className="t-palette__chip"
-                  onClick={() => setTargetDate(todayDateString())}
-                  disabled={submitting}
+                  className="t-palette__sum-chip"
+                  onClick={() => setDetailsOpen(true)}
                 >
-                  Today
+                  {chip.dot && (
+                    <span className={`t-prio-dot t-prio-dot--${chip.dot}`} />
+                  )}
+                  {chip.label}
                 </button>
-              )}
-              {targetDate !== '' && (
-                <button
-                  type="button"
-                  className="t-palette__chip t-palette__chip--ghost"
-                  onClick={() => setTargetDate('')}
-                  disabled={submitting}
-                  aria-label="Clear target date"
-                >
-                  Clear
-                </button>
-              )}
+              ))}
             </div>
-          </label>
-          <label className="t-palette__field">
-            <span className="t-palette__label">Goal</span>
-            <GoalPicker
-              goals={goals}
-              value={goalId}
-              disabled={submitting}
-              onSelect={setGoalId}
-            />
-          </label>
+          )}
         </div>
+
+        {detailsOpen && (
+          <div className="t-palette__details">
+            <section className="t-palette__section">
+              <div className="t-palette__section-head">Scheduling</div>
+              <div className="t-palette__grid">
+                <div className="t-palette__field">
+                  <span className="t-palette__label">Target date</span>
+                  <TargetDatePicker
+                    value={targetDate}
+                    disabled={submitting}
+                    onChange={(next) => {
+                      setTargetDate(next)
+                      if (next === '') setSlotStart(null)
+                    }}
+                  />
+                </div>
+                <label className="t-palette__field t-palette__field--narrow">
+                  <span className="t-palette__label">Estimate</span>
+                  <div className="t-palette__field-input">
+                    <input
+                      type="number"
+                      min={0}
+                      step={5}
+                      inputMode="numeric"
+                      disabled={submitting}
+                      value={estimate}
+                      onChange={(e) => setEstimate(e.target.value)}
+                      placeholder="—"
+                    />
+                    <span className="t-palette__suffix">min</span>
+                  </div>
+                </label>
+              </div>
+              {targetDate !== '' && (
+                <div className="t-palette__slot">
+                  <div className="t-palette__slot-head">
+                    <span className="t-palette__label">Time slot</span>
+                    <span className="t-palette__slot-value">
+                      {slotStart === null || slotEnd === null
+                        ? 'Anytime'
+                        : `${fmtSlotTime(slotStart)} – ${fmtSlotTime(slotEnd)}`}
+                    </span>
+                    {slotStart !== null && (
+                      <button
+                        type="button"
+                        className="t-palette__chip t-palette__chip--ghost"
+                        disabled={submitting}
+                        onClick={() => setSlotStart(null)}
+                      >
+                        Anytime
+                      </button>
+                    )}
+                  </div>
+                  <div data-unset={slotStart === null ? true : undefined}>
+                    <Slider
+                      min={0}
+                      max={SLOT_MAX}
+                      step={SLOT_STEP}
+                      disabled={submitting}
+                      value={[slotStart ?? SLOT_DEFAULT]}
+                      onValueChange={([v]) => setSlotStart(v ?? SLOT_DEFAULT)}
+                      aria-label="Time slot start"
+                    />
+                  </div>
+                  <div className="t-palette__scale">
+                    <span>12 AM</span>
+                    <span>6 AM</span>
+                    <span>12 PM</span>
+                    <span>6 PM</span>
+                    <span>12 AM</span>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <section className="t-palette__section">
+              <div className="t-palette__section-head">Priority & effort</div>
+              <div className="t-palette__grid">
+                <div className="t-palette__field t-palette__field--narrow">
+                  <span className="t-palette__label">Priority</span>
+                  <div className="t-seg" role="radiogroup" aria-label="Priority">
+                    {PRIORITY_CHOICES.map((choice) => (
+                      <button
+                        key={choice.label}
+                        type="button"
+                        role="radio"
+                        aria-checked={priority === choice.value}
+                        data-active={priority === choice.value ? true : undefined}
+                        disabled={submitting}
+                        onClick={() => setPriority(choice.value)}
+                      >
+                        {choice.value && (
+                          <span
+                            className={`t-prio-dot t-prio-dot--${choice.value}`}
+                          />
+                        )}
+                        {choice.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="t-palette__field">
+                  <span className="t-palette__label">Difficulty</span>
+                  <div className="t-palette__slot">
+                    <div className="t-palette__slot-head">
+                      <span className="t-palette__slot-value">
+                        {difficulty === null
+                          ? 'Not set'
+                          : `${difficulty}/5 · ${DIFFICULTY_WORDS[difficulty]}`}
+                      </span>
+                      {difficulty !== null && (
+                        <button
+                          type="button"
+                          className="t-palette__chip t-palette__chip--ghost"
+                          disabled={submitting}
+                          onClick={() => setDifficulty(null)}
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                    <div data-unset={difficulty === null ? true : undefined}>
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        disabled={submitting}
+                        value={[difficulty ?? 3]}
+                        onValueChange={([v]) => setDifficulty(v ?? 3)}
+                        aria-label="Difficulty"
+                      />
+                    </div>
+                    <div className="t-palette__scale">
+                      <span>Easy</span>
+                      <span>Challenging</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="t-palette__section">
+              <div className="t-palette__section-head">Goal</div>
+              <GoalPicker
+                goals={goals}
+                value={goalId}
+                disabled={submitting}
+                onSelect={setGoalId}
+              />
+            </section>
+          </div>
+        )}
+
         {error && <div className="t-palette__error">{error}</div>}
         <div className="t-palette__hints">
-          <span>Both fields are optional — a title is enough.</span>
+          <span>A title is enough — everything else is optional.</span>
           <button
             type="submit"
             className="t-palette__save"
@@ -649,6 +993,9 @@ export function TodayDashboard() {
       title: input.title,
       estimateMinutes: input.estimateMinutes,
       softDeadline,
+      scheduledStartMinutes: input.scheduledStartMinutes,
+      priority: input.priority,
+      difficulty: input.difficulty,
       emoji: input.emoji,
       goalId: input.goalId,
     })
