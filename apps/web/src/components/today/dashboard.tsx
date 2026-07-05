@@ -400,7 +400,15 @@ function CapturePalette({
             onChange={(e) => setVal(e.target.value)}
             placeholder="What needs doing?"
           />
-          <span className="t-kbd">↵</span>
+          <button
+            type="submit"
+            className="t-palette__enter"
+            disabled={!val.trim() || submitting}
+            aria-label="Add task"
+            title="Add task (Enter)"
+          >
+            <span className="t-kbd">↵</span>
+          </button>
         </div>
         <div className="t-palette__meta">
           <label className="t-palette__field">
@@ -464,6 +472,14 @@ function CapturePalette({
         {error && <div className="t-palette__error">{error}</div>}
         <div className="t-palette__hints">
           <span>Both fields are optional — a title is enough.</span>
+          <button
+            type="submit"
+            className="t-palette__save"
+            disabled={!val.trim() || submitting}
+          >
+            {submitting ? 'Adding…' : 'Add task'}
+            <span className="t-kbd t-kbd--on-accent">↵</span>
+          </button>
         </div>
       </form>
     </div>

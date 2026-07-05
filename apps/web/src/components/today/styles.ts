@@ -491,11 +491,33 @@ export const todayStyles = `
   color: #fca5a5;
 }
 .t-palette__hints {
-  display: flex; align-items: center; gap: 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 12px 20px; background: var(--t-bg);
   font-size: 12px; color: var(--t-ink-2);
   flex-wrap: wrap;
 }
+
+/* Enter/submit affordance beside the title input. */
+.t-palette__enter {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 3px; border: none; background: transparent;
+  border-radius: 6px; cursor: pointer; flex-shrink: 0;
+  transition: background 0.12s ease, opacity 0.12s ease;
+}
+.t-palette__enter:hover:not(:disabled) { background: var(--t-hover); }
+.t-palette__enter:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Primary "Add task" button in the footer action row. */
+.t-palette__save {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border: none; border-radius: 9px;
+  background: var(--t-accent); color: #fff;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  letter-spacing: -0.01em; cursor: pointer;
+  transition: filter 0.12s ease, opacity 0.12s ease;
+}
+.t-palette__save:hover:not(:disabled) { filter: brightness(1.06); }
+.t-palette__save:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── Tweaks panel ────────────────────────────────────────── */
 .t-tweaks {
