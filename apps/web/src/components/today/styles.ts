@@ -369,55 +369,22 @@ export const todayStyles = `
 .t-emoji__clear:hover { background: var(--t-bg); color: var(--t-ink-1); }
 
 /* ── Goal picker ─────────────────────────────────────────── */
-.t-goalpick { position: relative; }
-.t-goalpick__trigger {
-  display: flex; align-items: center; gap: 8px; width: 100%;
-  padding: 8px 10px;
+/* shadcn/Radix Select re-skinned to match the palette (same override
+   pattern as the slider above). The dropdown itself keeps the shadcn
+   popover look and is portaled/positioned by Radix. */
+.t-goalpick__icon { flex-shrink: 0; }
+.t-palette [data-slot=select-trigger] {
+  width: 100%; padding: 8px 10px; height: auto;
   background: var(--t-bg);
   border: 1px solid var(--t-divider);
   border-radius: 9px;
-  cursor: pointer; text-align: left;
+  font-size: 14px; font-weight: 500; color: var(--t-ink-1);
+  box-shadow: none;
   transition: border-color 0.12s ease;
 }
-.t-goalpick__trigger:hover,
-.t-goalpick__trigger[aria-expanded="true"] { border-color: var(--t-accent); }
-.t-goalpick__trigger:disabled { opacity: 0.5; cursor: not-allowed; }
-.t-goalpick__value {
-  flex: 1; min-width: 0;
-  font-size: 14px; font-weight: 500; color: var(--t-ink-1);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.t-goalpick__trigger[data-empty] .t-goalpick__value { color: var(--t-ink-3); }
-.t-goalpick__caret { color: var(--t-ink-3); flex-shrink: 0; }
-.t-goalpick__icon { flex-shrink: 0; }
-/* Positioned inline (fixed, anchored to the trigger) so the panel escapes the
-   scrolling details container and overflows the footer. */
-.t-goalpick__panel {
-  max-height: 220px; overflow-y: auto;
-  padding: 5px;
-  background: var(--t-surface);
-  border: 1px solid var(--t-divider);
-  border-radius: 11px;
-  box-shadow: 0 18px 40px -14px rgba(0,0,0,0.35);
-  z-index: 70;
-  animation: t-pop-in 0.14s cubic-bezier(0.2,0.9,0.3,1);
-}
-.t-goalpick__opt {
-  display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
-  padding: 7px 8px; border: none; background: transparent;
-  border-radius: 7px; cursor: pointer;
-  font-size: 14px; font-weight: 500; color: var(--t-ink-1);
-  font-family: inherit;
-  transition: background 0.1s ease;
-}
-.t-goalpick__opt-label {
-  min-width: 0; flex: 1;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.t-goalpick__opt:hover { background: var(--t-bg); }
-.t-goalpick__opt[data-active] {
-  background: var(--t-accent-soft); color: var(--t-accent-ink);
-}
+.t-palette [data-slot=select-trigger]:hover,
+.t-palette [data-slot=select-trigger][data-state=open] { border-color: var(--t-accent); }
+.t-palette [data-slot=select-trigger][data-empty] { color: var(--t-ink-3); }
 .t-goalpick__empty {
   padding: 8px 10px; font-size: 13px; color: var(--t-ink-3);
 }
