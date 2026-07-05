@@ -4,6 +4,14 @@ import type { GoalListItem } from '@convex/goals'
 import { UserButton } from '@clerk/tanstack-react-start'
 import { Button } from '@org/ui/components/button'
 import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from '@org/ui/components/drawer'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -25,6 +33,7 @@ import {
   dateInputToMs,
   describeDeadline,
   formatDays,
+  goalTypeValue,
   GoalTypeSelect,
   GoalTypeSelectionIcon,
   INPUT_CLASSES,
@@ -160,33 +169,42 @@ function GoalHeader({ goal }: { goal: GoalListItem }) {
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {goal.title}
-          </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <TypeBadge type={goal.type} />
-            {goal.status !== 'active' && (
-              <span className="rounded-full border px-2 py-0.5 text-xs font-medium capitalize text-muted-foreground">
-                {goal.status}
-              </span>
-            )}
-            <span className="text-xs text-muted-foreground">
-              {new Date(goal.deadline).toLocaleDateString()} ·{' '}
-              <span
-                className={cn(
-                  deadline.overdue && 'font-medium text-destructive',
-                )}
-              >
-                {deadline.label}
-              </span>
-            </span>
-          </div>
-          {goal.description && (
-            <p className="mt-2 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground">
-              {goal.description}
-            </p>
+        <div className="flex min-w-0 items-start gap-3">
+          {goal.type && (
+            <GoalTypeSelectionIcon
+              value={goalTypeValue(goal)}
+              size={44}
+              className="mt-0.5"
+            />
           )}
+          <div className="min-w-0">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {goal.title}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <TypeBadge type={goal.type} />
+              {goal.status !== 'active' && (
+                <span className="rounded-full border px-2 py-0.5 text-xs font-medium capitalize text-muted-foreground">
+                  {goal.status}
+                </span>
+              )}
+              <span className="text-xs text-muted-foreground">
+                {new Date(goal.deadline).toLocaleDateString()} ·{' '}
+                <span
+                  className={cn(
+                    deadline.overdue && 'font-medium text-destructive',
+                  )}
+                >
+                  {deadline.label}
+                </span>
+              </span>
+            </div>
+            {goal.description && (
+              <p className="mt-2 max-w-2xl whitespace-pre-wrap text-sm text-muted-foreground">
+                {goal.description}
+              </p>
+            )}
+          </div>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           {goal.status === 'active' && (
@@ -249,12 +267,6 @@ function GoalHeader({ goal }: { goal: GoalListItem }) {
       {editOpen && <GoalEditor goal={goal} onSaved={() => setEditOpen(false)} />}
     </section>
   )
-}
-
-function goalTypeValue(goal: GoalListItem): string {
-  if (goal.typeSlug !== null) return `sys:${goal.typeSlug}`
-  if (goal.customTypeId !== null) return `custom:${goal.customTypeId}`
-  return ''
 }
 
 function GoalEditor({
@@ -551,7 +563,7 @@ function GoalBoard({ goalId }: { goalId: Id<'goals'> }) {
         </div>
       )}
 
-      <AddExistingTasksModal
+      <AddExistingTasksDrawer
         goalId={goalId}
         open={addOpen}
         onClose={() => setAddOpen(false)}
@@ -827,7 +839,7 @@ function QuickAddTask({ goalId }: { goalId: Id<'goals'> }) {
   )
 }
 
-function AddExistingTasksModal({
+function AddExistingTasksDrawer({
   goalId,
   open,
   onClose,
@@ -849,8 +861,6 @@ function AddExistingTasksModal({
       setError(null)
     }
   }, [open])
-
-  if (!open) return null
 
   const candidates = (tasks ?? []).filter(
     (t) =>
@@ -881,58 +891,59 @@ function AddExistingTasksModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pt-[10vh]"
-      onClick={onClose}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') onClose()
+    <Drawer
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onClose()
       }}
+      direction="right"
     >
-      <div
-        className="w-full max-w-lg rounded-2xl border bg-background p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="mb-1 text-lg font-semibold tracking-tight">
-          Add existing tasks
-        </h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Open tasks that aren't part of any goal yet.
-        </p>
+      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg">
+        <DrawerHeader className="border-b">
+          <DrawerTitle>Add existing tasks</DrawerTitle>
+          <DrawerDescription>
+            Open tasks that aren't part of any goal yet.
+          </DrawerDescription>
+        </DrawerHeader>
 
-        {tasks === undefined ? (
-          <p className="text-sm text-muted-foreground">Loading tasks…</p>
-        ) : candidates.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-            No unattached open tasks.
-          </p>
-        ) : (
-          <ul className="max-h-72 space-y-1 overflow-y-auto">
-            {candidates.map((task) => (
-              <li key={task._id}>
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition hover:bg-muted/40">
-                  <input
-                    type="checkbox"
-                    checked={selected.has(task._id)}
-                    disabled={submitting}
-                    onChange={() => toggle(task._id)}
-                  />
-                  <span className="min-w-0 flex-1 truncate">{task.title}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {task.status === 'open' ? 'Open' : 'In progress'}
-                  </span>
-                </label>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="flex-1 overflow-y-auto p-5">
+          {tasks === undefined ? (
+            <p className="text-sm text-muted-foreground">Loading tasks…</p>
+          ) : candidates.length === 0 ? (
+            <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              No unattached open tasks.
+            </p>
+          ) : (
+            <ul className="space-y-1">
+              {candidates.map((task) => (
+                <li key={task._id}>
+                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition hover:bg-muted/40">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(task._id)}
+                      disabled={submitting}
+                      onChange={() => toggle(task._id)}
+                    />
+                    <span className="min-w-0 flex-1 truncate">
+                      {task.title}
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {task.status === 'open' ? 'Open' : 'In progress'}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
 
-        {error && (
-          <div className="mt-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mt-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              {error}
+            </div>
+          )}
+        </div>
 
-        <div className="mt-6 flex justify-end gap-2">
+        <DrawerFooter className="flex-row justify-end gap-2 border-t">
           <Button variant="outline" onClick={onClose} disabled={submitting}>
             Cancel
           </Button>
@@ -946,8 +957,8 @@ function AddExistingTasksModal({
               ? 'Adding…'
               : `Add ${selected.size} task${selected.size === 1 ? '' : 's'}`}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   )
 }

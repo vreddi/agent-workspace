@@ -12,7 +12,10 @@ import {
   goalTypeColorClasses,
   INPUT_CLASSES,
   TEXTAREA_CLASSES,
+  useViewMode,
+  ViewToggle,
   type GoalTypeColorToken,
+  type ViewMode,
 } from '~/components/goals/goal-ui'
 
 export const Route = createFileRoute('/_authenticated/goals/types')({
@@ -44,9 +47,12 @@ function GoalTypesPage() {
   )
 }
 
+const CARD_GRID = 'grid grid-cols-1 gap-3 sm:grid-cols-2'
+
 function TypesManager() {
   const types = useQuery(api.goalTypes.list, {})
   const [error, setError] = useState<string | null>(null)
+  const [view, setView] = useViewMode('goal-types:view', 'list')
 
   if (types === undefined) {
     return (
@@ -59,53 +65,102 @@ function TypesManager() {
   }
 
   return (
-    <div className="space-y-10">
-      <section>
-        <SectionHeading
-          title="Built-in"
-          count={types.system.length}
-          hint="Ready to use and can't be edited."
-        />
-        <ul className="space-y-2.5">
-          {types.system.map((type) => (
-            <li
-              key={type.slug}
-              className="flex items-center gap-4 rounded-xl border bg-card px-4 py-3.5"
-            >
-              <GoalTypeIcon
-                name={type.name}
-                color={type.color}
-                icon={type.icon}
-                image={type.image}
-                size={52}
-              />
-              <div className="min-w-0 flex-1">
-                <div className="font-medium leading-tight">{type.name}</div>
-                <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                  {type.description}
-                </p>
-              </div>
-              <span className="shrink-0 rounded-full border bg-muted/40 px-2.5 py-0.5 text-xs text-muted-foreground">
-                Built-in
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+    <div>
+      <div className="mb-6 flex justify-end">
+        <ViewToggle value={view} onChange={setView} />
+      </div>
 
-      <section>
-        <SectionHeading
-          title="Your types"
-          count={types.custom.length}
-          hint="Types in use by a goal can't be deleted."
-        />
-        <CustomTypesEditor custom={types.custom} onError={setError} />
-        {error && (
-          <div className="mt-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
-            {error}
+      <div className="space-y-10">
+        <section>
+          <SectionHeading
+            title="Built-in"
+            count={types.system.length}
+            hint="Ready to use and can't be edited."
+          />
+          <div className={view === 'card' ? CARD_GRID : 'space-y-2.5'}>
+            {types.system.map((type) => (
+              <SystemTypeItem key={type.slug} type={type} view={view} />
+            ))}
           </div>
-        )}
-      </section>
+        </section>
+
+        <section>
+          <SectionHeading
+            title="Your types"
+            count={types.custom.length}
+            hint="Types in use by a goal can't be deleted."
+          />
+          <CustomTypesEditor
+            custom={types.custom}
+            view={view}
+            onError={setError}
+          />
+          {error && (
+            <div className="mt-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+              {error}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  )
+}
+
+type SystemType = {
+  slug: string
+  name: string
+  color: string
+  icon: string
+  image?: string
+  description: string
+}
+
+function SystemTypeItem({ type, view }: { type: SystemType; view: ViewMode }) {
+  const builtInBadge = (
+    <span className="shrink-0 rounded-full border bg-muted/40 px-2.5 py-0.5 text-xs text-muted-foreground">
+      Built-in
+    </span>
+  )
+
+  if (view === 'card') {
+    return (
+      <div className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+        <div className="flex items-start justify-between gap-3">
+          <GoalTypeIcon
+            name={type.name}
+            color={type.color}
+            icon={type.icon}
+            image={type.image}
+            size={48}
+          />
+          {builtInBadge}
+        </div>
+        <div className="min-w-0">
+          <div className="font-medium leading-tight">{type.name}</div>
+          <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
+            {type.description}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-4 rounded-xl border bg-card px-4 py-3.5">
+      <GoalTypeIcon
+        name={type.name}
+        color={type.color}
+        icon={type.icon}
+        image={type.image}
+        size={52}
+      />
+      <div className="min-w-0 flex-1">
+        <div className="font-medium leading-tight">{type.name}</div>
+        <p className="mt-0.5 truncate text-sm text-muted-foreground">
+          {type.description}
+        </p>
+      </div>
+      {builtInBadge}
     </div>
   )
 }
@@ -132,30 +187,39 @@ function SectionHeading({
 
 function CustomTypesEditor({
   custom,
+  view,
   onError,
 }: {
   custom: Doc<'goalTypes'>[]
+  view: ViewMode
   onError: (message: string | null) => void
 }) {
   const createType = useMutation(api.goalTypes.create)
   const [creating, setCreating] = useState(false)
 
   return (
-    <div className="space-y-2.5">
+    <div className={view === 'card' ? CARD_GRID : 'space-y-2.5'}>
       {custom.map((type) => (
-        <CustomTypeRow key={type._id} type={type} onError={onError} />
+        <CustomTypeRow
+          key={type._id}
+          type={type}
+          view={view}
+          onError={onError}
+        />
       ))}
 
       {creating ? (
-        <TypeForm
-          submitLabel="Create type"
-          onCancel={() => setCreating(false)}
-          onSubmit={async ({ name, description, color }) => {
-            onError(null)
-            await createType({ name, description, color })
-            setCreating(false)
-          }}
-        />
+        <div className={view === 'card' ? 'sm:col-span-2' : undefined}>
+          <TypeForm
+            submitLabel="Create type"
+            onCancel={() => setCreating(false)}
+            onSubmit={async ({ name, description, color }) => {
+              onError(null)
+              await createType({ name, description, color })
+              setCreating(false)
+            }}
+          />
+        </div>
       ) : (
         <button
           type="button"
@@ -164,8 +228,9 @@ function CustomTypesEditor({
             setCreating(true)
           }}
           className={cn(
-            'flex w-full items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-3.5',
+            'flex items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-3.5',
             'text-sm text-muted-foreground transition hover:border-ring hover:text-foreground',
+            view === 'card' ? 'min-h-28 w-full' : 'w-full',
           )}
         >
           + New type
@@ -177,9 +242,11 @@ function CustomTypesEditor({
 
 function CustomTypeRow({
   type,
+  view,
   onError,
 }: {
   type: Doc<'goalTypes'>
+  view: ViewMode
   onError: (message: string | null) => void
 }) {
   const updateType = useMutation(api.goalTypes.update)
@@ -188,7 +255,7 @@ function CustomTypeRow({
   const [busy, setBusy] = useState(false)
 
   if (editing) {
-    return (
+    const form = (
       <TypeForm
         submitLabel="Save"
         initial={{
@@ -209,6 +276,7 @@ function CustomTypeRow({
         }}
       />
     )
+    return view === 'card' ? <div className="sm:col-span-2">{form}</div> : form
   }
 
   async function handleDelete() {
@@ -221,6 +289,52 @@ function CustomTypeRow({
       onError(err instanceof Error ? err.message : 'Failed to delete type')
       setBusy(false)
     }
+  }
+
+  const actions = (
+    <div className="flex shrink-0 items-center gap-2">
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={busy}
+        onClick={() => {
+          onError(null)
+          setEditing(true)
+        }}
+      >
+        Edit
+      </Button>
+      <Button
+        size="sm"
+        variant="destructive"
+        disabled={busy}
+        onClick={() => {
+          void handleDelete()
+        }}
+      >
+        Delete
+      </Button>
+    </div>
+  )
+
+  if (view === 'card') {
+    return (
+      <div className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+        <GoalTypeIcon
+          name={type.name}
+          color={type.color}
+          icon={type.icon}
+          size={48}
+        />
+        <div className="min-w-0">
+          <div className="font-medium leading-tight">{type.name}</div>
+          <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
+            {type.description ? type.description : 'No description'}
+          </p>
+        </div>
+        <div className="mt-auto">{actions}</div>
+      </div>
+    )
   }
 
   return (
@@ -237,29 +351,7 @@ function CustomTypeRow({
           {type.description ? type.description : 'No description'}
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          disabled={busy}
-          onClick={() => {
-            onError(null)
-            setEditing(true)
-          }}
-        >
-          Edit
-        </Button>
-        <Button
-          size="sm"
-          variant="destructive"
-          disabled={busy}
-          onClick={() => {
-            void handleDelete()
-          }}
-        >
-          Delete
-        </Button>
-      </div>
+      {actions}
     </div>
   )
 }

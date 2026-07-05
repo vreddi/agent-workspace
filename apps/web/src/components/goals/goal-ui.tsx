@@ -13,9 +13,87 @@ import {
 } from '@org/ui/components/select'
 import { cn } from '@org/ui/lib/utils'
 import { useMutation, useQuery } from 'convex/react'
-import { useState } from 'react'
+import { LayoutGrid, List } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 export const DAY_MS = 24 * 60 * 60 * 1000
+
+// Encodes a goal's type as a GoalTypeSelect/GoalTypeSelectionIcon value:
+// '' = none, 'sys:<slug>' for built-ins, 'custom:<id>' for custom types.
+export function goalTypeValue(goal: {
+  typeSlug: string | null
+  customTypeId: Id<'goalTypes'> | null
+}): string {
+  if (goal.typeSlug !== null) return `sys:${goal.typeSlug}`
+  if (goal.customTypeId !== null) return `custom:${goal.customTypeId}`
+  return ''
+}
+
+export type ViewMode = 'card' | 'list'
+
+// View-mode preference persisted to localStorage. Reads happen after mount so
+// SSR and the first client render agree (no hydration mismatch).
+export function useViewMode(
+  key: string,
+  initial: ViewMode = 'card',
+): readonly [ViewMode, (next: ViewMode) => void] {
+  const [view, setView] = useState<ViewMode>(initial)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(key)
+      if (saved === 'card' || saved === 'list') setView(saved)
+    } catch {
+      // ignore unavailable storage (private mode, SSR)
+    }
+  }, [key])
+
+  function update(next: ViewMode) {
+    setView(next)
+    try {
+      localStorage.setItem(key, next)
+    } catch {
+      // ignore unavailable storage
+    }
+  }
+
+  return [view, update] as const
+}
+
+// Segmented control that switches between card and list layouts.
+export function ViewToggle({
+  value,
+  onChange,
+}: {
+  value: ViewMode
+  onChange: (next: ViewMode) => void
+}) {
+  const options = [
+    { value: 'card', label: 'Card view', Icon: LayoutGrid },
+    { value: 'list', label: 'List view', Icon: List },
+  ] as const
+  return (
+    <div className="inline-flex rounded-lg border p-0.5">
+      {options.map(({ value: option, label, Icon }) => (
+        <button
+          key={option}
+          type="button"
+          aria-label={label}
+          aria-pressed={value === option}
+          onClick={() => onChange(option)}
+          className={cn(
+            'flex items-center justify-center rounded-md px-2 py-1 transition',
+            value === option
+              ? 'bg-muted text-foreground'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          <Icon className="size-4" />
+        </button>
+      ))}
+    </div>
+  )
+}
 
 export type GoalStatus = Doc<'goals'>['status']
 
