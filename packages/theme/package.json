@@ -1,0 +1,19 @@
+{
+  "name": "@org/theme",
+  "version": "0.0.0",
+  "description": "Shared design tokens (colors, radii, type scale, spacing) for the Agent Workspace apps. Platform-neutral values consumed by the web app and the Expo mobile app.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}

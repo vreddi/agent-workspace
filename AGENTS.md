@@ -11,8 +11,9 @@ features are being built on top of it.
 | Path | What it is |
 | --- | --- |
 | `apps/web` | TanStack Start app (React 19, Clerk auth, Convex data, Tailwind v4) deployed to Cloudflare Workers. Routes are file-based under `src/routes/`. |
+| `apps/mobile` | Expo (SDK 57) React Native app for iOS/Android, themed from `@org/theme` to match the web app. See `docs/mobile-app.md`. |
 | `apps/storybook` | Storybook 10; auto-globs stories from `packages/*/src/**/*.stories.tsx`. |
-| `packages/*` | `@worldkit/*` libraries. Headless: `grid`, `world`, `agents`, `pathfinding`, `tilemap`. React: `sprite-actor`, `world-canvas`. Shared UI (shadcn/radix): `ui`. |
+| `packages/*` | `@worldkit/*` libraries. Headless: `grid`, `world`, `agents`, `pathfinding`, `tilemap`. React: `sprite-actor`, `world-canvas`. Shared UI (shadcn/radix, web-only): `ui`. Cross-platform design tokens: `theme` (`@org/theme`, consumed by web + mobile). |
 | `convex/` | Convex backend functions and schema. |
 | `examples/pixi-playground` | Standalone PixiJS demo of the headless packages. |
 | `docs/` | Architecture and design notes. Start with `interactive-world-canvas.md`; name new files lowercase-kebab-case. |
