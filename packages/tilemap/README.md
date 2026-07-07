@@ -9,10 +9,15 @@ top of `@worldkit/world`. Headless except for the renderer — no React.
   **`CharGrid`** — a programmatic authoring canvas (fills, rects, ellipses)
   that emits the same string art. Tiles are 32×32 native, matching the
   32×32 character sprites 1:1 so the whole world shares one pixel density.
-- **`COZY_TILESET`** — the built-in cozy tileset: grass, meadow, tall
-  grass, flowers (animated), path, water (animated), plus props: tree,
-  rock, sign, and three house variants (`house-pink`, `house-blue`,
-  `house-orange`).
+- **`makeCozyTileset(time)`** — the built-in village tileset in a `'day'`
+  or `'night'` lighting mood (`timeOfDayAt(date)` picks one from a local
+  clock; `COZY_TILESET` is the night set). Tiles: mossy grass, meadow,
+  tall grass, flowers (animated), fireflies (animated — butterflies by
+  day), path, and water (animated). Props: tree, pine, autumn bush,
+  lantern (glowing and flickering at night), rock, stump, mushrooms,
+  sign, and three timber-cabin variants (`house-moss`, `house-slate`,
+  `house-rust`) with drifting chimney smoke and windows that light up
+  after dark. Both moods share ids, so one map parses against either.
 - **`parseMap(rows, legend, tileset)`** — author maps as ASCII art. Props
   anchor at the bottom-left of their blocking base; markers name cells
   (spawns, doors).

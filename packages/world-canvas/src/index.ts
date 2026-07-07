@@ -14,4 +14,5 @@ export type {
   UseVillageSimulationOptions,
   VillageSimulation,
 } from './lib/use-village-simulation';
+export { useTimeOfDay } from './lib/use-time-of-day';
 export type { Resident, VillageScene } from './lib/scene';

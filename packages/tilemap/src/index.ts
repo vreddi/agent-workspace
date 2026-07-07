@@ -29,4 +29,6 @@ export { mapToWorld } from './world-bridge.js';
 export type { MapToWorldOptions } from './world-bridge.js';
 export { TilemapRenderer } from './renderer.js';
 export type { TilemapRendererOptions } from './renderer.js';
+export { timeOfDayAt } from './time.js';
+export type { TimeOfDay } from './time.js';
 export * from './tiles/index.js';
