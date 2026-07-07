@@ -1,1 +1,1 @@
-export { cozyVillageScene } from './cozy-village';
+export { makeCozyVillageScene } from './cozy-village';

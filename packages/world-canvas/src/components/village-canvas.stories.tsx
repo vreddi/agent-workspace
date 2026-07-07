@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { cozyVillageScene } from '../demo/cozy-village';
+import { makeCozyVillageScene } from '../demo/cozy-village';
 import { VillageCanvas } from './village-canvas';
 
 const meta: Meta<typeof VillageCanvas> = {
@@ -22,9 +22,9 @@ type Story = StoryObj<typeof VillageCanvas>;
  * village, chatting when they meet. Click a monster to talk to it —
  * advance the dialogue with a click or Enter/Space.
  */
-export const CozyVillage: Story = {
+export const CozyVillageNight: Story = {
   args: {
-    scene: cozyVillageScene,
+    scene: makeCozyVillageScene('night'),
     zoom: 2,
   },
   argTypes: {
@@ -32,10 +32,18 @@ export const CozyVillage: Story = {
   },
 };
 
+/** The sunlit variant: lights off, cool glass, butterflies by the pond. */
+export const CozyVillageDay: Story = {
+  args: {
+    scene: makeCozyVillageScene('day'),
+    zoom: 2,
+  },
+};
+
 /** Compact view, handy for embedding in dashboards or docs. */
 export const CozyVillageZoom1: Story = {
   args: {
-    scene: cozyVillageScene,
+    scene: makeCozyVillageScene('night'),
     zoom: 1,
   },
 };

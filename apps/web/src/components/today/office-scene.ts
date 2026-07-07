@@ -1,5 +1,6 @@
 import type { SpriteSheet } from '@worldkit/sprite-actor'
-import { COZY_TILESET, type Legend, parseMap } from '@worldkit/tilemap'
+import { makeCozyTileset, type Legend, parseMap } from '@worldkit/tilemap'
+import type { TimeOfDay } from '@worldkit/tilemap'
 import type { Resident, VillageScene } from '@worldkit/world-canvas'
 
 const LEGEND: Legend = {
@@ -10,9 +11,9 @@ const LEGEND: Legend = {
   '#': { kind: 'tile', tile: 'path' },
   T: { kind: 'prop', prop: 'tree' },
   r: { kind: 'prop', prop: 'rock' },
-  P: { kind: 'prop', prop: 'house-pink' },
-  O: { kind: 'prop', prop: 'house-blue' },
-  D: { kind: 'prop', prop: 'house-orange' },
+  P: { kind: 'prop', prop: 'house-moss' },
+  O: { kind: 'prop', prop: 'house-slate' },
+  D: { kind: 'prop', prop: 'house-rust' },
   '1': { kind: 'marker', marker: 'desk-1', ground: 'path' },
   '2': { kind: 'marker', marker: 'desk-2', ground: 'path' },
   '3': { kind: 'marker', marker: 'desk-3', ground: 'path' },
@@ -32,7 +33,9 @@ const ROWS = [
   'TTTTTTTTTTTTTTTTTT',
 ]
 
-const officeMap = parseMap(ROWS, LEGEND, COZY_TILESET)
+// Tile/prop ids are identical across lighting moods, so one parsed map
+// serves both.
+const officeMap = parseMap(ROWS, LEGEND, makeCozyTileset('night'))
 
 const DESK_MARKERS = ['desk-1', 'desk-2', 'desk-3'] as const
 
@@ -48,9 +51,13 @@ export type OfficeAgent = {
 
 /**
  * The start-page scene: one resident per agent (first `OFFICE_CAPACITY`),
- * with dialogue drawn from the agent's personality.
+ * with dialogue drawn from the agent's personality, lit for the viewer's
+ * time of day.
  */
-export function buildOfficeScene(agents: OfficeAgent[]): VillageScene {
+export function buildOfficeScene(
+  agents: OfficeAgent[],
+  time: TimeOfDay,
+): VillageScene {
   const residents: Resident[] = agents
     .slice(0, OFFICE_CAPACITY)
     .map((agent, i) => ({
@@ -66,9 +73,9 @@ export function buildOfficeScene(agents: OfficeAgent[]): VillageScene {
           ],
     }))
   return {
-    name: 'office',
+    name: `office-${time}`,
     map: officeMap,
-    tileset: COZY_TILESET,
+    tileset: makeCozyTileset(time),
     residents,
   }
 }

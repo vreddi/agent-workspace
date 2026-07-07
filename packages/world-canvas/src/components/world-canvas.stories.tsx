@@ -1,7 +1,10 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { cozyVillageScene } from '../demo/cozy-village';
+import { makeCozyVillageScene } from '../demo/cozy-village';
+
+const nightScene = makeCozyVillageScene('night');
+const dayScene = makeCozyVillageScene('day');
 import { WorldCanvas } from './world-canvas';
 
 const meta: Meta<typeof WorldCanvas> = {
@@ -22,8 +25,8 @@ type Story = StoryObj<typeof WorldCanvas>;
  */
 export const MapOnly: Story = {
   args: {
-    map: cozyVillageScene.map,
-    tileset: cozyVillageScene.tileset,
+    map: nightScene.map,
+    tileset: nightScene.tileset,
     zoom: 2,
     animated: true,
   },
@@ -50,8 +53,18 @@ export const CellPicker: Story = {
     );
   },
   args: {
-    map: cozyVillageScene.map,
-    tileset: cozyVillageScene.tileset,
+    map: nightScene.map,
+    tileset: nightScene.tileset,
     zoom: 2,
+  },
+};
+
+/** The same stage under a daytime palette. */
+export const MapOnlyDay: Story = {
+  args: {
+    map: dayScene.map,
+    tileset: dayScene.tileset,
+    zoom: 2,
+    animated: true,
   },
 };

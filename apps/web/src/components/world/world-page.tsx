@@ -1,28 +1,60 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import { VillageCanvas } from '@worldkit/world-canvas'
-import { cozyVillageScene } from '@worldkit/world-canvas/demo'
+import { VillageCanvas, useTimeOfDay } from '@worldkit/world-canvas'
+import { makeCozyVillageScene } from '@worldkit/world-canvas/demo'
+import type { TimeOfDay } from '@worldkit/tilemap'
 
 /**
- * Full-bleed showcase of the agent village. The canvas only mounts on the
- * client (it drives itself with canvas + timers), so SSR ships a lightweight
- * placeholder.
+ * Full-bleed showcase of the agent village, lit to match the visitor's
+ * local time of day. The canvas only mounts on the client (it drives
+ * itself with canvas + timers, and the server doesn't know the viewer's
+ * clock), so SSR ships a lightweight placeholder.
  */
+
+const BACKDROP: Record<TimeOfDay, React.CSSProperties> = {
+  night: {
+    background:
+      'radial-gradient(circle at 50% 20%, #3a3252 0%, #262038 55%, #181226 100%)',
+  },
+  day: {
+    background:
+      'radial-gradient(circle at 50% 20%, #8fa8bf 0%, #6d8aa4 55%, #567288 100%)',
+  },
+}
+
+const FRAME_BORDER: Record<TimeOfDay, string> = {
+  night: '#100b1c',
+  day: '#22303c',
+}
+
+/** `?time=day|night` overrides the clock — handy for demos and review. */
+function timeOverride(): TimeOfDay | null {
+  if (typeof window === 'undefined') return null
+  const value = new URLSearchParams(window.location.search).get('time')
+  return value === 'day' || value === 'night' ? value : null
+}
+
 export function WorldPage() {
-  const [mounted, setMounted] = React.useState(false)
-  React.useEffect(() => setMounted(true), [])
+  const localTime = useTimeOfDay()
+  const [override] = React.useState(timeOverride)
+  const time = override ?? localTime
+
+  const scene = time ? makeCozyVillageScene(time) : null
+  // Until the client clock is known, dress the page for night — the
+  // signature look — so the placeholder doesn't flash a mismatched theme.
+  const theme = time ?? 'night'
 
   return (
     <div
       style={{
         minHeight: '100vh',
+        minWidth: 'fit-content',
         display: 'grid',
         placeItems: 'center',
         alignContent: 'center',
         gap: 20,
         padding: 24,
-        background:
-          'radial-gradient(circle at 50% 20%, #2e4a63 0%, #1c2e40 55%, #14212f 100%)',
+        ...BACKDROP[theme],
         fontFamily: "'Courier New', ui-monospace, monospace",
       }}
     >
@@ -54,24 +86,39 @@ export function WorldPage() {
       </header>
       <div
         style={{
-          border: '6px solid #0d1622',
+          position: 'relative',
+          border: `6px solid ${FRAME_BORDER[theme]}`,
           borderRadius: 12,
-          boxShadow: '0 18px 50px rgba(0, 0, 0, 0.5)',
+          boxShadow: '0 18px 50px rgba(0, 0, 0, 0.55)',
           lineHeight: 0,
         }}
       >
-        {mounted ? (
-          <VillageCanvas scene={cozyVillageScene} zoom={2} />
+        {scene ? (
+          <VillageCanvas scene={scene} zoom={2} />
         ) : (
           <div
             style={{
-              width: cozyVillageScene.map.width * 32 * 2,
+              width: makeCozyVillageScene('night').map.width * 32 * 2,
               maxWidth: '90vw',
-              height: cozyVillageScene.map.height * 32 * 2,
-              background: '#8fc463',
+              height: makeCozyVillageScene('night').map.height * 32 * 2,
+              background: '#4e5c41',
             }}
           />
         )}
+        {theme === 'night' ? (
+          /* Dusk vignette: sits above the canvas layers but below the
+             dialogue box (zIndex 2000) so text stays crisp. */
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 1500,
+              pointerEvents: 'none',
+              background:
+                'radial-gradient(ellipse at 50% 42%, rgba(24, 18, 38, 0) 55%, rgba(24, 18, 38, 0.28) 100%)',
+            }}
+          />
+        ) : null}
       </div>
       <Link
         to="/"

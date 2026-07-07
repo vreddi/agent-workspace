@@ -17,7 +17,7 @@ import {
 import { Slider } from '@org/ui/components/slider'
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
 import type { SpriteSheet } from '@worldkit/sprite-actor'
-import { VillageCanvas } from '@worldkit/world-canvas'
+import { VillageCanvas, useTimeOfDay } from '@worldkit/world-canvas'
 import { useMutation, useQuery } from 'convex/react'
 import {
   type FormEvent,
@@ -121,6 +121,9 @@ function OfficeCard({ agents }: { agents: Doc<'agents'>[] | undefined }) {
   useEffect(() => setMounted(true), [])
   const zoom = useOfficeZoom()
   const sheets = useAgentSheets(agents)
+  // Lit for the viewer's local time; null only before mount, when the
+  // placeholder is showing anyway.
+  const time = useTimeOfDay()
 
   const scene = useMemo(() => {
     const officeAgents: OfficeAgent[] = []
@@ -134,8 +137,8 @@ function OfficeCard({ agents }: { agents: Doc<'agents'>[] | undefined }) {
         personality: agent.personality,
       })
     }
-    return buildOfficeScene(officeAgents)
-  }, [agents, sheets])
+    return buildOfficeScene(officeAgents, time ?? 'night')
+  }, [agents, sheets, time])
 
   const total = agents?.length ?? 0
   const shown = Math.min(total, OFFICE_CAPACITY)

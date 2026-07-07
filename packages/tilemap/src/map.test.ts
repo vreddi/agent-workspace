@@ -8,7 +8,7 @@ const LEGEND: Legend = {
   '#': { kind: 'tile', tile: 'path' },
   '~': { kind: 'tile', tile: 'water' },
   T: { kind: 'prop', prop: 'tree' },
-  H: { kind: 'prop', prop: 'house-pink' },
+  H: { kind: 'prop', prop: 'house-moss' },
   '1': { kind: 'marker', marker: 'spawn', ground: 'path' },
 };
 
@@ -47,7 +47,7 @@ describe('parseMap', () => {
   });
 
   it('rejects props whose base does not fit', () => {
-    // house-pink is 3 wide with 2 base rows; anchored at top row it sticks out.
+    // house-moss is 3 wide with 2 base rows; anchored at top row it sticks out.
     expect(() => parseMap(['H...'], LEGEND, COZY_TILESET)).toThrow(
       /does not fit/,
     );
@@ -65,7 +65,7 @@ describe('parseMap', () => {
 
 describe('propBaseCells', () => {
   it('returns the blocking footprint anchored at the bottom-left', () => {
-    const cells = propBaseCells({ prop: 'house-pink', x: 2, y: 3 }, COZY_TILESET);
+    const cells = propBaseCells({ prop: 'house-moss', x: 2, y: 3 }, COZY_TILESET);
     expect(cells).toContainEqual({ x: 2, y: 3, z: 0 });
     expect(cells).toContainEqual({ x: 4, y: 3, z: 0 });
     expect(cells).toContainEqual({ x: 2, y: 2, z: 0 });
