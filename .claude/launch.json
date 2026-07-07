@@ -14,6 +14,12 @@
       "port": 3000
     },
     {
+      "name": "mobile-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@org/mobile", "exec", "expo", "start", "--web", "--port", "8090"],
+      "port": 8090
+    },
+    {
       "name": "web-worktree",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@org/web", "dev", "--host", "--port", "3131"],

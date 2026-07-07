@@ -28,3 +28,7 @@ link_env() {
 link_env root.env.local .env.local
 link_env web.env.local apps/web/.env.local
 link_env storybook.env.local apps/storybook/.env.local
+# Kept under a subdirectory so the symlink's realpath basename stays
+# ".env.local" — Expo's dev server special-cases env files by that name and
+# would otherwise try to parse the file as JavaScript.
+link_env mobile/.env.local apps/mobile/.env.local
