@@ -14,6 +14,7 @@ import type * as crons from "../crons.js";
 import type * as goalReminders from "../goalReminders.js";
 import type * as goalTypes from "../goalTypes.js";
 import type * as goals from "../goals.js";
+import type * as metrics from "../metrics.js";
 import type * as migrations from "../migrations.js";
 import type * as taskAssignments from "../taskAssignments.js";
 import type * as tasks from "../tasks.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   goalReminders: typeof goalReminders;
   goalTypes: typeof goalTypes;
   goals: typeof goals;
+  metrics: typeof metrics;
   migrations: typeof migrations;
   taskAssignments: typeof taskAssignments;
   tasks: typeof tasks;

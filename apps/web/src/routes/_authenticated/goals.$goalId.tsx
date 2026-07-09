@@ -41,6 +41,7 @@ import {
   TEXTAREA_CLASSES,
   TypeBadge,
 } from '~/components/goals/goal-ui'
+import { MetricsSection } from '~/components/goals/metrics'
 import { PriorityBadge } from '~/components/tasks/priority'
 import { AppShell } from '~/components/today/app-shell'
 import { AppBreadcrumbs } from '~/components/today/breadcrumbs'
@@ -127,6 +128,7 @@ function GoalDetail({ id }: { id: Id<'goals'> }) {
       <div className="mt-4 space-y-8">
         <GoalHeader goal={goal} />
         <CostStrip goal={goal} />
+        <MetricsSection goalId={goal._id} goalDeadline={goal.deadline} />
         <GoalBoard goalId={goal._id} />
       </div>
     </>

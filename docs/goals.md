@@ -24,6 +24,9 @@ Tables live in `convex/schema.ts`; functions in `convex/goals.ts`,
 - **Tasks under goals** — `tasks.goalId` attaches a task to a goal;
   `tasks.goalPosition` orders it on the board; `tasks.costDays` is the
   effort estimate in days.
+- **Metrics under goals** — a goal can also track numerical metrics (weight,
+  exam scores) that trend toward a target over time. See
+  [metrics.md](./metrics.md); deleting a goal cascades to its metrics.
 
 ## Kanban board
 

@@ -44,7 +44,7 @@ const boardStage = v.union(
   v.literal('complete'),
 )
 
-async function requireUserId(ctx: QueryCtx) {
+export async function requireUserId(ctx: QueryCtx) {
   const user = await getCurrentUser(ctx)
   if (!user) {
     throw new ConvexError('Not authenticated')
@@ -52,7 +52,10 @@ async function requireUserId(ctx: QueryCtx) {
   return user._id
 }
 
-function assertCanEditGoal(
+// Exported so sibling modules (e.g. metrics.ts) authorize goal-scoped writes
+// through the exact same ownership rule. Kept as a one-way import — goals.ts
+// never imports from those modules — to avoid a require cycle.
+export function assertCanEditGoal(
   goal: Doc<'goals'> | null,
   userId: Id<'users'>,
 ): asserts goal is Doc<'goals'> {
@@ -515,6 +518,29 @@ export const remove = mutation({
         await ctx.db.delete(reminder._id)
       }
       if (reminders.length < 100) break
+    }
+    // Metrics and their readings are owned by the goal — cascade them out.
+    // Inlined (rather than importing metrics.ts) so goals.ts stays free of a
+    // back-import and the module graph acyclic.
+    while (true) {
+      const metrics = await ctx.db
+        .query('metrics')
+        .withIndex('by_goal', (q) => q.eq('goalId', args.id))
+        .take(100)
+      for (const metric of metrics) {
+        while (true) {
+          const points = await ctx.db
+            .query('metricPoints')
+            .withIndex('by_metric_at', (q) => q.eq('metricId', metric._id))
+            .take(200)
+          for (const point of points) {
+            await ctx.db.delete(point._id)
+          }
+          if (points.length < 200) break
+        }
+        await ctx.db.delete(metric._id)
+      }
+      if (metrics.length < 100) break
     }
     await ctx.db.delete(args.id)
   },
