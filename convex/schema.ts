@@ -22,6 +22,14 @@ export const goalStatus = v.union(
   v.literal('archived'),
 )
 
+// Which way "progress" runs for a metric: are we pushing the value up (exam
+// scores, distance run) or down (body weight, resting heart rate)? This drives
+// the target math and which direction the trend line should be heading.
+export const metricDirection = v.union(
+  v.literal('increase'),
+  v.literal('decrease'),
+)
+
 export default defineSchema({
   users: defineTable({
     externalId: v.string(),
@@ -71,6 +79,50 @@ export default defineSchema({
     .index('by_creator_status', ['creatorId', 'status'])
     .index('by_status_deadline', ['status', 'deadline'])
     .index('by_customType', ['customTypeId']),
+  // A trackable numerical measure attached to a goal — "Body weight",
+  // "Math exam score". This is the *definition* only; the readings live in
+  // metricPoints. One row per metric per goal.
+  metrics: defineTable({
+    goalId: v.id('goals'),
+    // Denormalized owner. Metrics are always reached through their goal, but
+    // carrying the owner lets authz and any future "all my metrics" scan avoid
+    // a second read, matching how the rest of the schema stamps creatorId.
+    creatorId: v.id('users'),
+    name: v.string(),
+    // Short unit label rendered next to values ("lbs", "pts", "%"). '' =
+    // unitless.
+    unit: v.string(),
+    // Value shape. Only 'numeric' exists today; it is discriminated now so
+    // richer kinds (duration, currency, rating) can be added later without a
+    // migration.
+    kind: v.union(v.literal('numeric')),
+    direction: metricDirection,
+    // Optional baseline the trend starts from. Null = use the first reading.
+    startValue: v.union(v.number(), v.null()),
+    // Optional target and the date to hit it by. Null target = track only, no
+    // goal line. Null date = fall back to the goal's own deadline.
+    targetValue: v.union(v.number(), v.null()),
+    targetDate: v.union(v.number(), v.null()),
+    // Soft-archive so a metric can be retired without destroying its history.
+    archivedAt: v.union(v.number(), v.null()),
+    updatedAt: v.number(),
+  }).index('by_goal', ['goalId']),
+  // Append-only readings — the time series charted for a metric. Kept in their
+  // own table (never an array on the metric doc) so a year of daily readings
+  // stays a bounded, indexed range scan, and recording a new reading only
+  // invalidates this one metric's chart subscription.
+  metricPoints: defineTable({
+    metricId: v.id('metrics'),
+    // Who recorded the reading; self on create today, meaningful once goals can
+    // be shared.
+    creatorId: v.id('users'),
+    value: v.number(),
+    // Effective time of the reading (ms since epoch). Deliberately distinct
+    // from _creationTime so a reading can be back-dated ("I weighed 180 last
+    // Monday"); this is the chart's x-axis and the sort key.
+    at: v.number(),
+    note: v.union(v.string(), v.null()),
+  }).index('by_metric_at', ['metricId', 'at']),
   goalReminders: defineTable({
     goalId: v.id('goals'),
     userId: v.id('users'),
