@@ -167,7 +167,9 @@ describe('tasks allowEarlyCompletion flag', () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
 
-    const plain = await asUser.mutation(api.tasks.create, { title: 'Scheduled' })
+    const plain = await asUser.mutation(api.tasks.create, {
+      title: 'Scheduled',
+    })
     expect(await asUser.query(api.tasks.get, { id: plain })).toMatchObject({
       allowEarlyCompletion: null,
     })

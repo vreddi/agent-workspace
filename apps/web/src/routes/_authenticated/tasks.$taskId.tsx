@@ -844,7 +844,8 @@ function TaskEditForm({
     }
 
     const trimmedEstimate = estimateValue.trim()
-    const parsedEstimate = trimmedEstimate === '' ? null : Number(trimmedEstimate)
+    const parsedEstimate =
+      trimmedEstimate === '' ? null : Number(trimmedEstimate)
     if (
       parsedEstimate !== null &&
       (!Number.isFinite(parsedEstimate) || parsedEstimate < 0)

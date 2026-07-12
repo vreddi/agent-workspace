@@ -291,7 +291,9 @@ function EditForm({ task }: { task: TaskDetail }) {
         <StepperRow
           label="Estimate"
           value={estimateInUnit(estimateMinutes, estimateUnit)}
-          onChange={(v) => setEstimateMinutes(estimateToMinutes(v, estimateUnit))}
+          onChange={(v) =>
+            setEstimateMinutes(estimateToMinutes(v, estimateUnit))
+          }
           step={UNIT_STEP[estimateUnit]}
           min={0}
           unit={UNIT_SUFFIX[estimateUnit]}
