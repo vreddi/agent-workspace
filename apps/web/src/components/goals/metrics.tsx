@@ -245,7 +245,9 @@ function MetricCard({
           <div
             className={cn(
               'h-full rounded-full transition-all',
-              metric.progress.reachedTarget ? 'bg-emerald-500' : 'bg-primary',
+              metric.progress.reachedTarget
+                ? 'bg-emerald-500 dark:bg-emerald-400/80'
+                : 'bg-primary dark:bg-muted-foreground',
             )}
             style={{ width: `${Math.min(100, Math.max(pct, 2))}%` }}
           />
