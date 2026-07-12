@@ -1,7 +1,7 @@
 import { ConvexError, v } from 'convex/values'
 import { mutation, query, QueryCtx } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
-import { getCurrentUser } from './users'
+import { requireUserId } from './lib/auth'
 import { goalStatus } from './schema'
 import { systemGoalType, SystemGoalType } from './goalTypes'
 import { canUserEditTask, syncAssignmentStatus } from './taskAssignments'
@@ -43,14 +43,6 @@ const boardStage = v.union(
   v.literal('active'),
   v.literal('complete'),
 )
-
-export async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
 
 // Exported so sibling modules (e.g. metrics.ts) authorize goal-scoped writes
 // through the exact same ownership rule. Kept as a one-way import — goals.ts

@@ -2,7 +2,8 @@ import { ConvexError, v } from 'convex/values'
 import { mutation, query, QueryCtx, MutationCtx } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
 import { metricDirection } from './schema'
-import { assertCanEditGoal, requireUserId } from './goals'
+import { assertCanEditGoal } from './goals'
+import { requireUserId } from './lib/auth'
 
 // Chart reads are always bounded: at most this many of the most-recent
 // readings come back per request. A metric that outgrows this window is the

@@ -1,7 +1,7 @@
 import { ConvexError, v } from 'convex/values'
 import { mutation, query, QueryCtx } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
-import { getCurrentUser } from './users'
+import { requireUserId } from './lib/auth'
 import { taskPriority, taskStatus } from './schema'
 import {
   assigneeIdsForTask,
@@ -11,14 +11,6 @@ import {
 } from './taskAssignments'
 
 const POSITION_STEP = 1024
-
-async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
 
 async function assertOwnsGoal(
   ctx: QueryCtx,

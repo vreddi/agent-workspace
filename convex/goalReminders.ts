@@ -1,19 +1,11 @@
 import { ConvexError, v } from 'convex/values'
-import { internalMutation, mutation, query, QueryCtx } from './_generated/server'
-import { getCurrentUser } from './users'
+import { internalMutation, mutation, query } from './_generated/server'
 import { DAY_MS, MAX_REMINDER_DAYS_BEFORE } from './goals'
+import { requireUserId } from './lib/auth'
 
 // A goal is re-reminded at most once per cooldown window. Slightly under a
 // day so an hourly cron lands roughly daily rather than drifting to 25h.
 export const REMINDER_COOLDOWN_MS = 20 * 60 * 60 * 1000
-
-async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
 
 // Called hourly by the cron in crons.ts. Scans active goals whose deadline is
 // near enough that reminders could apply, and files a reminder for each goal

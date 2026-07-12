@@ -1,15 +1,7 @@
 import { ConvexError, v } from 'convex/values'
 import { mutation, query, QueryCtx } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
-import { getCurrentUser } from './users'
-
-async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
+import { requireUserId } from './lib/auth'
 
 export type SystemGoalType = {
   slug: string
