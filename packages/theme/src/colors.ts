@@ -1,12 +1,14 @@
 /**
- * App color palettes, one per scheme. These are the canonical "soft white"
- * theme values from the web app's logged-in surfaces
- * (`apps/web/src/components/today/styles.ts`), with oklch/color-mix values
- * pre-resolved to hex so they work everywhere — including React Native,
- * which cannot parse oklch or color-mix().
+ * App color palettes, one per scheme — the single cross-platform source of
+ * truth for the app surfaces. Mobile reads these directly; the web app builds
+ * its `--t-*` CSS custom properties from them
+ * (`apps/web/src/components/today/styles.ts` interpolates these values), so
+ * the two platforms can no longer drift.
  *
- * Light is warm near-neutral (no blue cast); dark is a cool slate. Keep the
- * two files in sync when the theme evolves.
+ * Values are plain hex (oklch/color-mix pre-resolved) so they work everywhere,
+ * including React Native which cannot parse oklch or color-mix(). Light is a
+ * warm near-neutral "soft white"; dark is GitHub's "dark default" palette
+ * (see `githubDark` below).
  */
 export interface Palette {
   /** Page background. */
@@ -59,22 +61,48 @@ export const light: Palette = {
   overdueSoft: '#fde8e8',
 }
 
+/**
+ * GitHub's "dark default" primer scale — the raw source for every dark-mode
+ * value. The `dark` palette (app surfaces) is built from this, and the web
+ * app maps these onto its `--gh-*` / shadcn dark tokens, so a single edit
+ * here retints dark mode across web and mobile.
+ */
+export const githubDark = {
+  canvas: '#0d1117', // page background   (canvas.default)
+  canvasInset: '#010409', // deepest wells     (canvas.inset)
+  surface: '#161b22', // cards / raised    (canvas.subtle)
+  surface2: '#21262d', // hover / secondary (neutral.muted)
+  border: '#30363d', // borders           (border.default)
+  borderMuted: '#21262d', // faint dividers    (border.muted)
+  fg: '#e6edf3', // primary text      (fg.default)
+  fgMuted: '#8b949e', // secondary text    (fg.muted)
+  fgSubtle: '#6e7681', // tertiary text     (fg.subtle)
+  fgFaint: '#484f58', // disabled / hair   (neutral.emphasis)
+  accent: '#2f81f7', // links / accent    (accent.fg)
+  accentEmphasis: '#1f6feb', // accent buttons    (accent.emphasis)
+  success: '#3fb950', // success           (success.fg)
+  attention: '#d29922', // warning           (attention.fg)
+  danger: '#f85149', // danger            (danger.fg)
+  purple: '#a371f7', // charts            (done.fg)
+} as const
+
 export const dark: Palette = {
-  bg: '#0d0f15',
-  surface: '#15181f',
-  rail: '#11141a',
-  ink1: '#f1f3f8',
-  ink2: '#9aa1b2',
-  ink3: '#6b7185',
-  ink4: '#3a3f4e',
-  divider: '#1f242e',
-  chipBg: '#1c2029',
-  hover: '#1a1e26',
-  accent: '#5b8df8',
-  accentSoft: '#24324f',
-  accentInk: '#9dbbfb',
-  overdue: '#f37777',
-  overdueSoft: '#2d1a1a',
+  bg: githubDark.canvas,
+  surface: githubDark.surface,
+  rail: githubDark.canvas,
+  ink1: githubDark.fg,
+  ink2: githubDark.fgMuted,
+  ink3: githubDark.fgSubtle,
+  ink4: githubDark.fgFaint,
+  divider: githubDark.border,
+  chipBg: githubDark.surface2,
+  hover: githubDark.surface2,
+  accent: githubDark.accent,
+  // accent 22% over surface / accent 60% over white — pre-resolved for RN.
+  accentSoft: '#1c3151',
+  accentInk: '#82b3fa',
+  overdue: githubDark.danger,
+  overdueSoft: '#2d1416',
 }
 
 export const palettes = { light, dark } as const
