@@ -28,7 +28,7 @@ export type DialogueState = {
 export type Rng = () => number
 
 export type VillageSimulationOptions = {
-  /** Milliseconds per walked cell. Default 360 (the GBA stroll). */
+  /** Milliseconds per walked cell. Default 360 (a relaxed stroll). */
   stepMs?: number
   /** Randomness source. Injected so simulations can be made deterministic. */
   rng?: Rng

@@ -1,8 +1,9 @@
 # @worldkit/world-canvas
 
-Pokémon-GBA-style interactive world canvas for React: tile maps from
-`@worldkit/tilemap`, characters from `@worldkit/sprite-actor`, autonomous
-wandering via `@worldkit/pathfinding`, and classic dialogue boxes.
+Painterly interactive world canvas for React: tile maps from
+`@worldkit/tilemap` (the verdant style), characters from
+`@worldkit/sprite-actor`, autonomous wandering via `@worldkit/pathfinding`,
+a day/night lighting grade from `@worldkit/lighting`, and dialogue boxes.
 
 ## Components
 
@@ -14,8 +15,11 @@ wandering via `@worldkit/pathfinding`, and classic dialogue boxes.
   a children slot for sprites, and the overhang canvas (tree canopies and
   roofs draw above characters). Characters get `zIndex: 10 + cellY`;
   floating UI `zIndex >= 1000`.
-- **`<DialogueBox text speaker portrait onAdvance />`** — GBA dialogue:
+- **`<DialogueBox text speaker portrait onAdvance />`** — retro dialogue:
   typewriter text, name plate, pixelated portrait, bobbing ▼.
+- **`useWorldClock(options?)`** — a live day/night clock; pass its `hour`
+  to `VillageCanvas` to grade the scene (ambient tint, cast shadows, lit
+  windows and lamps at night).
 - **`<SpeechBubble>!</SpeechBubble>`** — emote bubbles (`! ? … ♪ ♥`).
 - **`useVillageSimulation(scene)`** — the autonomous director, exposed
   separately for custom layouts.
@@ -23,11 +27,13 @@ wandering via `@worldkit/pathfinding`, and classic dialogue boxes.
 ## Quick start
 
 ```tsx
-import { VillageCanvas } from '@worldkit/world-canvas'
-import { cozyVillageScene } from '@worldkit/world-canvas/demo'
+import { VillageCanvas, useWorldClock } from '@worldkit/world-canvas'
+import { makeBoroughScene } from '@worldkit/world-canvas/demo'
 
 export function AgentsAtPlay() {
-  return <VillageCanvas scene={cozyVillageScene} zoom={2} />
+  const clock = useWorldClock()
+  const scene = makeBoroughScene(clock.artMood)
+  return <VillageCanvas scene={scene} zoom={2} hour={clock.hour} />
 }
 ```
 

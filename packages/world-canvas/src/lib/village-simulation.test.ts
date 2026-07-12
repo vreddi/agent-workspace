@@ -2,7 +2,7 @@ import { positionsEqual } from '@worldkit/grid'
 import type { GridPosition } from '@worldkit/grid'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { makeCozyVillageScene } from '../demo/cozy-village'
+import { makeBoroughScene } from '../demo/the-borough'
 import type { VillageScene } from './scene'
 import { VillageSimulation } from './village-simulation'
 
@@ -21,7 +21,7 @@ describe('VillageSimulation', () => {
   let scene: VillageScene
 
   beforeEach(() => {
-    scene = makeCozyVillageScene('day')
+    scene = makeBoroughScene('day')
   })
 
   describe('initial state', () => {
@@ -107,7 +107,7 @@ describe('VillageSimulation', () => {
         before.some((actor, i) => !positionsEqual(actor.position, homes[i]!)),
       ).toBe(true)
 
-      sim.setScene(makeCozyVillageScene('night'))
+      sim.setScene(makeBoroughScene('night'))
 
       const after = sim.snapshot()
       expect(after.map((a) => a.position)).toEqual(
@@ -146,7 +146,7 @@ describe('VillageSimulation', () => {
       const sim = new VillageSimulation(scene, { rng: constantRng(0.5) })
       sim.talkTo('poppy', 0)
 
-      const night = makeCozyVillageScene('night')
+      const night = makeBoroughScene('night')
       sim.setScene(night)
       expect(sim.getDialogue()!.resident).toBe(
         night.residents.find((r) => r.id === 'poppy'),

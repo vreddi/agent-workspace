@@ -2,21 +2,23 @@ import { findPath } from '@worldkit/pathfinding'
 import { isCellBlocked } from '@worldkit/world'
 import { describe, expect, it } from 'vitest'
 import { parseMap } from './map.js'
-import { COZY_TILESET } from './tiles/index.js'
+import { makeVerdantTileset } from './themes/verdant/index.js'
 import { mapToWorld } from './world-bridge.js'
 import type { Legend } from './map.js'
 
 const LEGEND: Legend = {
   '.': { kind: 'tile', tile: 'grass' },
   '~': { kind: 'tile', tile: 'water' },
-  T: { kind: 'prop', prop: 'tree' },
+  T: { kind: 'prop', prop: 'pine' },
 }
+
+const VERDANT = makeVerdantTileset('night')
 
 describe('mapToWorld', () => {
   it('blocks water and prop bases, keeps grass walkable', () => {
     const world = mapToWorld(
-      parseMap(['..~', '.T.', '...'], LEGEND, COZY_TILESET),
-      COZY_TILESET,
+      parseMap(['..~', '.T.', '...'], LEGEND, VERDANT),
+      VERDANT,
     )
     expect(isCellBlocked(world, { x: 0, y: 0, z: 0 })).toBe(false)
     expect(isCellBlocked(world, { x: 2, y: 0, z: 0 })).toBe(true) // water
@@ -26,8 +28,8 @@ describe('mapToWorld', () => {
   it('produces a world A* can path through', () => {
     // Wall of trees with a gap at the bottom.
     const world = mapToWorld(
-      parseMap(['.....', 'TTTT.', '.....'], LEGEND, COZY_TILESET),
-      COZY_TILESET,
+      parseMap(['.....', 'TTTT.', '.....'], LEGEND, VERDANT),
+      VERDANT,
     )
     const path = findPath(world, { x: 0, y: 0, z: 0 }, { x: 0, y: 2, z: 0 })
     expect(path).toBeDefined()

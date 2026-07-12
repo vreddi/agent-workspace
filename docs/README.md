@@ -1,7 +1,9 @@
 # Documentation
 
 Architecture and design notes for the agent workspace: an AI-assisted task
-management app whose AI agents live in a Pokémon-GBA-style pixel village.
+management app whose AI agents live in a painterly pixel village rendered in
+the **verdant** art style with a day/night lighting cycle (see
+[verdant-world-engine.md](./verdant-world-engine.md)).
 
 The project vision and working conventions live in
 [AGENTS.md](../AGENTS.md) — that's the starting point for anyone (human or

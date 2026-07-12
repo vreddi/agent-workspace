@@ -11,7 +11,7 @@ export type {
 } from './village-simulation'
 
 export type UseVillageSimulationOptions = {
-  /** Milliseconds per walked cell. Default 360 (the GBA stroll). */
+  /** Milliseconds per walked cell. Default 360 (a relaxed stroll). */
   stepMs?: number
   /** Pause all autonomous behavior (used by stories). */
   paused?: boolean

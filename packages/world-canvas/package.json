@@ -1,7 +1,7 @@
 {
   "name": "@worldkit/world-canvas",
   "version": "0.0.1",
-  "description": "Pokemon-GBA-style interactive world canvas: tile maps, autonomous sprite characters, and dialogue boxes.",
+  "description": "Painterly interactive world canvas: verdant tile maps, autonomous sprite characters, day/night lighting, and dialogue boxes.",
   "license": "MIT",
   "type": "module",
   "private": true,

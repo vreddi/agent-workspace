@@ -27,7 +27,7 @@ export type VillageCanvasProps = {
 }
 
 // Characters are one cell (32px) but read better sitting slightly high on
-// their tile, feet near the bottom edge — the classic GBA offset.
+// their tile, feet near the bottom edge — the classic top-down offset.
 const ACTOR_Y_OFFSET = -6
 
 // Soft blob beneath each character, in world pixels at zoom 1.

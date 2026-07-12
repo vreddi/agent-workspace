@@ -1,7 +1,7 @@
 {
   "name": "@worldkit/tilemap",
   "version": "0.0.1",
-  "description": "GBA-style pixel-art tiles, ASCII map authoring, and a Canvas2D renderer on top of @worldkit/world.",
+  "description": "Painterly (verdant) pixel-art tiles, ASCII map authoring, a Canvas2D renderer, and a day/night lighting compositor on top of @worldkit/world.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.mjs",

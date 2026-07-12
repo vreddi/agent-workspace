@@ -3,7 +3,7 @@ import type { Doc } from '@convex/_generated/dataModel'
 import { useUser } from '@clerk/tanstack-react-start'
 import { Link } from '@tanstack/react-router'
 import type { SpriteSheet } from '@worldkit/sprite-actor'
-import { VillageCanvas, useTimeOfDay } from '@worldkit/world-canvas'
+import { VillageCanvas, useWorldClock } from '@worldkit/world-canvas'
 import { useMutation, useQuery } from 'convex/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { customSheet, stubSheet } from '../agents/sprites'
@@ -99,9 +99,15 @@ function OfficeCard({ agents }: { agents: Doc<'agents'>[] | undefined }) {
   useEffect(() => setMounted(true), [])
   const zoom = useOfficeZoom()
   const sheets = useAgentSheets(agents)
-  // Lit for the viewer's local time; null only before mount, when the
-  // placeholder is showing anyway.
-  const time = useTimeOfDay()
+  // A paused day/night clock graded to the viewer's local time: the scene is
+  // lit like the Borough (ambient tint, cast shadows, lit windows at night)
+  // but held at the current hour rather than animating on a work page.
+  const clock = useWorldClock({ running: false })
+  const { setHour } = clock
+  useEffect(() => {
+    const now = new Date()
+    setHour(now.getHours() + now.getMinutes() / 60)
+  }, [setHour])
 
   const scene = useMemo(() => {
     const officeAgents: OfficeAgent[] = []
@@ -115,8 +121,8 @@ function OfficeCard({ agents }: { agents: Doc<'agents'>[] | undefined }) {
         personality: agent.personality,
       })
     }
-    return buildOfficeScene(officeAgents, time ?? 'night')
-  }, [agents, sheets, time])
+    return buildOfficeScene(officeAgents, clock.artMood)
+  }, [agents, sheets, clock.artMood])
 
   const total = agents?.length ?? 0
   const shown = Math.min(total, OFFICE_CAPACITY)
@@ -148,7 +154,7 @@ function OfficeCard({ agents }: { agents: Doc<'agents'>[] | undefined }) {
       </div>
       <div className="t-office__stage">
         {mounted ? (
-          <VillageCanvas scene={scene} zoom={zoom} />
+          <VillageCanvas scene={scene} zoom={zoom} hour={clock.hour} />
         ) : (
           <div className="t-office__placeholder" />
         )}

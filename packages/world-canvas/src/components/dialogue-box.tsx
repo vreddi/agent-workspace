@@ -21,7 +21,7 @@ const FONT_STACK =
   "'Press Start 2P', 'Courier New', ui-monospace, Menlo, monospace"
 
 /**
- * Classic GBA dialogue box: navy double border, white panel, typewriter
+ * Classic retro dialogue box: navy double border, white panel, typewriter
  * text, and a bobbing advance arrow. Click it (or press Enter/Space) to
  * fast-forward, then advance.
  */
