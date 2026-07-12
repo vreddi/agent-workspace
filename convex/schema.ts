@@ -182,6 +182,10 @@ export default defineSchema({
     // scheduled *for* the target date; checked means completing it early is
     // fine. Optional so rows written before this field existed validate.
     allowEarlyCompletion: v.optional(v.union(v.boolean(), v.null())),
+    // Long-running tasks track partial progress: whole percent complete,
+    // 0–100. Absent/null means a normal single-sitting task. Remaining cost
+    // is always derived from this (cost × remaining fraction), never stored.
+    progressPercent: v.optional(v.union(v.number(), v.null())),
     updatedAt: v.number(),
   })
     .index('by_assignee_status', ['assigneeUserId', 'status'])

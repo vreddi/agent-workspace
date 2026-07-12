@@ -54,6 +54,15 @@ function validateDifficulty(difficulty: number | null) {
   }
 }
 
+function validateProgressPercent(percent: number | null) {
+  if (percent === null) return
+  if (!Number.isInteger(percent) || percent < 0 || percent > 100) {
+    throw new ConvexError(
+      'progressPercent must be a whole number from 0 to 100',
+    )
+  }
+}
+
 function validateScheduledStartMinutes(minutes: number | null) {
   if (minutes === null) return
   if (!Number.isInteger(minutes) || minutes < 0 || minutes >= 24 * 60) {
@@ -94,6 +103,7 @@ type DiffableField =
   | 'goalId'
   | 'costDays'
   | 'allowEarlyCompletion'
+  | 'progressPercent'
 
 const DIFF_FIELDS: readonly DiffableField[] = [
   'title',
@@ -109,6 +119,7 @@ const DIFF_FIELDS: readonly DiffableField[] = [
   'goalId',
   'costDays',
   'allowEarlyCompletion',
+  'progressPercent',
 ]
 
 // Fields added after launch may be absent on older rows; treat undefined as
@@ -121,6 +132,7 @@ const OPTIONAL_DIFF_FIELDS = new Set<DiffableField>([
   'goalId',
   'costDays',
   'allowEarlyCompletion',
+  'progressPercent',
 ])
 
 type TaskChange = { field: string; before: string | null; after: string | null }
@@ -139,6 +151,7 @@ type UpdateArgs = {
   goalId?: Id<'goals'> | null
   costDays?: number | null
   allowEarlyCompletion?: boolean | null
+  progressPercent?: number | null
 }
 
 function diffFields(task: Doc<'tasks'>, args: UpdateArgs) {
@@ -175,6 +188,7 @@ export const create = mutation({
     goalId: v.optional(v.union(v.id('goals'), v.null())),
     costDays: v.optional(v.union(v.number(), v.null())),
     allowEarlyCompletion: v.optional(v.union(v.boolean(), v.null())),
+    progressPercent: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -194,6 +208,7 @@ export const create = mutation({
     const goalId = args.goalId ?? null
     const costDays = args.costDays ?? null
     const allowEarlyCompletion = args.allowEarlyCompletion ?? null
+    const progressPercent = args.progressPercent ?? null
     if (
       softDeadline !== null &&
       hardDeadline !== null &&
@@ -204,6 +219,7 @@ export const create = mutation({
     validateDifficulty(difficulty)
     validateScheduledStartMinutes(scheduledStartMinutes)
     validateCostDays(costDays)
+    validateProgressPercent(progressPercent)
     await assertOwnsGoal(ctx, goalId, userId)
     // A new task always starts assigned to whoever captured it; sharing and
     // handoff happen afterwards through taskAssignments.setAssignees.
@@ -231,6 +247,7 @@ export const create = mutation({
       goalPosition,
       costDays,
       allowEarlyCompletion,
+      progressPercent,
       updatedAt: now,
     })
     await ctx.db.insert('taskAssignments', {
@@ -305,6 +322,13 @@ export const create = mutation({
         after: encode(allowEarlyCompletion),
       })
     }
+    if (progressPercent !== null) {
+      changes.push({
+        field: 'progressPercent',
+        before: null,
+        after: encode(progressPercent),
+      })
+    }
     await ctx.db.insert('taskEvents', {
       taskId,
       actorId: userId,
@@ -331,6 +355,7 @@ export const update = mutation({
     goalId: v.optional(v.union(v.id('goals'), v.null())),
     costDays: v.optional(v.union(v.number(), v.null())),
     allowEarlyCompletion: v.optional(v.union(v.boolean(), v.null())),
+    progressPercent: v.optional(v.union(v.number(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -381,6 +406,20 @@ export const update = mutation({
     }
     if (args.allowEarlyCompletion !== undefined) {
       normalized.allowEarlyCompletion = args.allowEarlyCompletion
+    }
+    if (args.progressPercent !== undefined) {
+      validateProgressPercent(args.progressPercent)
+      normalized.progressPercent = args.progressPercent
+    }
+    // Marking a progress-tracked task done means it reached 100%; don't
+    // override an explicit progressPercent sent in the same call.
+    if (
+      args.status === 'done' &&
+      args.progressPercent === undefined &&
+      task.progressPercent != null &&
+      task.progressPercent !== 100
+    ) {
+      normalized.progressPercent = 100
     }
 
     const { changes, patch } = diffFields(task, normalized)

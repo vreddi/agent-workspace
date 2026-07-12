@@ -32,6 +32,8 @@ export type CaptureInput = {
   estimateMinutes: number | null
   targetDate: string | null
   allowEarlyCompletion: boolean
+  /** Long-running task: start tracking % progress (at 0). */
+  trackProgress: boolean
   scheduledStartMinutes: number | null
   priority: TaskPriority | null
   difficulty: number | null
@@ -286,6 +288,7 @@ export function CapturePalette({
   const [estimateUnit, setEstimateUnit] = useState<EstimateUnit>('minutes')
   const [targetDate, setTargetDate] = useState('')
   const [allowEarlyCompletion, setAllowEarlyCompletion] = useState(false)
+  const [trackProgress, setTrackProgress] = useState(false)
   const [slotStart, setSlotStart] = useState<number | null>(null)
   const [priority, setPriority] = useState<TaskPriority | null>(null)
   const [difficulty, setDifficulty] = useState<number | null>(null)
@@ -302,6 +305,7 @@ export function CapturePalette({
       setEstimateUnit('minutes')
       setTargetDate('')
       setAllowEarlyCompletion(false)
+      setTrackProgress(false)
       setSlotStart(null)
       setPriority(null)
       setDifficulty(null)
@@ -353,6 +357,7 @@ export function CapturePalette({
         targetDate: targetDate || null,
         // The flag only means anything once a target date is set.
         allowEarlyCompletion: targetDate ? allowEarlyCompletion : false,
+        trackProgress,
         // A slot only means something on a concrete day.
         scheduledStartMinutes: targetDate ? slotStart : null,
         priority,
@@ -396,6 +401,9 @@ export function CapturePalette({
       key: 'difficulty',
       label: `Difficulty ${difficulty}/5`,
     })
+  }
+  if (trackProgress) {
+    summaryChips.push({ key: 'progress', label: 'Long-running' })
   }
   const selectedGoal = goals?.find((g) => g._id === goalId)
   if (selectedGoal) {
@@ -554,6 +562,14 @@ export function CapturePalette({
                   <span>OK to finish before the target date</span>
                 </label>
               )}
+              <label className="t-palette__check">
+                <Checkbox
+                  checked={trackProgress}
+                  disabled={submitting}
+                  onCheckedChange={(next) => setTrackProgress(next === true)}
+                />
+                <span>Long-running — track % progress across sittings</span>
+              </label>
               {targetDate !== '' && (
                 <div className="t-palette__slot">
                   <div className="t-palette__slot-head">

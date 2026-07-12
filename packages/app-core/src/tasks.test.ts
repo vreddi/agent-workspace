@@ -6,8 +6,10 @@ import {
   effectiveCostDays,
   estimateToMinutes,
   fmtEstimate,
+  isLongRunning,
   type TaskLike,
   minutesToEstimateParts,
+  remainingCostDays,
   sortForToday,
   toDisplayTask,
 } from './tasks'
@@ -55,6 +57,27 @@ describe('effectiveCostDays', () => {
     expect(
       effectiveCostDays({ costDays: null, estimateMinutes: null }),
     ).toBeNull()
+  })
+})
+
+describe('long-running task progress', () => {
+  it('is long-running only while progress is tracked', () => {
+    expect(isLongRunning({ progressPercent: 0 })).toBe(true)
+    expect(isLongRunning({ progressPercent: 60 })).toBe(true)
+    expect(isLongRunning({ progressPercent: null })).toBe(false)
+    expect(isLongRunning({})).toBe(false)
+  })
+
+  it('scales the remaining cost by the progress made', () => {
+    const book = { estimateMinutes: 16 * 60, progressPercent: 25 }
+    expect(remainingCostDays(book)).toBeCloseTo((16 / 24) * 0.75)
+    expect(remainingCostDays({ costDays: 2, progressPercent: 50 })).toBe(1)
+    expect(remainingCostDays({ costDays: 2, progressPercent: 100 })).toBe(0)
+  })
+
+  it('equals the full cost when progress is untracked, null without a cost', () => {
+    expect(remainingCostDays({ costDays: 2 })).toBe(2)
+    expect(remainingCostDays({ progressPercent: 40 })).toBeNull()
   })
 })
 

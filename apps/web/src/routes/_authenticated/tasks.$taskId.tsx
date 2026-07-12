@@ -2,12 +2,15 @@ import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
 import type { TaskDetail, TaskHistoryEvent } from '@convex/tasks'
 import {
+  effectiveCostDays,
   ESTIMATE_UNIT_LABELS,
   ESTIMATE_UNITS,
   type EstimateUnit,
   estimateToMinutes,
   fmtEstimate,
+  formatCostDuration,
   minutesToEstimateParts,
+  remainingCostDays,
 } from '@org/app-core'
 import { Checkbox } from '@org/ui/components/checkbox'
 import {
@@ -28,7 +31,13 @@ import { Slider } from '@org/ui/components/slider'
 import { cn } from '@org/ui/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Authenticated, useMutation, useQuery } from 'convex/react'
-import { Component, useState, type FormEvent, type ReactNode } from 'react'
+import {
+  Component,
+  useEffect,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import {
   goalTypeValue,
   GoalTypeSelectionIcon,
@@ -448,6 +457,7 @@ function TaskView({ task }: { task: TaskDetail }) {
         </p>
       )}
 
+      {task.progressPercent != null && <ProgressSection task={task} />}
       <DetailsSection task={task} />
       <TaskPeopleSection
         taskId={task._id}
@@ -457,6 +467,79 @@ function TaskView({ task }: { task: TaskDetail }) {
       />
       <ActivitySection taskId={task._id} />
     </>
+  )
+}
+
+// ── Progress (long-running tasks) ───────────────────────────
+
+function ProgressSection({ task }: { task: TaskDetail }) {
+  const updateTask = useMutation(api.tasks.update)
+  const serverPercent = task.progressPercent ?? 0
+  const [percent, setPercent] = useState(serverPercent)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  // Track server updates (another device, or done snapping to 100%) unless
+  // the user is mid-drag.
+  useEffect(() => {
+    if (!saving) setPercent(serverPercent)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverPercent])
+
+  const total = effectiveCostDays(task)
+  const remaining = remainingCostDays({ ...task, progressPercent: percent })
+  const done = task.status === 'done' || task.status === 'cancelled'
+
+  async function commit(next: number) {
+    if (next === serverPercent) return
+    setSaving(true)
+    setError(null)
+    try {
+      await updateTask({ id: task._id, progressPercent: next })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save progress')
+      setPercent(serverPercent)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <section className="tdp-section">
+      <div className="tdp-section__head">
+        <h2>Progress</h2>
+        <span className="tdp-section__count">{percent}%</span>
+      </div>
+      <div className="tdp-progress">
+        <Slider
+          min={0}
+          max={100}
+          step={5}
+          disabled={saving || done}
+          value={[percent]}
+          onValueChange={([v]) => setPercent(v ?? 0)}
+          onValueCommit={([v]) => {
+            void commit(v ?? 0)
+          }}
+          aria-label="Progress"
+        />
+        <p className="tdp-progress__hint">
+          {total !== null ? (
+            <>
+              {remaining !== null && remaining > 0
+                ? `About ${formatCostDuration(remaining)} of ${formatCostDuration(total)} left.`
+                : `All ${formatCostDuration(total)} of work covered.`}
+            </>
+          ) : (
+            'Add an estimate or cost to see how much work is left.'
+          )}
+        </p>
+      </div>
+      {error && (
+        <p className="tdp-form__error" style={{ margin: '10px 0 0' }}>
+          {error}
+        </p>
+      )}
+    </section>
   )
 }
 
@@ -631,6 +714,11 @@ function phraseForChange(
       return after === true
         ? 'allowed finishing before the target date'
         : 'required the task to wait for its target date'
+    case 'progressPercent':
+      if (after === null) return 'stopped tracking progress'
+      if (typeof after !== 'number') return 'changed the progress'
+      if (before === null) return `started tracking progress at ${after}%`
+      return `moved progress to ${after}%`
     case 'assignees': {
       // Creation events carry the initial set; the "created this task" lead
       // already covers that.
@@ -785,6 +873,12 @@ function TaskEditForm({
   const [costDays, setCostDays] = useState(
     task.costDays == null ? '' : String(task.costDays),
   )
+  const [trackProgress, setTrackProgress] = useState(
+    task.progressPercent != null,
+  )
+  const [progressPercent, setProgressPercent] = useState(
+    task.progressPercent ?? 0,
+  )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -821,6 +915,7 @@ function TaskEditForm({
       goalId?: Id<'goals'> | null
       costDays?: number | null
       allowEarlyCompletion?: boolean | null
+      progressPercent?: number | null
     } = { id: task._id }
 
     if (trimmedTitle !== task.title) patch.title = trimmedTitle
@@ -878,6 +973,11 @@ function TaskEditForm({
       return
     }
     if (nextCost !== (task.costDays ?? null)) patch.costDays = nextCost
+
+    const nextProgress = trackProgress ? progressPercent : null
+    if (nextProgress !== (task.progressPercent ?? null)) {
+      patch.progressPercent = nextProgress
+    }
 
     setSaving(true)
     setError(null)
@@ -1108,6 +1208,35 @@ function TaskEditForm({
               onChange={(e) => setCostDays(e.target.value)}
               placeholder="1.5"
             />
+          </div>
+          <div className="tdp-field">
+            <span className="tdp-field__label">Long-running</span>
+            <label className="tdp-check">
+              <Checkbox
+                checked={trackProgress}
+                disabled={saving}
+                onCheckedChange={(next) => setTrackProgress(next === true)}
+              />
+              <span>Track % progress across sittings</span>
+            </label>
+            {trackProgress && (
+              <>
+                <div className="tdp-slider-head">
+                  <span className="tdp-slider-value">
+                    {progressPercent}% done
+                  </span>
+                </div>
+                <Slider
+                  min={0}
+                  max={100}
+                  step={5}
+                  disabled={saving}
+                  value={[progressPercent]}
+                  onValueChange={([v]) => setProgressPercent(v ?? 0)}
+                  aria-label="Progress"
+                />
+              </>
+            )}
           </div>
         </div>
       </div>
