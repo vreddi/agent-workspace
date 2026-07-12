@@ -12,12 +12,12 @@ package's export map (no build step). React is a peer dependency.
 
 Subpath exports (see `package.json`), imported by their full specifier:
 
-| Specifier | Resolves to | What |
-| --- | --- | --- |
-| `@org/ui/globals.css` | `src/styles/globals.css` | Tailwind layer + design tokens. Import once at the app root. |
-| `@org/ui/components/*` | `src/components/*.tsx` | One component module per file, e.g. `@org/ui/components/button`. |
-| `@org/ui/lib/*` | `src/lib/*.ts` | Helpers, e.g. `@org/ui/lib/utils` (the `cn` class-merger). |
-| `@org/ui/hooks/*` | `src/hooks/*.ts` | React hooks (none shipped yet). |
+| Specifier              | Resolves to              | What                                                             |
+| ---------------------- | ------------------------ | ---------------------------------------------------------------- |
+| `@org/ui/globals.css`  | `src/styles/globals.css` | Tailwind layer + design tokens. Import once at the app root.     |
+| `@org/ui/components/*` | `src/components/*.tsx`   | One component module per file, e.g. `@org/ui/components/button`. |
+| `@org/ui/lib/*`        | `src/lib/*.ts`           | Helpers, e.g. `@org/ui/lib/utils` (the `cn` class-merger).       |
+| `@org/ui/hooks/*`      | `src/hooks/*.ts`         | React hooks (none shipped yet).                                  |
 
 Internally the same three folders are also wired as package `imports`
 (`#components/*`, `#lib/*`, `#hooks/*`) so the shadcn CLI and intra-package

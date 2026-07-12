@@ -113,7 +113,9 @@ export default function SettingsScreen() {
             label="Theme"
             detail="Follows your device by default"
             right={
-              <View style={[styles.segment, { backgroundColor: palette.chipBg }]}>
+              <View
+                style={[styles.segment, { backgroundColor: palette.chipBg }]}
+              >
                 {THEME_OPTIONS.map((option) => {
                   const active = preference === option.value
                   return (

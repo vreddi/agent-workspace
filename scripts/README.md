@@ -12,12 +12,12 @@ into the current checkout so every worktree shares one set of secrets.
 It resolves the checkout root with `git rev-parse --show-toplevel`, then
 links (only when the destination is absent) each known env file:
 
-| Store file | Linked to |
-| --- | --- |
-| `root.env.local` | `.env.local` |
-| `web.env.local` | `apps/web/.env.local` |
+| Store file            | Linked to                   |
+| --------------------- | --------------------------- |
+| `root.env.local`      | `.env.local`                |
+| `web.env.local`       | `apps/web/.env.local`       |
 | `storybook.env.local` | `apps/storybook/.env.local` |
-| `mobile/.env.local` | `apps/mobile/.env.local` |
+| `mobile/.env.local`   | `apps/mobile/.env.local`    |
 
 Idempotent and silent when there's nothing to do, so it's safe to run on
 every session start. It's wired into `.claude/settings.json` hooks (Claude

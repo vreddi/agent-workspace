@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { SpeechBubble } from './speech-bubble';
+import { SpeechBubble } from './speech-bubble'
 
 const meta: Meta<typeof SpeechBubble> = {
   title: 'World/SpeechBubble',
@@ -9,14 +9,14 @@ const meta: Meta<typeof SpeechBubble> = {
   parameters: {
     layout: 'centered',
   },
-};
-export default meta;
+}
+export default meta
 
-type Story = StoryObj<typeof SpeechBubble>;
+type Story = StoryObj<typeof SpeechBubble>
 
 export const Exclaim: Story = {
   args: { children: '!' },
-};
+}
 
 export const AllEmotes: Story = {
   render: () => (
@@ -26,4 +26,4 @@ export const AllEmotes: Story = {
       ))}
     </div>
   ),
-};
+}

@@ -18,7 +18,11 @@ import {
   toDisplayTask,
 } from './helpers'
 import { Nav } from './nav'
-import { buildOfficeScene, OFFICE_CAPACITY, type OfficeAgent } from './office-scene'
+import {
+  buildOfficeScene,
+  OFFICE_CAPACITY,
+  type OfficeAgent,
+} from './office-scene'
 import { todayStyles } from './styles'
 import {
   ACCENT_OPTIONS,
@@ -174,7 +178,8 @@ function TaskRow({ task, now }: { task: DisplayTask; now: Date }) {
       ) : (
         <span
           className={
-            't-task-row__dot' + (task.overdue ? ' t-task-row__dot--overdue' : '')
+            't-task-row__dot' +
+            (task.overdue ? ' t-task-row__dot--overdue' : '')
           }
         />
       )}
@@ -187,7 +192,8 @@ function TaskRow({ task, now }: { task: DisplayTask; now: Date }) {
       {task.deadline && (
         <span
           className={
-            't-task-row__due' + (task.overdue ? ' t-task-row__due--overdue' : '')
+            't-task-row__due' +
+            (task.overdue ? ' t-task-row__due--overdue' : '')
           }
         >
           {task.overdue && cd
@@ -348,7 +354,11 @@ export function TodayDashboard() {
     >
       <style>{todayStyles}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
@@ -376,9 +386,7 @@ export function TodayDashboard() {
             {overdueCount > 0 && (
               <>
                 <span className="t-dot-tiny" />
-                <span className="t-hello__overdue">
-                  {overdueCount} overdue
-                </span>
+                <span className="t-hello__overdue">{overdueCount} overdue</span>
               </>
             )}
           </p>

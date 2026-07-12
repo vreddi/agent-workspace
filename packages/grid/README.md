@@ -26,18 +26,18 @@ import {
   getNeighbors,
   gridToWorld,
   worldToGrid,
-} from '@worldkit/grid';
+} from '@worldkit/grid'
 
-const grid = createGrid({ width: 20, height: 20, cellSize: 32 });
+const grid = createGrid({ width: 20, height: 20, cellSize: 32 })
 
-isInsideGrid(grid, { x: 5, y: 5 }); // true
-isInsideGrid(grid, { x: 20, y: 0 }); // false
+isInsideGrid(grid, { x: 5, y: 5 }) // true
+isInsideGrid(grid, { x: 20, y: 0 }) // false
 
-getNeighbors(grid, { x: 0, y: 0 });
+getNeighbors(grid, { x: 0, y: 0 })
 // [{ x: 1, y: 0 }, { x: 0, y: 1 }]
 
-gridToWorld(grid, { x: 3, y: 2 }); // { x: 96, y: 64 }
-worldToGrid(grid, { x: 100, y: 70 }); // { x: 3, y: 2 }
+gridToWorld(grid, { x: 3, y: 2 }) // { x: 96, y: 64 }
+worldToGrid(grid, { x: 100, y: 70 }) // { x: 3, y: 2 }
 ```
 
 ## API
@@ -45,7 +45,7 @@ worldToGrid(grid, { x: 100, y: 70 }); // { x: 3, y: 2 }
 ### `GridPosition`
 
 ```ts
-type GridPosition = { x: number; y: number };
+type GridPosition = { x: number; y: number }
 ```
 
 Integer cell coordinates. Origin `(0, 0)` is the top-left cell.
@@ -53,7 +53,7 @@ Integer cell coordinates. Origin `(0, 0)` is the top-left cell.
 ### `GridConfig`
 
 ```ts
-type GridConfig = { width: number; height: number; cellSize: number };
+type GridConfig = { width: number; height: number; cellSize: number }
 ```
 
 `width` / `height` are cell counts. `cellSize` is the pixel size of a cell.

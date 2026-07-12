@@ -136,7 +136,9 @@ function assertNameAvailable(
   if (SYSTEM_GOAL_TYPES.some((t) => t.name.toLowerCase() === lower)) {
     throw new ConvexError('A built-in type with this name already exists')
   }
-  if (custom.some((t) => t._id !== excludeId && t.name.toLowerCase() === lower)) {
+  if (
+    custom.some((t) => t._id !== excludeId && t.name.toLowerCase() === lower)
+  ) {
     throw new ConvexError('A type with this name already exists')
   }
 }
@@ -242,7 +244,9 @@ export const remove = mutation({
       .withIndex('by_customType', (q) => q.eq('customTypeId', args.id))
       .take(1)
     if (inUse.length > 0) {
-      throw new ConvexError('This type is used by a goal. Change those goals first.')
+      throw new ConvexError(
+        'This type is used by a goal. Change those goals first.',
+      )
     }
     await ctx.db.delete(args.id)
   },

@@ -3,10 +3,9 @@
 A fully controllable sprite-sheet character component for 2D worlds.
 
 ```tsx
-import { SpriteActor } from '@worldkit/sprite-actor';
-import { PinkMonsterSheet } from '@worldkit/sprite-actor/examples';
-
-<SpriteActor sheet={PinkMonsterSheet} action="run" facing="left" scale={4} />
+import { SpriteActor } from '@worldkit/sprite-actor'
+import { PinkMonsterSheet } from '@worldkit/sprite-actor/examples'
+;<SpriteActor sheet={PinkMonsterSheet} action="run" facing="left" scale={4} />
 ```
 
 ## What it does
@@ -26,7 +25,7 @@ import { PinkMonsterSheet } from '@worldkit/sprite-actor/examples';
 ## Defining a sprite sheet
 
 ```ts
-import type { SpriteSheet } from '@worldkit/sprite-actor';
+import type { SpriteSheet } from '@worldkit/sprite-actor'
 
 export const MyHero: SpriteSheet = {
   name: 'My Hero',
@@ -34,12 +33,12 @@ export const MyHero: SpriteSheet = {
   frameHeight: 32,
   fps: 8,
   actions: {
-    idle:    { src: '/sprites/hero/idle.png',   frames: 4 },
-    walk:    { src: '/sprites/hero/walk.png',   frames: 6 },
+    idle: { src: '/sprites/hero/idle.png', frames: 4 },
+    walk: { src: '/sprites/hero/walk.png', frames: 6 },
     attack1: { src: '/sprites/hero/attack.png', frames: 4, fps: 12 },
     // Any action listed in ALL_ACTIONS can go here. The rest are blank.
   },
-};
+}
 ```
 
 ## Example characters
@@ -53,7 +52,7 @@ import {
   PinkMonsterSheet,
   OwletMonsterSheet,
   DudeMonsterSheet,
-} from '@worldkit/sprite-actor/examples';
+} from '@worldkit/sprite-actor/examples'
 ```
 
 See the **World/SpriteActor** stories in Storybook for live demos.

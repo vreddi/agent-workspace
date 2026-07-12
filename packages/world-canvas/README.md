@@ -7,7 +7,7 @@ wandering via `@worldkit/pathfinding`, and classic dialogue boxes.
 ## Components
 
 - **`<VillageCanvas scene={...} />`** — the full experience. Residents
-  idle, stroll (A* pathfinding, cell-to-cell CSS transitions), hop, meet
+  idle, stroll (A\* pathfinding, cell-to-cell CSS transitions), hop, meet
   neighbors for emote-bubble chats, and return home. Click a character to
   open its dialogue box; advance with click or Enter/Space.
 - **`<WorldCanvas map tileset zoom>`** — just the stage: ground canvas,
@@ -23,11 +23,11 @@ wandering via `@worldkit/pathfinding`, and classic dialogue boxes.
 ## Quick start
 
 ```tsx
-import { VillageCanvas } from '@worldkit/world-canvas';
-import { cozyVillageScene } from '@worldkit/world-canvas/demo';
+import { VillageCanvas } from '@worldkit/world-canvas'
+import { cozyVillageScene } from '@worldkit/world-canvas/demo'
 
 export function AgentsAtPlay() {
-  return <VillageCanvas scene={cozyVillageScene} zoom={2} />;
+  return <VillageCanvas scene={cozyVillageScene} zoom={2} />
 }
 ```
 

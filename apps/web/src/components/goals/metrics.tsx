@@ -73,8 +73,8 @@ export function MetricsSection({
         <div className="rounded-xl border border-dashed p-8 text-center">
           <p className="text-sm font-medium">No metrics yet</p>
           <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
-            Add a numerical metric — like body weight or an exam score — then log
-            readings over time to see the trend toward your target.
+            Add a numerical metric — like body weight or an exam score — then
+            log readings over time to see the trend toward your target.
           </p>
           <Button
             variant="outline"
@@ -207,7 +207,9 @@ function MetricCard({
       <div className="mt-3 flex items-end justify-between gap-3">
         <div>
           <div className="text-2xl font-semibold tabular-nums leading-none">
-            {metric.latest ? formatValue(metric.latest.value, metric.unit) : '—'}
+            {metric.latest
+              ? formatValue(metric.latest.value, metric.unit)
+              : '—'}
           </div>
           <div className="mt-1 text-xs text-muted-foreground">
             {metric.latest
@@ -230,7 +232,9 @@ function MetricCard({
           )}
           {pct !== null && (
             <div className="text-xs text-muted-foreground">
-              {metric.progress.reachedTarget ? 'Target reached' : `${pct}% there`}
+              {metric.progress.reachedTarget
+                ? 'Target reached'
+                : `${pct}% there`}
             </div>
           )}
         </div>
@@ -407,7 +411,9 @@ function MetricDrawer({
     setUnit(metric?.unit ?? '')
     setDirection(metric?.direction ?? 'decrease')
     setStartValue(metric?.startValue != null ? String(metric.startValue) : '')
-    setTargetValue(metric?.targetValue != null ? String(metric.targetValue) : '')
+    setTargetValue(
+      metric?.targetValue != null ? String(metric.targetValue) : '',
+    )
     setTargetDate(msToDateInputValue(metric?.targetDate ?? goalDeadline))
     setError(null)
     setSaving(false)

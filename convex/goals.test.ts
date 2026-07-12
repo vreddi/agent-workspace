@@ -27,7 +27,10 @@ async function signUp(t: ReturnType<typeof setup>, externalId: string) {
 
 type UserClient = Awaited<ReturnType<typeof signUp>>
 
-function createGoal(asUser: UserClient, overrides: Record<string, unknown> = {}) {
+function createGoal(
+  asUser: UserClient,
+  overrides: Record<string, unknown> = {},
+) {
   return asUser.mutation(api.goals.create, {
     title: 'Run a marathon',
     deadline: Date.now() + 90 * DAY_MS,
@@ -40,7 +43,10 @@ describe('goals.create', () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
     const deadline = Date.now() + 90 * DAY_MS
-    const id = await createGoal(asUser, { deadline, description: '  Become a runner  ' })
+    const id = await createGoal(asUser, {
+      deadline,
+      description: '  Become a runner  ',
+    })
     const goal = await asUser.query(api.goals.get, { id })
     expect(goal).toMatchObject({
       title: 'Run a marathon',
@@ -63,9 +69,9 @@ describe('goals.create', () => {
     await expect(createGoal(asUser, { title: '  ' })).rejects.toThrowError(
       /Title is required/,
     )
-    await expect(createGoal(asUser, { deadline: Date.now() - 1 })).rejects.toThrowError(
-      /Deadline must be in the future/,
-    )
+    await expect(
+      createGoal(asUser, { deadline: Date.now() - 1 }),
+    ).rejects.toThrowError(/Deadline must be in the future/)
   })
 
   test('accepts a system type by slug', async () => {
@@ -73,15 +79,19 @@ describe('goals.create', () => {
     const asUser = await signUp(t, 'user_1')
     const id = await createGoal(asUser, { typeSlug: 'fitness' })
     const goal = await asUser.query(api.goals.get, { id })
-    expect(goal.type).toMatchObject({ kind: 'system', slug: 'fitness', name: 'Fitness' })
+    expect(goal.type).toMatchObject({
+      kind: 'system',
+      slug: 'fitness',
+      name: 'Fitness',
+    })
   })
 
   test('rejects unknown system slugs', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    await expect(createGoal(asUser, { typeSlug: 'time-travel' })).rejects.toThrowError(
-      /Unknown system goal type/,
-    )
+    await expect(
+      createGoal(asUser, { typeSlug: 'time-travel' }),
+    ).rejects.toThrowError(/Unknown system goal type/)
   })
 
   test('accepts a custom type and resolves it', async () => {
@@ -93,13 +103,19 @@ describe('goals.create', () => {
     })
     const id = await createGoal(asUser, { customTypeId: typeId })
     const goal = await asUser.query(api.goals.get, { id })
-    expect(goal.type).toMatchObject({ kind: 'custom', id: typeId, name: 'Side Projects' })
+    expect(goal.type).toMatchObject({
+      kind: 'custom',
+      id: typeId,
+      name: 'Side Projects',
+    })
   })
 
   test('rejects setting both a system and a custom type', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    const typeId = await asUser.mutation(api.goalTypes.create, { name: 'Side Projects' })
+    const typeId = await asUser.mutation(api.goalTypes.create, {
+      name: 'Side Projects',
+    })
     await expect(
       createGoal(asUser, { typeSlug: 'fitness', customTypeId: typeId }),
     ).rejects.toThrowError(/not both/)
@@ -109,24 +125,26 @@ describe('goals.create', () => {
     const t = setup()
     const asAlice = await signUp(t, 'alice')
     const asBob = await signUp(t, 'bob')
-    const typeId = await asAlice.mutation(api.goalTypes.create, { name: 'Side Projects' })
-    await expect(createGoal(asBob, { customTypeId: typeId })).rejects.toThrowError(
-      /Goal type not found/,
-    )
+    const typeId = await asAlice.mutation(api.goalTypes.create, {
+      name: 'Side Projects',
+    })
+    await expect(
+      createGoal(asBob, { customTypeId: typeId }),
+    ).rejects.toThrowError(/Goal type not found/)
   })
 
   test('validates reminderDaysBefore bounds', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    await expect(createGoal(asUser, { reminderDaysBefore: 0 })).rejects.toThrowError(
-      /reminderDaysBefore/,
-    )
-    await expect(createGoal(asUser, { reminderDaysBefore: 91 })).rejects.toThrowError(
-      /reminderDaysBefore/,
-    )
-    await expect(createGoal(asUser, { reminderDaysBefore: 2.5 })).rejects.toThrowError(
-      /reminderDaysBefore/,
-    )
+    await expect(
+      createGoal(asUser, { reminderDaysBefore: 0 }),
+    ).rejects.toThrowError(/reminderDaysBefore/)
+    await expect(
+      createGoal(asUser, { reminderDaysBefore: 91 }),
+    ).rejects.toThrowError(/reminderDaysBefore/)
+    await expect(
+      createGoal(asUser, { reminderDaysBefore: 2.5 }),
+    ).rejects.toThrowError(/reminderDaysBefore/)
   })
 })
 
@@ -135,7 +153,9 @@ describe('goals.update', () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
     const id = await createGoal(asUser, { typeSlug: 'fitness' })
-    const typeId = await asUser.mutation(api.goalTypes.create, { name: 'Side Projects' })
+    const typeId = await asUser.mutation(api.goalTypes.create, {
+      name: 'Side Projects',
+    })
     await asUser.mutation(api.goals.update, {
       id,
       title: 'Run an ultramarathon',
@@ -154,7 +174,10 @@ describe('goals.update', () => {
     await t.run(async (ctx) => {
       await ctx.db.patch(id, { lastRemindedAt: Date.now() })
     })
-    await asUser.mutation(api.goals.update, { id, deadline: Date.now() + 10 * DAY_MS })
+    await asUser.mutation(api.goals.update, {
+      id,
+      deadline: Date.now() + 10 * DAY_MS,
+    })
     const goal = await asUser.query(api.goals.get, { id })
     expect(goal.lastRemindedAt).toBeNull()
   })
@@ -190,14 +213,25 @@ describe('goals.list', () => {
   test('filters by status and sorts active goals by nearest deadline', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    const far = await createGoal(asUser, { title: 'Far', deadline: Date.now() + 90 * DAY_MS })
-    const near = await createGoal(asUser, { title: 'Near', deadline: Date.now() + 5 * DAY_MS })
+    const far = await createGoal(asUser, {
+      title: 'Far',
+      deadline: Date.now() + 90 * DAY_MS,
+    })
+    const near = await createGoal(asUser, {
+      title: 'Near',
+      deadline: Date.now() + 5 * DAY_MS,
+    })
     const achieved = await createGoal(asUser, { title: 'Done' })
-    await asUser.mutation(api.goals.setStatus, { id: achieved, status: 'achieved' })
+    await asUser.mutation(api.goals.setStatus, {
+      id: achieved,
+      status: 'achieved',
+    })
 
     const active = await asUser.query(api.goals.list, {})
     expect(active.map((g) => g._id)).toEqual([near, far])
-    const achievedList = await asUser.query(api.goals.list, { status: 'achieved' })
+    const achievedList = await asUser.query(api.goals.list, {
+      status: 'achieved',
+    })
     expect(achievedList.map((g) => g._id)).toEqual([achieved])
   })
 
@@ -324,7 +358,10 @@ describe('goal cost progress', () => {
     await createTask(asUser, 'C', { goalId }) // uncosted
     const cancelled = await createTask(asUser, 'D', { goalId, costDays: 10 })
     await asUser.mutation(api.tasks.update, { id: b, status: 'done' })
-    await asUser.mutation(api.tasks.update, { id: cancelled, status: 'cancelled' })
+    await asUser.mutation(api.tasks.update, {
+      id: cancelled,
+      status: 'cancelled',
+    })
 
     const goal = await asUser.query(api.goals.get, { id: goalId })
     expect(goal.progress).toEqual({
@@ -370,8 +407,8 @@ describe('goals.remove', () => {
         .take(10)
     })
     expect(reminders).toEqual([])
-    await expect(asUser.query(api.goals.get, { id: goalId })).rejects.toThrowError(
-      /Goal not found/,
-    )
+    await expect(
+      asUser.query(api.goals.get, { id: goalId }),
+    ).rejects.toThrowError(/Goal not found/)
   })
 })

@@ -292,7 +292,12 @@ function resolveSelectionIcon(
   if (selection.kind === 'system') {
     const type = types.system.find((t) => t.slug === selection.slug)
     return type
-      ? { name: type.name, color: type.color, icon: type.icon, image: type.image }
+      ? {
+          name: type.name,
+          color: type.color,
+          icon: type.icon,
+          image: type.image,
+        }
       : null
   }
   if (selection.kind === 'custom') {
@@ -352,7 +357,10 @@ export function describeDeadline(
 ): { label: string; overdue: boolean } {
   if (deadline < now) {
     const over = Math.max(1, Math.ceil((now - deadline) / DAY_MS))
-    return { label: `Overdue by ${over} day${over === 1 ? '' : 's'}`, overdue: true }
+    return {
+      label: `Overdue by ${over} day${over === 1 ? '' : 's'}`,
+      overdue: true,
+    }
   }
   const days = Math.ceil((deadline - now) / DAY_MS)
   if (days === 0) return { label: 'Due today', overdue: false }

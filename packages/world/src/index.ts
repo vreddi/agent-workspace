@@ -7,7 +7,7 @@ export type {
   World,
   WorldId,
   WorldObject,
-} from './types.js';
+} from './types.js'
 export {
   addObject,
   createWorld,
@@ -20,4 +20,4 @@ export {
   removeObject,
   removeTerrain,
   setTerrain,
-} from './world.js';
+} from './world.js'

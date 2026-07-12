@@ -54,12 +54,14 @@ function normalizeOptionalNumber(
   label: string,
 ): number | null {
   if (value == null) return null
-  if (!Number.isFinite(value)) throw new ConvexError(`${label} must be a number`)
+  if (!Number.isFinite(value))
+    throw new ConvexError(`${label} must be a number`)
   return value
 }
 
 function requireFinite(value: number, label: string): number {
-  if (!Number.isFinite(value)) throw new ConvexError(`${label} must be a number`)
+  if (!Number.isFinite(value))
+    throw new ConvexError(`${label} must be a number`)
   return value
 }
 
@@ -121,7 +123,8 @@ export function computeMetricProgress(args: {
   let reachedTarget = false
 
   if (target !== null && latest !== null) {
-    reachedTarget = direction === 'increase' ? latest >= target : latest <= target
+    reachedTarget =
+      direction === 'increase' ? latest >= target : latest <= target
   }
   if (
     baseline !== null &&
@@ -282,7 +285,10 @@ export const update = mutation({
       patch.startValue = normalizeOptionalNumber(args.startValue, 'Start value')
     }
     if (args.targetValue !== undefined) {
-      patch.targetValue = normalizeOptionalNumber(args.targetValue, 'Target value')
+      patch.targetValue = normalizeOptionalNumber(
+        args.targetValue,
+        'Target value',
+      )
     }
     if (args.targetDate !== undefined) {
       patch.targetDate = normalizeOptionalNumber(args.targetDate, 'Target date')
@@ -366,7 +372,8 @@ export const updatePoint = mutation({
     const userId = await requireUserId(ctx)
     const point = await requirePoint(ctx, args.id, userId)
     const patch: Record<string, unknown> = {}
-    if (args.value !== undefined) patch.value = requireFinite(args.value, 'Value')
+    if (args.value !== undefined)
+      patch.value = requireFinite(args.value, 'Value')
     if (args.at !== undefined) patch.at = requireFinite(args.at, 'Timestamp')
     if (args.note !== undefined) patch.note = normalizeNote(args.note)
     if (Object.keys(patch).length === 0) return { changed: false }

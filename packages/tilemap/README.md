@@ -35,15 +35,10 @@ import {
   TilemapRenderer,
   mapToWorld,
   parseMap,
-} from '@worldkit/tilemap';
+} from '@worldkit/tilemap'
 
 const map = parseMap(
-  [
-    'TTTTT',
-    'T.*.T',
-    'T.#~T',
-    'TTTTT',
-  ],
+  ['TTTTT', 'T.*.T', 'T.#~T', 'TTTTT'],
   {
     '.': { kind: 'tile', tile: 'grass' },
     '*': { kind: 'tile', tile: 'flowers' },
@@ -52,11 +47,16 @@ const map = parseMap(
     T: { kind: 'prop', prop: 'tree' },
   },
   COZY_TILESET,
-);
+)
 
-const world = mapToWorld(map, COZY_TILESET); // A*-ready
-const renderer = new TilemapRenderer({ map, tileset: COZY_TILESET, ground, overhang });
-renderer.render(0);
+const world = mapToWorld(map, COZY_TILESET) // A*-ready
+const renderer = new TilemapRenderer({
+  map,
+  tileset: COZY_TILESET,
+  ground,
+  overhang,
+})
+renderer.render(0)
 ```
 
 For the React layer (characters, dialogue, autonomous agents) see

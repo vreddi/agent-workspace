@@ -25,7 +25,10 @@ type UserClient = Awaited<ReturnType<typeof signUp>>
 
 const stubSprite = { kind: 'stub', stubId: 'red' } as const
 
-function createAgent(asUser: UserClient, overrides: Record<string, unknown> = {}) {
+function createAgent(
+  asUser: UserClient,
+  overrides: Record<string, unknown> = {},
+) {
   return asUser.mutation(api.agents.create, {
     name: 'Pip',
     model: 'sonnet',
@@ -77,7 +80,10 @@ describe('agents.create', () => {
   test('accepts a custom sprite sheet', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    const sprite = { kind: 'custom', sheetUrl: 'https://example.com/sheet.png' } as const
+    const sprite = {
+      kind: 'custom',
+      sheetUrl: 'https://example.com/sheet.png',
+    } as const
     await createAgent(asUser, { sprite })
     const agents = await asUser.query(api.agents.list, {})
     expect(agents[0].sprite).toEqual(sprite)
@@ -85,7 +91,7 @@ describe('agents.create', () => {
 })
 
 describe('agents.list', () => {
-  test('returns only the caller\'s non-archived agents', async () => {
+  test("returns only the caller's non-archived agents", async () => {
     const t = setup()
     const asAlice = await signUp(t, 'alice')
     const asBob = await signUp(t, 'bob')
@@ -119,7 +125,11 @@ describe('agents.update', () => {
     })
     expect(result).toEqual({ changed: true })
     const [agent] = await asUser.query(api.agents.list, {})
-    expect(agent).toMatchObject({ name: 'Renamed', model: 'opus', personality: null })
+    expect(agent).toMatchObject({
+      name: 'Renamed',
+      model: 'opus',
+      personality: null,
+    })
     expect(agent.updatedAt).toBeGreaterThanOrEqual(before[0].updatedAt)
   })
 
@@ -145,7 +155,7 @@ describe('agents.update', () => {
 })
 
 describe('agents.remove', () => {
-  test('deletes the caller\'s agent', async () => {
+  test("deletes the caller's agent", async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
     const id = await createAgent(asUser)
@@ -157,15 +167,21 @@ describe('agents.remove', () => {
 describe('agents auth enforcement', () => {
   test('unauthenticated callers are rejected', async () => {
     const t = setup()
-    await expect(t.query(api.agents.list, {})).rejects.toThrowError(/Not authenticated/)
+    await expect(t.query(api.agents.list, {})).rejects.toThrowError(
+      /Not authenticated/,
+    )
     await expect(
-      t.mutation(api.agents.create, { name: 'Pip', model: 'sonnet', sprite: stubSprite }),
+      t.mutation(api.agents.create, {
+        name: 'Pip',
+        model: 'sonnet',
+        sprite: stubSprite,
+      }),
     ).rejects.toThrowError(/Not authenticated/)
   })
 })
 
 describe('agents ownership (assertCanEditAgent)', () => {
-  test('user B cannot update or remove user A\'s agent', async () => {
+  test("user B cannot update or remove user A's agent", async () => {
     const t = setup()
     const asAlice = await signUp(t, 'alice')
     const asBob = await signUp(t, 'bob')
@@ -173,9 +189,9 @@ describe('agents ownership (assertCanEditAgent)', () => {
     await expect(
       asBob.mutation(api.agents.update, { id, name: 'Hijacked' }),
     ).rejects.toThrowError(/Forbidden/)
-    await expect(asBob.mutation(api.agents.remove, { id })).rejects.toThrowError(
-      /Forbidden/,
-    )
+    await expect(
+      asBob.mutation(api.agents.remove, { id }),
+    ).rejects.toThrowError(/Forbidden/)
     // Alice's agent is untouched.
     const [agent] = await asAlice.query(api.agents.list, {})
     expect(agent.name).toBe('Pip')

@@ -12,20 +12,23 @@ arrays, primitives), not encapsulated classes.
 ```ts
 // ✅ What we do
 type World = {
-  id: string;
-  grid: GridConfig;
-  terrain: Record<string, TerrainCell>;
-  objects: Record<EntityId, WorldObject>;
-};
+  id: string
+  grid: GridConfig
+  terrain: Record<string, TerrainCell>
+  objects: Record<EntityId, WorldObject>
+}
 
 // ❌ What we avoid
 class World {
-  private terrain = new Map();
-  getTerrain(key) { /* ... */ }
+  private terrain = new Map()
+  getTerrain(key) {
+    /* ... */
+  }
 }
 ```
 
 **Why:**
+
 - **Serialization:** save/load as JSON with no custom serializers
 - **Testing:** trivial to construct fixtures and compare states
 - **Debugging:** inspectable in the console, diffable in logs
@@ -55,6 +58,7 @@ React. `tilemap`'s Canvas2D renderer is framework-agnostic; only
 `sprite-actor` and `world-canvas` know React exists.
 
 **Why:**
+
 - **Headless:** logic runs in tests, Node, workers — no browser needed
 - **Swappable rendering:** the same `World` powers the Canvas2D village
   today and the PixiJS playground (`examples/pixi-playground`); an
@@ -72,6 +76,7 @@ smoothly between them (cell-to-cell CSS transitions, animated tiles,
 overhang canopies).
 
 **Why:**
+
 - **Determinism:** collision, occupancy, and pathfinding are exact —
   "is the agent at cell (5,3)?" is always true or false
 - **Artistry:** the rendered village still feels organic and alive
@@ -144,7 +149,7 @@ boundary, typed event streams, and validation at dispatch. Those packages
 built; the pivot to the agent-village task app made the village director
 (`useVillageSimulation`) the only "engine" needed so far.
 
-The underlying idea — external agents *propose* structured actions and a
+The underlying idea — external agents _propose_ structured actions and a
 validator applies them — is still sound and likely returns when AI agents
 start acting on real task data. Design it against the current packages
 when that day comes; don't resurrect the old spec.

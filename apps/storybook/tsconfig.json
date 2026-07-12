@@ -15,10 +15,7 @@
     "noEmit": true,
     "types": ["vite/client"]
   },
-  "include": [
-    ".storybook/**/*.ts",
-    ".storybook/**/*.tsx"
-  ],
+  "include": [".storybook/**/*.ts", ".storybook/**/*.tsx"],
   "references": [
     {
       "path": "../../packages/tilemap"

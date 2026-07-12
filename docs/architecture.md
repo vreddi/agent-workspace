@@ -11,7 +11,7 @@ How the pieces fit together: headless `@worldkit/*` simulation packages at
 the bottom, React packages that compose them into the agent-village canvas,
 and the task app (`apps/web` + Convex) on top.
 
-For *why* the project exists, see [AGENTS.md](../AGENTS.md). For the village
+For _why_ the project exists, see [AGENTS.md](../AGENTS.md). For the village
 canvas feature itself, see
 [interactive-world-canvas.md](./interactive-world-canvas.md).
 
@@ -54,21 +54,21 @@ still no React.
 
 ### Headless (`tsdown` + `vitest`, publishable)
 
-| Package | Responsibility |
-| --- | --- |
-| `@worldkit/grid` | Grid coordinate system: `GridPosition { x, y, z }`, `GridConfig { width, height, layers, cellSize }`, bounds checks, 4-way neighbors, vertical neighbors, grid↔world-pixel conversion, `Direction` (N/E/S/W). Zero runtime dependencies. |
-| `@worldkit/world` | World state: terrain cells, objects, occupancy, standability, JSON-serializable `World` record. Immutable update helpers (`setTerrain`, `addObject`, …) return new worlds. |
-| `@worldkit/agents` | Agent model: identity, position, facing, state (idle/moving/…). No AI, no behavior — a serializable description of a character. |
-| `@worldkit/pathfinding` | A* over a `World`: shortest 4-way path or `undefined`, custom movement cost, ramp-aware layer transitions. |
-| `@worldkit/tilemap` | GBA-style pixel art (`parsePixelArt`, `CharGrid`), the `COZY_TILESET`, ASCII map authoring (`parseMap`), `mapToWorld` bridge, and the Canvas2D `TilemapRenderer` (ground + overhang canvases, animated water/flowers). |
+| Package                 | Responsibility                                                                                                                                                                                                                           |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@worldkit/grid`        | Grid coordinate system: `GridPosition { x, y, z }`, `GridConfig { width, height, layers, cellSize }`, bounds checks, 4-way neighbors, vertical neighbors, grid↔world-pixel conversion, `Direction` (N/E/S/W). Zero runtime dependencies. |
+| `@worldkit/world`       | World state: terrain cells, objects, occupancy, standability, JSON-serializable `World` record. Immutable update helpers (`setTerrain`, `addObject`, …) return new worlds.                                                               |
+| `@worldkit/agents`      | Agent model: identity, position, facing, state (idle/moving/…). No AI, no behavior — a serializable description of a character.                                                                                                          |
+| `@worldkit/pathfinding` | A\* over a `World`: shortest 4-way path or `undefined`, custom movement cost, ramp-aware layer transitions.                                                                                                                              |
+| `@worldkit/tilemap`     | GBA-style pixel art (`parsePixelArt`, `CharGrid`), the `COZY_TILESET`, ASCII map authoring (`parseMap`), `mapToWorld` bridge, and the Canvas2D `TilemapRenderer` (ground + overhang canvases, animated water/flowers).                   |
 
 ### React (private, source-only)
 
-| Package | Responsibility |
-| --- | --- |
-| `@worldkit/sprite-actor` | `<SpriteActor>` — sprite-sheet character component: named actions, one-shot vs looping animations, facing flips, pixelated rendering. |
-| `@worldkit/world-canvas` | The village: `<VillageCanvas>`, `<WorldCanvas>` stage, `<DialogueBox>`, `<SpeechBubble>`, and `useVillageSimulation` (per-agent state machine: idle → wander via A* → chat → return home). |
-| `@org/ui` | Shared shadcn/radix-style UI components for the app. |
+| Package                  | Responsibility                                                                                                                                                                              |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@worldkit/sprite-actor` | `<SpriteActor>` — sprite-sheet character component: named actions, one-shot vs looping animations, facing flips, pixelated rendering.                                                       |
+| `@worldkit/world-canvas` | The village: `<VillageCanvas>`, `<WorldCanvas>` stage, `<DialogueBox>`, `<SpeechBubble>`, and `useVillageSimulation` (per-agent state machine: idle → wander via A\* → chat → return home). |
+| `@org/ui`                | Shared shadcn/radix-style UI components for the app.                                                                                                                                        |
 
 ### App layer
 

@@ -97,9 +97,7 @@ function RemindersBanner() {
   return (
     <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-amber-900">
-          Goal reminders
-        </h2>
+        <h2 className="text-sm font-semibold text-amber-900">Goal reminders</h2>
         <Button
           variant="outline"
           size="sm"
@@ -244,9 +242,7 @@ function EmptyState({
   if (status !== 'active') {
     return (
       <div className="rounded-xl border border-dashed p-12 text-center">
-        <p className="text-sm text-muted-foreground">
-          No {status} goals yet.
-        </p>
+        <p className="text-sm text-muted-foreground">No {status} goals yet.</p>
       </div>
     )
   }
@@ -257,8 +253,8 @@ function EmptyState({
       </div>
       <h2 className="mb-1 text-base font-semibold">No goals yet</h2>
       <p className="mx-auto mb-4 max-w-sm text-sm text-muted-foreground">
-        Goals are objectives with a deadline — like Run a marathon or Launch
-        the app. Create one and organize tasks toward it.
+        Goals are objectives with a deadline — like Run a marathon or Launch the
+        app. Create one and organize tasks toward it.
       </p>
       <Button onClick={onCreate}>Create your first goal</Button>
     </div>
@@ -506,9 +502,7 @@ function NewGoalDrawer({
                         !deadline && 'text-muted-foreground',
                       )}
                     >
-                      {deadline
-                        ? formatDeadlineLabel(deadline)
-                        : 'Pick a date'}
+                      {deadline ? formatDeadlineLabel(deadline) : 'Pick a date'}
                       <CalendarIcon className="size-4 shrink-0 opacity-60" />
                     </button>
                   </PopoverTrigger>

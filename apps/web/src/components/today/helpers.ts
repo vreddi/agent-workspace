@@ -1,7 +1,14 @@
 import type { Doc, Id } from '@convex/_generated/dataModel'
 import type { TaskListItem } from '@convex/tasks'
 
-export type Tone = 'sand' | 'sage' | 'clay' | 'fog' | 'rose' | 'slate' | 'graphite'
+export type Tone =
+  | 'sand'
+  | 'sage'
+  | 'clay'
+  | 'fog'
+  | 'rose'
+  | 'slate'
+  | 'graphite'
 
 export const TONE_LIST: ReadonlyArray<Exclude<Tone, 'graphite'>> = [
   'sand',
@@ -134,7 +141,10 @@ export function toDisplayTask(task: TaskListItem, now: number): DisplayTask {
   }
 }
 
-export function initialsFromName(name: string | null | undefined, fallback = 'Y'): string {
+export function initialsFromName(
+  name: string | null | undefined,
+  fallback = 'Y',
+): string {
   if (!name) return fallback
   const parts = name.trim().split(/\s+/)
   if (parts.length === 0) return fallback
@@ -172,7 +182,10 @@ export function fmtCountdown(d: Date | null, now = Date.now()): string | null {
   return hrem ? `${days}d ${hrem}h` : `${days}d`
 }
 
-export function greetingFor(hour: number, style: 'casual' | 'time-of-day'): string {
+export function greetingFor(
+  hour: number,
+  style: 'casual' | 'time-of-day',
+): string {
   if (style === 'casual') return 'Hey'
   if (hour < 5) return 'Still up'
   if (hour < 12) return 'Good morning'
@@ -183,7 +196,11 @@ export function greetingFor(hour: number, style: 'casual' | 'time-of-day'): stri
 export const FILTER_IDS = ['all', 'overdue', 'soon', 'later'] as const
 export type FilterId = (typeof FILTER_IDS)[number]
 
-export function applyFilter(tasks: DisplayTask[], filter: FilterId, now: number): DisplayTask[] {
+export function applyFilter(
+  tasks: DisplayTask[],
+  filter: FilterId,
+  now: number,
+): DisplayTask[] {
   if (filter === 'all') return tasks
   if (filter === 'overdue') return tasks.filter((t) => t.overdue)
   const sixHrs = 6 * 60 * 60 * 1000

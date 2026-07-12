@@ -10,7 +10,7 @@ deployed to **Cloudflare Workers**. Root conventions live in the repo-root
 - **Dev server runs on port 3000.** Start with `pnpm dev:web` from the repo
   root (boots Convex + Vite together); don't run `vite` bare.
 - **Vite `resolve.conditions` gotcha.** Adding the `@org/source` condition
-  (to resolve `@worldkit/*` to TS source) *replaces* Vite's defaults, so
+  (to resolve `@worldkit/*` to TS source) _replaces_ Vite's defaults, so
   `vite.config.ts` spreads `defaultClientConditions` /
   `defaultServerConditions` back in for both client and SSR. Keep that when
   touching conditions.

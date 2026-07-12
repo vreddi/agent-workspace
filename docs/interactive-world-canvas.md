@@ -14,24 +14,24 @@ Follows the existing **headless core → adapter → React** pattern.
 
 ### `@worldkit/tilemap` (headless, tsdown + vitest)
 
-| Module | Responsibility |
-| --- | --- |
-| `pixel-art.ts` | Parse string pixel art (`rows` + char→color palette) into RGBA rasters. Pure and unit-tested. |
-| `tileset.ts` | `TileDef` (16×16, optionally animated) and `PropDef` (multi-tile props with footprint + overhang rows). |
-| `tiles/` | The authored GBA-style art: grass, flowers, tall grass, path, water, tree, houses, rock, sign, fence. |
-| `map.ts` | ASCII map authoring — `parseMap(rows, legend)` → ground layer, props, spawn points. Serializable, testable. |
-| `world-bridge.ts` | `mapToWorld(map)` → `@worldkit/world` `World`, so `@worldkit/pathfinding` works unchanged. |
-| `renderer.ts` | Framework-agnostic Canvas2D renderer: ground canvas + overhang canvas (tree canopies / roofs draw **above** characters), animated water/flowers. |
+| Module            | Responsibility                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pixel-art.ts`    | Parse string pixel art (`rows` + char→color palette) into RGBA rasters. Pure and unit-tested.                                                    |
+| `tileset.ts`      | `TileDef` (16×16, optionally animated) and `PropDef` (multi-tile props with footprint + overhang rows).                                          |
+| `tiles/`          | The authored GBA-style art: grass, flowers, tall grass, path, water, tree, houses, rock, sign, fence.                                            |
+| `map.ts`          | ASCII map authoring — `parseMap(rows, legend)` → ground layer, props, spawn points. Serializable, testable.                                      |
+| `world-bridge.ts` | `mapToWorld(map)` → `@worldkit/world` `World`, so `@worldkit/pathfinding` works unchanged.                                                       |
+| `renderer.ts`     | Framework-agnostic Canvas2D renderer: ground canvas + overhang canvas (tree canopies / roofs draw **above** characters), animated water/flowers. |
 
 ### `@worldkit/world-canvas` (React, source-only like `sprite-actor`)
 
-| Module | Responsibility |
-| --- | --- |
-| `components/world-canvas.tsx` | Composes the tile canvases with DOM `<SpriteActor>` characters. Characters move cell-to-cell with CSS transitions (the GBA walk feel). Click a character to talk. |
-| `components/dialogue-box.tsx` | FireRed-style dialogue: typewriter text, speaker portrait + name plate, blinking ▼, advance on click/key. |
-| `components/speech-bubble.tsx` | `!`, `?`, `♪`, `…` emote bubbles above characters. |
-| `lib/use-village-simulation.ts` | Autonomous director: per-agent state machine (idle → wander via A* → chat with neighbor → return home). |
-| `demo/` | "Cozy Village" scene: ASCII map with three houses, pond, paths; Pink/Owlet/Dude monster residents with personalities and dialogue lines. |
+| Module                          | Responsibility                                                                                                                                                    |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `components/world-canvas.tsx`   | Composes the tile canvases with DOM `<SpriteActor>` characters. Characters move cell-to-cell with CSS transitions (the GBA walk feel). Click a character to talk. |
+| `components/dialogue-box.tsx`   | FireRed-style dialogue: typewriter text, speaker portrait + name plate, blinking ▼, advance on click/key.                                                         |
+| `components/speech-bubble.tsx`  | `!`, `?`, `♪`, `…` emote bubbles above characters.                                                                                                                |
+| `lib/use-village-simulation.ts` | Autonomous director: per-agent state machine (idle → wander via A\* → chat with neighbor → return home).                                                          |
+| `demo/`                         | "Cozy Village" scene: ASCII map with three houses, pond, paths; Pink/Owlet/Dude monster residents with personalities and dialogue lines.                          |
 
 ## Sizing model
 

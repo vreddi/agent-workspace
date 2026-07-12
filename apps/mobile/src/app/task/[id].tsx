@@ -55,7 +55,12 @@ function MetaRow({
       <AppText variant="label" color={palette.ink2} style={{ flex: 1 }}>
         {label}
       </AppText>
-      <AppText variant="label" color={valueColor ?? palette.ink1} numberOfLines={1} style={styles.metaValue}>
+      <AppText
+        variant="label"
+        color={valueColor ?? palette.ink1}
+        numberOfLines={1}
+        style={styles.metaValue}
+      >
         {value}
       </AppText>
     </View>
@@ -102,22 +107,33 @@ export default function TaskDetailScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.hero}>
-        {task.emoji ? <AppText style={styles.emoji}>{task.emoji}</AppText> : null}
+        {task.emoji ? (
+          <AppText style={styles.emoji}>{task.emoji}</AppText>
+        ) : null}
         <AppText variant="hero">{task.title}</AppText>
         {done ? (
-          <View style={[styles.statusChip, { backgroundColor: palette.chipBg }]}>
+          <View
+            style={[styles.statusChip, { backgroundColor: palette.chipBg }]}
+          >
             <AppText variant="meta" color={palette.ink2}>
               Completed
             </AppText>
           </View>
         ) : overdue ? (
-          <View style={[styles.statusChip, { backgroundColor: palette.overdueSoft }]}>
+          <View
+            style={[
+              styles.statusChip,
+              { backgroundColor: palette.overdueSoft },
+            ]}
+          >
             <AppText variant="meta" color={palette.overdue}>
               Overdue
             </AppText>
           </View>
         ) : task.status === 'in_progress' ? (
-          <View style={[styles.statusChip, { backgroundColor: palette.accentSoft }]}>
+          <View
+            style={[styles.statusChip, { backgroundColor: palette.accentSoft }]}
+          >
             <AppText variant="meta" color={palette.accentInk}>
               In progress
             </AppText>
@@ -155,7 +171,9 @@ export default function TaskDetailScreen() {
             divider
             icon={<Users size={17} color={iconColor} />}
             label="Shared with"
-            value={others.map((a) => a.name.split(/\s+/)[0] || a.email).join(', ')}
+            value={others
+              .map((a) => a.name.split(/\s+/)[0] || a.email)
+              .join(', ')}
           />
         )}
         {!task.viewerIsCreator && (
@@ -171,13 +189,20 @@ export default function TaskDetailScreen() {
       {task.description ? (
         <Card style={styles.notes}>
           <AppText variant="caption">Notes</AppText>
-          <AppText variant="label" color={palette.ink2} style={styles.notesBody}>
+          <AppText
+            variant="label"
+            color={palette.ink2}
+            style={styles.notesBody}
+          >
             {task.description}
           </AppText>
         </Card>
       ) : null}
 
-      <AccentButton label={done ? 'Mark as not done' : 'Mark as done'} onPress={complete} />
+      <AccentButton
+        label={done ? 'Mark as not done' : 'Mark as done'}
+        onPress={complete}
+      />
     </ScrollView>
   )
 }

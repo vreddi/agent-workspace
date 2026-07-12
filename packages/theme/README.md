@@ -21,12 +21,20 @@ mobile (Metro), and Node — though today only mobile does.
 
 ```ts
 import {
-  palettes, light, dark,      // Palette per color scheme
-  type Palette, type SchemeName,
-  priority, brandGradient,    // task priority hues, brand green gradient
-  radius, space,              // corner radii + 4px spacing scale
-  fontFamily, monoFontFamily, // 'Plus Jakarta Sans' / 'DM Mono'
-  fontSize, letterSpacingEm, tracking,
+  palettes,
+  light,
+  dark, // Palette per color scheme
+  type Palette,
+  type SchemeName,
+  priority,
+  brandGradient, // task priority hues, brand green gradient
+  radius,
+  space, // corner radii + 4px spacing scale
+  fontFamily,
+  monoFontFamily, // 'Plus Jakarta Sans' / 'DM Mono'
+  fontSize,
+  letterSpacingEm,
+  tracking,
 } from '@org/theme'
 ```
 

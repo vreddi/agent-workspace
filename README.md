@@ -15,14 +15,14 @@ a **settings** page, and a native **mobile** app — all on one Convex backend.
 
 Nx + pnpm workspace. TypeScript everywhere, strict mode.
 
-| Path | What it is |
-| --- | --- |
-| `apps/web` | TanStack Start app (React 19, Clerk, Convex, Tailwind v4) on Cloudflare Workers. |
-| `apps/mobile` | Expo (SDK 57) React Native app for iOS/Android. |
-| `apps/storybook` | Storybook 10 component workbench. |
-| `packages/*` | `@worldkit/*` village libraries, `@org/ui` (shadcn), `@org/theme` (mobile tokens). |
-| `convex/` | Convex backend: tasks, goals, metrics, reminders, agents. |
-| `docs/` | Architecture and design notes — start at [docs/README.md](./docs/README.md). |
+| Path             | What it is                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| `apps/web`       | TanStack Start app (React 19, Clerk, Convex, Tailwind v4) on Cloudflare Workers.   |
+| `apps/mobile`    | Expo (SDK 57) React Native app for iOS/Android.                                    |
+| `apps/storybook` | Storybook 10 component workbench.                                                  |
+| `packages/*`     | `@worldkit/*` village libraries, `@org/ui` (shadcn), `@org/theme` (mobile tokens). |
+| `convex/`        | Convex backend: tasks, goals, metrics, reminders, agents.                          |
+| `docs/`          | Architecture and design notes — start at [docs/README.md](./docs/README.md).       |
 
 ## Quickstart
 

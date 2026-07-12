@@ -25,15 +25,15 @@ pnpm nx run-many -t test,build,typecheck
 
 ## Common commands
 
-| Command | What it does |
-| --- | --- |
-| `pnpm dev:web` | Convex dev + web app dev server (needs `apps/web/.env.local` — see [apps/web/README.md](../apps/web/README.md)) |
-| `pnpm storybook` | Component workbench for all packages |
-| `pnpm nx run-many -t test,build,typecheck` | Full verification |
-| `pnpm nx test @worldkit/grid` | Test one package (add `--watch` for watch mode) |
-| `pnpm nx affected -t test,build,typecheck` | Only what your changes touch |
-| `pnpm nx graph` | Interactive dependency diagram |
-| `pnpm deploy:web` | Deploy the web app — see [deployment.md](./deployment.md) |
+| Command                                    | What it does                                                                                                    |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev:web`                             | Convex dev + web app dev server (needs `apps/web/.env.local` — see [apps/web/README.md](../apps/web/README.md)) |
+| `pnpm storybook`                           | Component workbench for all packages                                                                            |
+| `pnpm nx run-many -t test,build,typecheck` | Full verification                                                                                               |
+| `pnpm nx test @worldkit/grid`              | Test one package (add `--watch` for watch mode)                                                                 |
+| `pnpm nx affected -t test,build,typecheck` | Only what your changes touch                                                                                    |
+| `pnpm nx graph`                            | Interactive dependency diagram                                                                                  |
+| `pnpm deploy:web`                          | Deploy the web app — see [deployment.md](./deployment.md)                                                       |
 
 Always run tasks through `nx` (prefixed with `pnpm`) rather than the
 underlying tooling directly — Nx handles caching and dependency order.
@@ -90,7 +90,7 @@ pointing at `dist/`, which `tsdown --clean` wipes. Composite typecheck must
 emit to `out-tsc/` (gitignored). See AGENTS.md.
 
 **Package resolves to stale/built code in Vite** — Vite 6+
-`resolve.conditions` *replaces* the defaults. When adding `@org/source`,
+`resolve.conditions` _replaces_ the defaults. When adding `@org/source`,
 spread `defaultClientConditions` / `defaultServerConditions` back in (see
 `apps/web/vite.config.ts`).
 

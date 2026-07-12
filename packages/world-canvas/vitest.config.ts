@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config'
 
 // world-canvas is a source-only React package (mostly covered by Storybook),
 // but its headless simulation logic gets unit tests. The @org/source
@@ -14,4 +14,4 @@ export default defineConfig({
       externalConditions: ['@org/source'],
     },
   },
-});
+})

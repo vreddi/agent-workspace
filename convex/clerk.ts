@@ -13,10 +13,15 @@ export const handleClerkWebhook = httpAction(async (ctx, request) => {
     // Without the signing secret every request would fail verification (or
     // crash inside `new Webhook(undefined)`), so surface a clear, actionable
     // error instead. Set it with `npx convex env set CLERK_WEBHOOK_SECRET ...`.
-    console.error('CLERK_WEBHOOK_SECRET is not set; cannot verify Clerk webhook')
-    return new Response('Server misconfigured: CLERK_WEBHOOK_SECRET is not set', {
-      status: 500,
-    })
+    console.error(
+      'CLERK_WEBHOOK_SECRET is not set; cannot verify Clerk webhook',
+    )
+    return new Response(
+      'Server misconfigured: CLERK_WEBHOOK_SECRET is not set',
+      {
+        status: 500,
+      },
+    )
   }
 
   const headers: Record<string, string> = {}

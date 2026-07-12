@@ -1,4 +1,4 @@
-import { defaultClientConditions, defineConfig } from 'vite';
+import { defaultClientConditions, defineConfig } from 'vite'
 
 export default defineConfig({
   server: {
@@ -11,4 +11,4 @@ export default defineConfig({
     // back in (see apps/web/vite.config.ts).
     conditions: ['@org/source', ...defaultClientConditions],
   },
-});
+})

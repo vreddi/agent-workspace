@@ -1,7 +1,7 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import { timeOfDayAt } from '@worldkit/tilemap';
-import type { TimeOfDay } from '@worldkit/tilemap';
+import { timeOfDayAt } from '@worldkit/tilemap'
+import type { TimeOfDay } from '@worldkit/tilemap'
 
 /**
  * The viewer's local time of day, for picking a tileset lighting mood.
@@ -10,12 +10,12 @@ import type { TimeOfDay } from '@worldkit/tilemap';
  * left open crosses dawn and dusk on its own.
  */
 export function useTimeOfDay(): TimeOfDay | null {
-  const [time, setTime] = React.useState<TimeOfDay | null>(null);
+  const [time, setTime] = React.useState<TimeOfDay | null>(null)
   React.useEffect(() => {
-    const update = () => setTime(timeOfDayAt(new Date()));
-    update();
-    const interval = window.setInterval(update, 60_000);
-    return () => window.clearInterval(interval);
-  }, []);
-  return time;
+    const update = () => setTime(timeOfDayAt(new Date()))
+    update()
+    const interval = window.setInterval(update, 60_000)
+    return () => window.clearInterval(interval)
+  }, [])
+  return time
 }

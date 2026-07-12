@@ -30,9 +30,9 @@ export function Hero() {
       </h1>
 
       <p className="landing-sub">
-        Today is a personal task manager with an AI co-pilot. Capture what&rsquo;s on
-        your mind, then let it shape a focused day around the work that actually
-        matters.
+        Today is a personal task manager with an AI co-pilot. Capture
+        what&rsquo;s on your mind, then let it shape a focused day around the
+        work that actually matters.
       </p>
 
       <div className="landing-cta-row">

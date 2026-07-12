@@ -30,7 +30,10 @@ export const Horizontal: Story = {
 
 export const Vertical: Story = {
   render: () => (
-    <div style={{ display: 'flex', height: 20, alignItems: 'center', gap: 12 }} className="text-sm">
+    <div
+      style={{ display: 'flex', height: 20, alignItems: 'center', gap: 12 }}
+      className="text-sm"
+    >
       <span>Docs</span>
       <Separator orientation="vertical" />
       <span>Source</span>

@@ -25,23 +25,29 @@ describe('todos.create', () => {
   test('creates an incomplete todo with a trimmed title', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    const id = await asUser.mutation(api.todos.create, { title: '  Buy milk  ' })
+    const id = await asUser.mutation(api.todos.create, {
+      title: '  Buy milk  ',
+    })
     const todos = await asUser.query(api.todos.list, {})
     expect(todos).toHaveLength(1)
-    expect(todos[0]).toMatchObject({ _id: id, title: 'Buy milk', completed: false })
+    expect(todos[0]).toMatchObject({
+      _id: id,
+      title: 'Buy milk',
+      completed: false,
+    })
   })
 
   test('rejects a blank title', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    await expect(asUser.mutation(api.todos.create, { title: '   ' })).rejects.toThrowError(
-      /Title is required/,
-    )
+    await expect(
+      asUser.mutation(api.todos.create, { title: '   ' }),
+    ).rejects.toThrowError(/Title is required/)
   })
 })
 
 describe('todos.list', () => {
-  test('returns the caller\'s todos newest first and excludes others', async () => {
+  test("returns the caller's todos newest first and excludes others", async () => {
     const t = setup()
     const asAlice = await signUp(t, 'alice')
     const asBob = await signUp(t, 'bob')
@@ -68,7 +74,11 @@ describe('todos.list', () => {
     })
     await t.run(async (ctx) => {
       for (let i = 0; i < 205; i++) {
-        await ctx.db.insert('todos', { userId, title: `todo-${i}`, completed: false })
+        await ctx.db.insert('todos', {
+          userId,
+          title: `todo-${i}`,
+          completed: false,
+        })
       }
     })
     const todos = await asUser.query(api.todos.list, {})
@@ -87,7 +97,7 @@ describe('todos.toggle', () => {
     expect((await asUser.query(api.todos.list, {}))[0].completed).toBe(false)
   })
 
-  test('cannot toggle another user\'s todo', async () => {
+  test("cannot toggle another user's todo", async () => {
     const t = setup()
     const asAlice = await signUp(t, 'alice')
     const asBob = await signUp(t, 'bob')
@@ -99,7 +109,7 @@ describe('todos.toggle', () => {
 })
 
 describe('todos.remove', () => {
-  test('deletes the caller\'s todo', async () => {
+  test("deletes the caller's todo", async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
     const id = await asUser.mutation(api.todos.create, { title: 'task' })
@@ -107,7 +117,7 @@ describe('todos.remove', () => {
     expect(await asUser.query(api.todos.list, {})).toHaveLength(0)
   })
 
-  test('cannot remove another user\'s todo', async () => {
+  test("cannot remove another user's todo", async () => {
     const t = setup()
     const asAlice = await signUp(t, 'alice')
     const asBob = await signUp(t, 'bob')
@@ -122,7 +132,9 @@ describe('todos.remove', () => {
 describe('todos auth enforcement', () => {
   test('unauthenticated callers are rejected', async () => {
     const t = setup()
-    await expect(t.query(api.todos.list, {})).rejects.toThrowError(/Not authenticated/)
+    await expect(t.query(api.todos.list, {})).rejects.toThrowError(
+      /Not authenticated/,
+    )
     await expect(
       t.mutation(api.todos.create, { title: 'nope' }),
     ).rejects.toThrowError(/Not authenticated/)

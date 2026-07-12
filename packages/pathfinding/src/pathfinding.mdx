@@ -1,10 +1,10 @@
-import { Meta } from '@storybook/addon-docs/blocks';
+import { Meta } from '@storybook/addon-docs/blocks'
 
 <Meta title="Packages/@worldkit/pathfinding" />
 
 # @worldkit/pathfinding
 
-The fourth brick. Headless A* over a `@worldkit/world`: given a start, a goal,
+The fourth brick. Headless A\* over a `@worldkit/world`: given a start, a goal,
 and the world's occupancy, return the shortest 4-way path — or `undefined`
 when there isn't one.
 
@@ -35,23 +35,23 @@ ESM-only. Two workspace dependencies: `@worldkit/grid`, `@worldkit/world`.
 ## Quick tour
 
 ```ts
-import { createGrid } from '@worldkit/grid';
-import { addObject, createWorld } from '@worldkit/world';
-import { findPath } from '@worldkit/pathfinding';
+import { createGrid } from '@worldkit/grid'
+import { addObject, createWorld } from '@worldkit/world'
+import { findPath } from '@worldkit/pathfinding'
 
 let world = createWorld({
   id: 'demo',
   grid: createGrid({ width: 10, height: 10, cellSize: 32 }),
-});
+})
 
 world = addObject(world, {
   id: 'tree_1',
   type: 'tree',
   position: { x: 1, y: 0 },
   blocksMovement: true,
-});
+})
 
-findPath(world, { x: 0, y: 0 }, { x: 2, y: 0 });
+findPath(world, { x: 0, y: 0 }, { x: 2, y: 0 })
 // [{x:0,y:0}, {x:0,y:1}, {x:1,y:1}, {x:2,y:1}, {x:2,y:0}]
 ```
 
@@ -61,14 +61,14 @@ The path always includes both endpoints. When `start === goal`, the result is
 ## Types
 
 ```ts
-type Path = GridPosition[];
+type Path = GridPosition[]
 
-type CostFn = (position: GridPosition) => number;
+type CostFn = (position: GridPosition) => number
 
 type FindPathOptions = {
-  cost?: CostFn;     // entry cost per cell; default 1
-  maxNodes?: number; // safety brake; default 10_000
-};
+  cost?: CostFn // entry cost per cell; default 1
+  maxNodes?: number // safety brake; default 10_000
+}
 ```
 
 ## Functions
@@ -89,7 +89,7 @@ the cell as impassable.
 
 ### `manhattanDistance(a, b)`
 
-L1 distance. The heuristic A* uses internally — exposed because it's handy
+L1 distance. The heuristic A\* uses internally — exposed because it's handy
 upstream (range checks, sorting candidates, deciding whether to pathfind at
 all).
 
@@ -104,11 +104,11 @@ free — you're already there.
   them on top if you need them, don't push them down here.
 - **A\* with a binary min-heap.** Manhattan heuristic. Admissible (and
   therefore optimal) when every step cost is `≥ 1`. With sub-unit costs A*
-  may still return *a* path, just not necessarily the cheapest.
+  may still return *a\* path, just not necessarily the cheapest.
 - **Cost is a function, not data.** Keeps `@worldkit/world` free of
   pathfinding concerns and lets callers derive cost from terrain type, agent
   traits, time of day, whatever.
 - **`maxNodes` safety brake.** Big maze-like worlds can blow up; the brake
   returns `undefined` instead of hanging. Tune per-call.
-- **Plain data in, plain data out.** Each call is independent. Pure A* — no
+- **Plain data in, plain data out.** Each call is independent. Pure A\* — no
   caches, no internal state, no listeners.

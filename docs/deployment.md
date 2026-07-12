@@ -2,10 +2,10 @@
 
 How to deploy **`apps/web`** (the web app) and **`apps/storybook`** (design system docs).
 
-| App | Platform | Why |
-| --- | --- | --- |
+| App        | Platform                                                         | Why                                                                                                                                                            |
+| ---------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `apps/web` | [Cloudflare Workers](https://developers.cloudflare.com/workers/) | TanStack Start SSR + server functions; first-class [TanStack Start guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/) |
-| Storybook | [Chromatic](https://www.chromatic.com/) | Hosted Storybook, visual regression, PR review UI — standard for component libraries |
+| Storybook  | [Chromatic](https://www.chromatic.com/)                          | Hosted Storybook, visual regression, PR review UI — standard for component libraries                                                                           |
 
 ---
 
@@ -45,11 +45,11 @@ After deploy, Cloudflare creates a Worker named **`org-web-todo`** (see `apps/we
 2. **Settings** → **Variables and Secrets**.
 3. Add **production** values:
 
-| Name | Type | Value |
-| --- | --- | --- |
-| `CLERK_SECRET_KEY` | Secret | Clerk production `sk_live_...` |
-| `VITE_CLERK_PUBLISHABLE_KEY` | Secret (or plain text) | Clerk `pk_live_...` |
-| `VITE_CONVEX_URL` | Plain text | `https://<your-prod>.convex.cloud` |
+| Name                         | Type                   | Value                              |
+| ---------------------------- | ---------------------- | ---------------------------------- |
+| `CLERK_SECRET_KEY`           | Secret                 | Clerk production `sk_live_...`     |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Secret (or plain text) | Clerk `pk_live_...`                |
+| `VITE_CONVEX_URL`            | Plain text             | `https://<your-prod>.convex.cloud` |
 
 These must match what you use in GitHub Actions secrets for CI deploys.
 
@@ -67,7 +67,7 @@ These must match what you use in GitHub Actions secrets for CI deploys.
 
 `wrangler.jsonc` already enables observability. In the dashboard: worker → **Logs** / **Analytics** to watch errors after deploy.
 
-#### F. What you do *not* need on Cloudflare for this app
+#### F. What you do _not_ need on Cloudflare for this app
 
 - **Pages** project (separate product) — we use **Workers** for TanStack Start SSR.
 - WorkOS redirect URLs — removed; auth is **Clerk** only.
@@ -123,11 +123,11 @@ pnpm exec wrangler secret put VITE_CONVEX_URL
 
 Workers & Pages → your worker → **Settings** → **Variables and Secrets**.
 
-| Variable | Type | Notes |
-| --- | --- | --- |
-| `CLERK_SECRET_KEY` | Secret | `sk_live_...` for production |
+| Variable                     | Type            | Notes                                             |
+| ---------------------------- | --------------- | ------------------------------------------------- |
+| `CLERK_SECRET_KEY`           | Secret          | `sk_live_...` for production                      |
 | `VITE_CLERK_PUBLISHABLE_KEY` | Secret or plain | `pk_live_...` — needed at **build** time for Vite |
-| `VITE_CONVEX_URL` | Plain | `https://<prod>.convex.cloud` |
+| `VITE_CONVEX_URL`            | Plain           | `https://<prod>.convex.cloud`                     |
 
 For **CI builds**, pass the same `VITE_*` values as environment variables during `vite build` (see GitHub Actions example below). Wrangler/Workers Builds also support `CLOUDFLARE_INCLUDE_PROCESS_ENV=true` so build-time env is available.
 
@@ -160,13 +160,13 @@ Workflow: [`.github/workflows/deploy-web.yml`](../.github/workflows/deploy-web.y
 
 Store these **repository secrets**:
 
-| Secret | Purpose |
-| --- | --- |
-| `CLOUDFLARE_API_TOKEN` | [API token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) with Workers edit |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare dashboard sidebar |
-| `CLERK_SECRET_KEY` | Clerk production secret key |
-| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key (Vite build) |
-| `VITE_CONVEX_URL` | Production Convex URL |
+| Secret                       | Purpose                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`       | [API token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) with Workers edit |
+| `CLOUDFLARE_ACCOUNT_ID`      | Cloudflare dashboard sidebar                                                                                |
+| `CLERK_SECRET_KEY`           | Clerk production secret key                                                                                 |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key (Vite build)                                                                          |
+| `VITE_CONVEX_URL`            | Production Convex URL                                                                                       |
 
 **Run:** GitHub → **Actions** → **deploy-web** → **Run workflow**.
 

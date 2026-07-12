@@ -25,7 +25,9 @@ const STAGE_TO_STATUS: Record<GoalBoardStage, Doc<'tasks'>['status']> = {
   complete: 'done',
 }
 
-export function boardStageForStatus(status: Doc<'tasks'>['status']): GoalBoardStage | null {
+export function boardStageForStatus(
+  status: Doc<'tasks'>['status'],
+): GoalBoardStage | null {
   switch (status) {
     case 'open':
       return 'inactive'
@@ -73,7 +75,9 @@ async function resolveTypeArgs(
   const typeSlug = args.typeSlug ?? null
   const customTypeId = args.customTypeId ?? null
   if (typeSlug !== null && customTypeId !== null) {
-    throw new ConvexError('A goal can have a system type or a custom type, not both')
+    throw new ConvexError(
+      'A goal can have a system type or a custom type, not both',
+    )
   }
   if (typeSlug !== null && systemGoalType(typeSlug) === null) {
     throw new ConvexError('Unknown system goal type')
@@ -97,19 +101,40 @@ function validateReminderDaysBefore(days: number) {
 
 export type GoalTypeInfo =
   | { kind: 'system'; slug: string; name: string; color: string; icon: string }
-  | { kind: 'custom'; id: Id<'goalTypes'>; name: string; color: string; icon: string | null }
+  | {
+      kind: 'custom'
+      id: Id<'goalTypes'>
+      name: string
+      color: string
+      icon: string | null
+    }
   | null
 
-async function resolveTypeInfo(ctx: QueryCtx, goal: Doc<'goals'>): Promise<GoalTypeInfo> {
+async function resolveTypeInfo(
+  ctx: QueryCtx,
+  goal: Doc<'goals'>,
+): Promise<GoalTypeInfo> {
   if (goal.typeSlug !== null) {
     const type: SystemGoalType | null = systemGoalType(goal.typeSlug)
     if (!type) return null
-    return { kind: 'system', slug: type.slug, name: type.name, color: type.color, icon: type.icon }
+    return {
+      kind: 'system',
+      slug: type.slug,
+      name: type.name,
+      color: type.color,
+      icon: type.icon,
+    }
   }
   if (goal.customTypeId !== null) {
     const type = await ctx.db.get(goal.customTypeId)
     if (!type) return null
-    return { kind: 'custom', id: type._id, name: type.name, color: type.color, icon: type.icon }
+    return {
+      kind: 'custom',
+      id: type._id,
+      name: type.name,
+      color: type.color,
+      icon: type.icon,
+    }
   }
   return null
 }
@@ -160,7 +185,8 @@ function computeProgress(tasks: Doc<'tasks'>[]): GoalProgress {
     progress.totalCostDays += cost
     if (stage === 'complete') progress.completeCostDays += cost
   }
-  progress.remainingCostDays = progress.totalCostDays - progress.completeCostDays
+  progress.remainingCostDays =
+    progress.totalCostDays - progress.completeCostDays
   return progress
 }
 
@@ -169,8 +195,14 @@ export type GoalListItem = Doc<'goals'> & {
   progress: GoalProgress
 }
 
-async function hydrateGoal(ctx: QueryCtx, goal: Doc<'goals'>): Promise<GoalListItem> {
-  const [type, tasks] = await Promise.all([resolveTypeInfo(ctx, goal), goalTasks(ctx, goal._id)])
+async function hydrateGoal(
+  ctx: QueryCtx,
+  goal: Doc<'goals'>,
+): Promise<GoalListItem> {
+  const [type, tasks] = await Promise.all([
+    resolveTypeInfo(ctx, goal),
+    goalTasks(ctx, goal._id),
+  ])
   return { ...goal, type, progress: computeProgress(tasks) }
 }
 
@@ -194,7 +226,8 @@ export const create = mutation({
     if (args.deadline <= Date.now()) {
       throw new ConvexError('Deadline must be in the future')
     }
-    const reminderDaysBefore = args.reminderDaysBefore ?? DEFAULT_REMINDER_DAYS_BEFORE
+    const reminderDaysBefore =
+      args.reminderDaysBefore ?? DEFAULT_REMINDER_DAYS_BEFORE
     validateReminderDaysBefore(reminderDaysBefore)
     const { typeSlug, customTypeId } = await resolveTypeArgs(ctx, userId, args)
     return await ctx.db.insert('goals', {
@@ -289,13 +322,17 @@ export const list = query({
     const status = args.status ?? 'active'
     const goals = await ctx.db
       .query('goals')
-      .withIndex('by_creator_status', (q) => q.eq('creatorId', userId).eq('status', status))
+      .withIndex('by_creator_status', (q) =>
+        q.eq('creatorId', userId).eq('status', status),
+      )
       .order('desc')
       .take(100)
     // Sort active goals by nearest deadline first; other statuses keep
     // newest-first creation order.
     const ordered =
-      status === 'active' ? [...goals].sort((a, b) => a.deadline - b.deadline) : goals
+      status === 'active'
+        ? [...goals].sort((a, b) => a.deadline - b.deadline)
+        : goals
     return await Promise.all(ordered.map((goal) => hydrateGoal(ctx, goal)))
   },
 })
@@ -332,7 +369,10 @@ export const board = query({
   },
 })
 
-async function nextGoalTailPosition(ctx: QueryCtx, goalId: Id<'goals'>): Promise<number> {
+async function nextGoalTailPosition(
+  ctx: QueryCtx,
+  goalId: Id<'goals'>,
+): Promise<number> {
   const last = await ctx.db
     .query('tasks')
     .withIndex('by_goal_position', (q) => q.eq('goalId', goalId))
@@ -435,8 +475,10 @@ export const moveTask = mutation({
 
     const before = args.beforeId ? await ctx.db.get(args.beforeId) : null
     const after = args.afterId ? await ctx.db.get(args.afterId) : null
-    if (before && (before.goalId ?? null) !== goalId) throw new ConvexError('Forbidden')
-    if (after && (after.goalId ?? null) !== goalId) throw new ConvexError('Forbidden')
+    if (before && (before.goalId ?? null) !== goalId)
+      throw new ConvexError('Forbidden')
+    if (after && (after.goalId ?? null) !== goalId)
+      throw new ConvexError('Forbidden')
     const beforePos = before?.goalPosition
     const afterPos = after?.goalPosition
     let nextPosition: number

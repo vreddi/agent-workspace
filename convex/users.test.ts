@@ -23,7 +23,9 @@ function clerkUser(overrides: {
 }): UserJSON {
   return {
     id: overrides.id,
-    email_addresses: [{ email_address: overrides.email ?? `${overrides.id}@example.com` }],
+    email_addresses: [
+      { email_address: overrides.email ?? `${overrides.id}@example.com` },
+    ],
     first_name: overrides.firstName ?? null,
     last_name: overrides.lastName ?? null,
     image_url: overrides.imageUrl,

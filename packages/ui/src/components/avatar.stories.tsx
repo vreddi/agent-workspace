@@ -26,10 +26,7 @@ type Story = StoryObj<typeof meta>
 export const Image: Story = {
   render: (args) => (
     <Avatar {...args}>
-      <AvatarImage
-        src="https://i.pravatar.cc/80?img=12"
-        alt="A cat avatar"
-      />
+      <AvatarImage src="https://i.pravatar.cc/80?img=12" alt="A cat avatar" />
       <AvatarFallback>CN</AvatarFallback>
     </Avatar>
   ),

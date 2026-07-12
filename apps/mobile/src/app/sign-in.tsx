@@ -21,7 +21,9 @@ import { useTheme } from '@/theme/theme-context'
 // Completes pending browser-based SSO redirects (no-op on native cold start).
 WebBrowser.maybeCompleteAuthSession()
 
-type ClerkErrorLike = { errors?: { code?: string; longMessage?: string; message?: string }[] }
+type ClerkErrorLike = {
+  errors?: { code?: string; longMessage?: string; message?: string }[]
+}
 
 function clerkErrorMessage(err: unknown, fallback: string): string {
   const first = (err as ClerkErrorLike).errors?.[0]
@@ -71,11 +73,16 @@ export default function SignInScreen() {
       setMode('sign-in')
       setStage('code')
     } catch (err) {
-      if ((err as ClerkErrorLike).errors?.[0]?.code === 'form_identifier_not_found') {
+      if (
+        (err as ClerkErrorLike).errors?.[0]?.code ===
+        'form_identifier_not_found'
+      ) {
         // New account: same UX, but through the sign-up object.
         try {
           await signUp!.create({ emailAddress: address })
-          await signUp!.prepareEmailAddressVerification({ strategy: 'email_code' })
+          await signUp!.prepareEmailAddressVerification({
+            strategy: 'email_code',
+          })
           setMode('sign-up')
           setStage('code')
         } catch (signUpErr) {
@@ -104,7 +111,9 @@ export default function SignInScreen() {
           return
         }
       } else {
-        const result = await signUp!.attemptEmailAddressVerification({ code: code.trim() })
+        const result = await signUp!.attemptEmailAddressVerification({
+          code: code.trim(),
+        })
         if (result.status === 'complete') {
           await setActiveFromSignUp!({ session: result.createdSessionId })
           return
@@ -122,10 +131,11 @@ export default function SignInScreen() {
     setBusy(true)
     setError(null)
     try {
-      const { createdSessionId, setActive: setActiveFromSSO } = await startSSOFlow({
-        strategy,
-        redirectUrl: AuthSession.makeRedirectUri(),
-      })
+      const { createdSessionId, setActive: setActiveFromSSO } =
+        await startSSOFlow({
+          strategy,
+          redirectUrl: AuthSession.makeRedirectUri(),
+        })
       if (createdSessionId && setActiveFromSSO) {
         await setActiveFromSSO({ session: createdSessionId })
       }
@@ -153,7 +163,10 @@ export default function SignInScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.content,
-          { paddingTop: insets.top + 72, paddingBottom: insets.bottom + space.xxl },
+          {
+            paddingTop: insets.top + 72,
+            paddingBottom: insets.bottom + space.xxl,
+          },
         ]}
         keyboardShouldPersistTaps="handled"
       >
@@ -164,7 +177,11 @@ export default function SignInScreen() {
           <AppText variant="hero" style={{ textAlign: 'center' }}>
             Agent Workspace
           </AppText>
-          <AppText variant="label" color={palette.ink2} style={{ textAlign: 'center' }}>
+          <AppText
+            variant="label"
+            color={palette.ink2}
+            style={{ textAlign: 'center' }}
+          >
             Your tasks, goals and agents — same account as the web app.
           </AppText>
         </View>
@@ -201,11 +218,21 @@ export default function SignInScreen() {
             </Pressable>
 
             <View style={styles.divider}>
-              <View style={[styles.dividerLine, { backgroundColor: palette.divider }]} />
+              <View
+                style={[
+                  styles.dividerLine,
+                  { backgroundColor: palette.divider },
+                ]}
+              />
               <AppText variant="meta" color={palette.ink3}>
                 or
               </AppText>
-              <View style={[styles.dividerLine, { backgroundColor: palette.divider }]} />
+              <View
+                style={[
+                  styles.dividerLine,
+                  { backgroundColor: palette.divider },
+                ]}
+              />
             </View>
 
             <TextInput
@@ -226,7 +253,11 @@ export default function SignInScreen() {
           </View>
         ) : (
           <View style={styles.form}>
-            <AppText variant="label" color={palette.ink2} style={{ textAlign: 'center' }}>
+            <AppText
+              variant="label"
+              color={palette.ink2}
+              style={{ textAlign: 'center' }}
+            >
               We emailed a code to {email.trim().toLowerCase()}
             </AppText>
             <TextInput
@@ -262,7 +293,9 @@ export default function SignInScreen() {
 
         {busy && <ActivityIndicator color={palette.accent} />}
         {error && (
-          <View style={[styles.error, { backgroundColor: palette.overdueSoft }]}>
+          <View
+            style={[styles.error, { backgroundColor: palette.overdueSoft }]}
+          >
             <AppText variant="meta" color={palette.overdue}>
               {error}
             </AppText>

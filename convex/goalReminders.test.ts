@@ -26,7 +26,10 @@ async function signUp(t: ReturnType<typeof setup>, externalId: string) {
 
 type UserClient = Awaited<ReturnType<typeof signUp>>
 
-function createGoal(asUser: UserClient, overrides: Record<string, unknown> = {}) {
+function createGoal(
+  asUser: UserClient,
+  overrides: Record<string, unknown> = {},
+) {
   return asUser.mutation(api.goals.create, {
     title: 'Run a marathon',
     deadline: Date.now() + 3 * DAY_MS,
@@ -39,7 +42,10 @@ describe('goalReminders.remindDueGoals', () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
     const goalId = await createGoal(asUser) // 3 days out, default window 7
-    const { reminded } = await t.mutation(internal.goalReminders.remindDueGoals, {})
+    const { reminded } = await t.mutation(
+      internal.goalReminders.remindDueGoals,
+      {},
+    )
     expect(reminded).toBe(1)
     const unread = await asUser.query(api.goalReminders.listUnread, {})
     expect(unread).toMatchObject([
@@ -57,7 +63,10 @@ describe('goalReminders.remindDueGoals', () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
     await createGoal(asUser, { deadline: Date.now() + 30 * DAY_MS }) // window 7
-    const { reminded } = await t.mutation(internal.goalReminders.remindDueGoals, {})
+    const { reminded } = await t.mutation(
+      internal.goalReminders.remindDueGoals,
+      {},
+    )
     expect(reminded).toBe(0)
   })
 
@@ -68,7 +77,10 @@ describe('goalReminders.remindDueGoals', () => {
       deadline: Date.now() + 30 * DAY_MS,
       reminderDaysBefore: 45,
     })
-    const { reminded } = await t.mutation(internal.goalReminders.remindDueGoals, {})
+    const { reminded } = await t.mutation(
+      internal.goalReminders.remindDueGoals,
+      {},
+    )
     expect(reminded).toBe(1)
   })
 
@@ -113,9 +125,18 @@ describe('goalReminders.remindDueGoals', () => {
     const asUser = await signUp(t, 'user_1')
     const achieved = await createGoal(asUser, { title: 'Achieved' })
     const archived = await createGoal(asUser, { title: 'Archived' })
-    await asUser.mutation(api.goals.setStatus, { id: achieved, status: 'achieved' })
-    await asUser.mutation(api.goals.setStatus, { id: archived, status: 'archived' })
-    const { reminded } = await t.mutation(internal.goalReminders.remindDueGoals, {})
+    await asUser.mutation(api.goals.setStatus, {
+      id: achieved,
+      status: 'achieved',
+    })
+    await asUser.mutation(api.goals.setStatus, {
+      id: archived,
+      status: 'archived',
+    })
+    const { reminded } = await t.mutation(
+      internal.goalReminders.remindDueGoals,
+      {},
+    )
     expect(reminded).toBe(0)
   })
 })

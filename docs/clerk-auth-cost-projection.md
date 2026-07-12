@@ -18,7 +18,7 @@
    **do** count toward that number.
 2. **Booking + the eight-week program make users genuinely active.** Someone in
    the BrainKinds Method logs in across ~8 weeks; booking customers return to
-   manage appointments. These are *retained* MAU — the metric Clerk bills on.
+   manage appointments. These are _retained_ MAU — the metric Clerk bills on.
 3. **We'll almost certainly want Pro from launch — for features, not volume.**
    A real booking product wants the "Secured by Clerk" branding removed,
    custom-branded booking/confirmation emails, MFA for account security, and
@@ -34,14 +34,14 @@
 
 ## 1. How Clerk pricing works
 
-| Plan | Base price | Included MAU | Overage | Notable limits / unlocks |
-|------|-----------|--------------|---------|--------------------------|
-| **Free (Hobby)** | **$0** | **50,000** | n/a — must upgrade once exceeded | Clerk branding can't be removed · session fixed at 7 days · no SMS codes · no passkeys · no MFA · no enterprise SSO |
-| **Pro** | **$25/mo** ($20/mo annual) | **50,000** | **$0.02 / MAU** beyond 50k (volume discounts at higher tiers) | Remove branding · passkeys · MFA · custom email templates · custom password rules · custom session duration · 1 enterprise SSO included (+$75/mo each additional) |
-| **Enterprise** | Custom | Custom | Custom | Compliance, SLAs, volume pricing |
+| Plan             | Base price                 | Included MAU | Overage                                                       | Notable limits / unlocks                                                                                                                                          |
+| ---------------- | -------------------------- | ------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Free (Hobby)** | **$0**                     | **50,000**   | n/a — must upgrade once exceeded                              | Clerk branding can't be removed · session fixed at 7 days · no SMS codes · no passkeys · no MFA · no enterprise SSO                                               |
+| **Pro**          | **$25/mo** ($20/mo annual) | **50,000**   | **$0.02 / MAU** beyond 50k (volume discounts at higher tiers) | Remove branding · passkeys · MFA · custom email templates · custom password rules · custom session duration · 1 enterprise SSO included (+$75/mo each additional) |
+| **Enterprise**   | Custom                     | Custom       | Custom                                                        | Compliance, SLAs, volume pricing                                                                                                                                  |
 
-**What is an MAU?** Clerk counts a **"monthly retained user"** — *a user who
-visits your app in a given month **at least one day after signing up**.* There
+**What is an MAU?** Clerk counts a **"monthly retained user"** — _a user who
+visits your app in a given month **at least one day after signing up**._ There
 is also a **"First Day Free"** policy: the first 24 hours after sign-up never
 count toward billing.
 
@@ -57,7 +57,7 @@ flowchart TD
 
 ---
 
-## 2. Why this matters for *our* launch
+## 2. Why this matters for _our_ launch
 
 This is a **full launch**, not a waitlist:
 
@@ -72,7 +72,7 @@ So engagement — and therefore billed MAU — is **real**:
 - **Booking customers** return to schedule/manage appointments → monthly-active
   in any month they engage.
 - Sign-up day is still **First Day Free**, but unlike a waitlist, these users
-  *do* come back — so they **count**.
+  _do_ come back — so they **count**.
 
 **Conclusion:** billed MAU now tracks our **active customer base**, not just
 total sign-ups. The 50k free ceiling is generous, but it's a real ceiling we'll
@@ -87,11 +87,11 @@ is **monthly active (retained) users** — modeled directly below. Cumulative
 registered accounts are shown for context (always higher than MAU, since not
 every registrant is active every month).
 
-| Scenario | Month-12 billed MAU | Month-12 registered accounts | Free ceiling used |
-|----------|---------------------|------------------------------|-------------------|
-| Conservative | ~2,100 | ~8,000 | 4% |
-| Base | ~9,000 | ~35,000 | 18% |
-| Aggressive | ~40,000 | ~130,000 | 80% |
+| Scenario     | Month-12 billed MAU | Month-12 registered accounts | Free ceiling used |
+| ------------ | ------------------- | ---------------------------- | ----------------- |
+| Conservative | ~2,100              | ~8,000                       | 4%                |
+| Base         | ~9,000              | ~35,000                      | 18%               |
+| Aggressive   | ~40,000             | ~130,000                     | 80%               |
 
 > Only the **Aggressive** case approaches the ceiling, reaching ~80% by month 12
 > and crossing **50k MAU in early year 2** — that's when volume overage begins.
@@ -143,9 +143,9 @@ xychart-beta
     line [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25]
 ```
 
-| Path | Monthly | Annual | When it applies |
-|------|---------|--------|-----------------|
-| Free | **$0** | **$0** | Volume-wise fine in year 1, but keeps Clerk branding & blocks MFA/custom emails |
+| Path              | Monthly | Annual   | When it applies                                                                       |
+| ----------------- | ------- | -------- | ------------------------------------------------------------------------------------- |
+| Free              | **$0**  | **$0**   | Volume-wise fine in year 1, but keeps Clerk branding & blocks MFA/custom emails       |
 | Pro (recommended) | **$25** | **$300** | Unlocks branding removal, custom booking emails, MFA — appropriate for a real product |
 
 ---
@@ -169,7 +169,7 @@ flowchart TD
 - **Feature answer (binds first):** essentially at launch. A booking product
   with personal data should ship with branding removed, branded transactional
   emails, and MFA — all Pro. Budget **$25/mo flat** from day one.
-- **Volume answer:** the hard ceiling is **50,000 *active* MAU in a month**.
+- **Volume answer:** the hard ceiling is **50,000 _active_ MAU in a month**.
   Conservative/Base never approach it in year 1; Aggressive reaches ~80% by
   month 12 and crosses 50k in **early year 2**, after which overage is
   **$0.02/MAU**. Upgrading is seamless on Pro (no migration), so there's no
@@ -189,14 +189,14 @@ xychart-beta
     bar [25, 25, 225, 1025, 4025, 9025]
 ```
 
-| Billed MAU | Monthly COGS | Effective $/MAU |
-|------------|--------------|-----------------|
-| 10,000 | $25 (or $0 on Free) | ~$0.0025 |
-| 50,000 | $25 | $0.0005 |
-| 60,000 | $25 + $0.02×10,000 = **$225** | $0.00375 |
-| 100,000 | $25 + $0.02×50,000 = **$1,025** | $0.0103 |
-| 250,000 | $25 + $0.02×200,000 = **$4,025** | $0.0161 |
-| 500,000 | $25 + $0.02×450,000 = **$9,025** | $0.0181 |
+| Billed MAU | Monthly COGS                     | Effective $/MAU |
+| ---------- | -------------------------------- | --------------- |
+| 10,000     | $25 (or $0 on Free)              | ~$0.0025        |
+| 50,000     | $25                              | $0.0005         |
+| 60,000     | $25 + $0.02×10,000 = **$225**    | $0.00375        |
+| 100,000    | $25 + $0.02×50,000 = **$1,025**  | $0.0103         |
+| 250,000    | $25 + $0.02×200,000 = **$4,025** | $0.0161         |
+| 500,000    | $25 + $0.02×450,000 = **$9,025** | $0.0181         |
 
 > Clerk applies **volume discounts** above the first overage tier, so 250k+
 > figures are conservative upper bounds. At enterprise scale we'd move to a

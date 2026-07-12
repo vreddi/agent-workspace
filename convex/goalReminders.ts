@@ -27,7 +27,10 @@ export const remindDueGoals = internalMutation({
     for (const goal of candidates) {
       const daysRemaining = Math.ceil((goal.deadline - now) / DAY_MS)
       if (daysRemaining > goal.reminderDaysBefore) continue
-      if (goal.lastRemindedAt !== null && now - goal.lastRemindedAt < REMINDER_COOLDOWN_MS) {
+      if (
+        goal.lastRemindedAt !== null &&
+        now - goal.lastRemindedAt < REMINDER_COOLDOWN_MS
+      ) {
         continue
       }
       await ctx.db.insert('goalReminders', {
@@ -52,7 +55,9 @@ export const listUnread = query({
     const userId = await requireUserId(ctx)
     return await ctx.db
       .query('goalReminders')
-      .withIndex('by_user_read', (q) => q.eq('userId', userId).eq('readAt', null))
+      .withIndex('by_user_read', (q) =>
+        q.eq('userId', userId).eq('readAt', null),
+      )
       .order('desc')
       .take(50)
   },
@@ -81,7 +86,9 @@ export const markAllRead = mutation({
     // Bounded per call; the unread list itself is capped well below this.
     const unread = await ctx.db
       .query('goalReminders')
-      .withIndex('by_user_read', (q) => q.eq('userId', userId).eq('readAt', null))
+      .withIndex('by_user_read', (q) =>
+        q.eq('userId', userId).eq('readAt', null),
+      )
       .take(200)
     for (const reminder of unread) {
       await ctx.db.patch(reminder._id, { readAt: now })

@@ -21,15 +21,15 @@ tasks.
 
 ## Repo map
 
-| Path | What it is |
-| --- | --- |
-| `apps/web` | TanStack Start app (React 19, Clerk auth, Convex data, Tailwind v4) deployed to Cloudflare Workers. Routes are file-based under `src/routes/`. |
-| `apps/mobile` | Expo (SDK 57) React Native app for iOS/Android, themed from `@org/theme` to match the web app. See `docs/mobile-app.md`. |
-| `apps/storybook` | Storybook 10; auto-globs stories from `packages/*/src/**/*.stories.tsx`. |
-| `packages/*` | `@worldkit/*` libraries. Headless: `grid`, `world`, `agents`, `pathfinding`, `tilemap`. React: `sprite-actor`, `world-canvas`. Web-only shadcn/Radix UI kit: `@org/ui`. Design tokens: `@org/theme` — the hex mirror of web's tokens that mobile styles from (see the theme note below). |
-| `convex/` | Convex backend functions and schema. The app's data model — tasks, goals, metrics, reminders, agents. |
-| `examples/pixi-playground` | Standalone PixiJS demo of the headless packages. |
-| `docs/` | Architecture and design notes. Start with `interactive-world-canvas.md`; name new files lowercase-kebab-case. |
+| Path                       | What it is                                                                                                                                                                                                                                                                               |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`                 | TanStack Start app (React 19, Clerk auth, Convex data, Tailwind v4) deployed to Cloudflare Workers. Routes are file-based under `src/routes/`.                                                                                                                                           |
+| `apps/mobile`              | Expo (SDK 57) React Native app for iOS/Android, themed from `@org/theme` to match the web app. See `docs/mobile-app.md`.                                                                                                                                                                 |
+| `apps/storybook`           | Storybook 10; auto-globs stories from `packages/*/src/**/*.stories.tsx`.                                                                                                                                                                                                                 |
+| `packages/*`               | `@worldkit/*` libraries. Headless: `grid`, `world`, `agents`, `pathfinding`, `tilemap`. React: `sprite-actor`, `world-canvas`. Web-only shadcn/Radix UI kit: `@org/ui`. Design tokens: `@org/theme` — the hex mirror of web's tokens that mobile styles from (see the theme note below). |
+| `convex/`                  | Convex backend functions and schema. The app's data model — tasks, goals, metrics, reminders, agents.                                                                                                                                                                                    |
+| `examples/pixi-playground` | Standalone PixiJS demo of the headless packages.                                                                                                                                                                                                                                         |
+| `docs/`                    | Architecture and design notes. Start with `interactive-world-canvas.md`; name new files lowercase-kebab-case.                                                                                                                                                                            |
 
 ## Architecture invariants
 
@@ -48,16 +48,16 @@ tasks.
 The backend is Convex (`convex/`): one file of queries/mutations per table,
 each with a `*.test.ts` beside it. Schema lives in `convex/schema.ts`.
 
-| Table(s) | File | What it holds |
-| --- | --- | --- |
-| `users` | `users.ts` | Accounts, synced from Clerk. |
-| `todos` | `todos.ts` | The original simple todo list. |
-| `tasks`, `taskEvents` | `tasks.ts` | Tasks + their audit trail. |
-| `taskAssignments` | `taskAssignments.ts` | Many-to-many task sharing/assignment. See `docs/task-assignments.md`. |
-| `goals`, `goalTypes` | `goals.ts`, `goalTypes.ts` | Goals (kanban stages, cost, deadlines) and their categories. See `docs/goals.md`. |
-| `metrics`, `metricPoints` | `metrics.ts` | Per-goal numerical metrics and their append-only readings. See `docs/metrics.md`. |
-| `goalReminders` | `goalReminders.ts` | Approaching/overdue deadline nudges (driven by `crons.ts`). |
-| `agents` | `agents.ts` | The village residents (name, personality, sprite). |
+| Table(s)                  | File                       | What it holds                                                                     |
+| ------------------------- | -------------------------- | --------------------------------------------------------------------------------- |
+| `users`                   | `users.ts`                 | Accounts, synced from Clerk.                                                      |
+| `todos`                   | `todos.ts`                 | The original simple todo list.                                                    |
+| `tasks`, `taskEvents`     | `tasks.ts`                 | Tasks + their audit trail.                                                        |
+| `taskAssignments`         | `taskAssignments.ts`       | Many-to-many task sharing/assignment. See `docs/task-assignments.md`.             |
+| `goals`, `goalTypes`      | `goals.ts`, `goalTypes.ts` | Goals (kanban stages, cost, deadlines) and their categories. See `docs/goals.md`. |
+| `metrics`, `metricPoints` | `metrics.ts`               | Per-goal numerical metrics and their append-only readings. See `docs/metrics.md`. |
+| `goalReminders`           | `goalReminders.ts`         | Approaching/overdue deadline nudges (driven by `crons.ts`).                       |
+| `agents`                  | `agents.ts`                | The village residents (name, personality, sprite).                                |
 
 Cross-cutting: `crons.ts` (scheduled reminder sweeps), `migrations.ts`
 (backfills, e.g. `backfillTaskAssignments`), `clerk.ts` / `auth.config.ts`

@@ -3,7 +3,7 @@ export type {
   GridConfig,
   GridPosition,
   WorldPoint,
-} from './types.js';
+} from './types.js'
 export {
   createGrid,
   directionToDelta,
@@ -13,4 +13,4 @@ export {
   isInsideGrid,
   positionsEqual,
   worldToGrid,
-} from './grid.js';
+} from './grid.js'

@@ -1,4 +1,4 @@
-export type { Agent, AgentId, AgentState, Direction } from './types.js';
+export type { Agent, AgentId, AgentState, Direction } from './types.js'
 export {
   createAgent,
   getDirectionFromDelta,
@@ -6,4 +6,4 @@ export {
   setAgentFacing,
   setAgentPosition,
   setAgentState,
-} from './agents.js';
+} from './agents.js'

@@ -1,5 +1,11 @@
 import { palettes, type Palette, type SchemeName } from '@org/theme'
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 import { useColorScheme } from 'react-native'
 
 export type ThemePreference = 'system' | SchemeName
@@ -20,7 +26,11 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
   const system = useColorScheme()
   const [preference, setPreference] = useState<ThemePreference>('system')
   const scheme: SchemeName =
-    preference === 'system' ? (system === 'dark' ? 'dark' : 'light') : preference
+    preference === 'system'
+      ? system === 'dark'
+        ? 'dark'
+        : 'light'
+      : preference
   const value = useMemo(
     () => ({ scheme, palette: palettes[scheme], preference, setPreference }),
     [scheme, preference],

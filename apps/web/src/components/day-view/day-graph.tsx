@@ -33,8 +33,10 @@ function useNow(intervalMs: number): Date {
 
 function startOfDayLabel(now: Date): { label: string; sub: string } {
   const hour = now.getHours()
-  if (hour < 5) return { label: 'Late night', sub: "Tomorrow's day starts soon" }
-  if (hour < 12) return { label: 'Start of day', sub: 'Sunrise → ' + dayName(now) }
+  if (hour < 5)
+    return { label: 'Late night', sub: "Tomorrow's day starts soon" }
+  if (hour < 12)
+    return { label: 'Start of day', sub: 'Sunrise → ' + dayName(now) }
   if (hour < 17) return { label: 'Day in motion', sub: 'Mid-' + dayName(now) }
   return { label: 'Day winding down', sub: 'Evening of ' + dayName(now) }
 }
@@ -99,7 +101,12 @@ function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
       fitViewOptions={{ padding: 0.18, duration: 0 }}
       proOptions={{ hideAttribution: true }}
     >
-      <Background variant={BackgroundVariant.Dots} gap={28} size={1.2} color="rgba(20,22,28,0.10)" />
+      <Background
+        variant={BackgroundVariant.Dots}
+        gap={28}
+        size={1.2}
+        color="rgba(20,22,28,0.10)"
+      />
       <Controls position="bottom-right" showInteractive={false} />
       <MiniMap
         position="top-right"
@@ -108,7 +115,8 @@ function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
         maskColor="rgba(20,22,28,0.06)"
         nodeColor={(n) => {
           const data = (n as DayNode).data
-          if (data.kind === 'anchor') return data.variant === 'start' ? '#f7c25c' : '#6b6fdc'
+          if (data.kind === 'anchor')
+            return data.variant === 'start' ? '#f7c25c' : '#6b6fdc'
           if (data.kind === 'bucket') return '#2b6ef5'
           return data.task.overdue ? '#e25151' : '#16181d'
         }}
@@ -150,7 +158,9 @@ export function DayGraph() {
   }, [rawTasks, now])
 
   const overdueCount = display.filter((t) => t.overdue).length
-  const inProgress = display.filter((t) => t.raw.status === 'in_progress').length
+  const inProgress = display.filter(
+    (t) => t.raw.status === 'in_progress',
+  ).length
 
   return (
     <div
@@ -161,7 +171,11 @@ export function DayGraph() {
       <style>{todayStyles}</style>
       <style>{dayViewStyles}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
@@ -172,71 +186,81 @@ export function DayGraph() {
       </div>
 
       <div className="day-root" data-theme={theme}>
-      <div className="d-topbar">
-        <div className="d-title">
-          <div className="d-title__main">Day view</div>
-          <div className="d-title__sub">
-            {now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+        <div className="d-topbar">
+          <div className="d-title">
+            <div className="d-title__main">Day view</div>
+            <div className="d-title__sub">
+              {now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </div>
+          </div>
+          <div className="d-spacer" />
+          <div className="d-stat">
+            <b>{display.length}</b> task{display.length === 1 ? '' : 's'}
+          </div>
+          {inProgress > 0 && (
+            <div className="d-stat">
+              <b>{inProgress}</b> in progress
+            </div>
+          )}
+          {overdueCount > 0 && (
+            <div className="d-stat d-stat--alert">
+              <b>{overdueCount}</b> overdue
+            </div>
+          )}
+          <button
+            type="button"
+            className="d-back"
+            onClick={() =>
+              setTheme((t) => {
+                const next = t === 'dark' ? 'light' : 'dark'
+                saveTheme(next)
+                return next
+              })
+            }
+            aria-label="Toggle theme"
+            style={{ paddingRight: 14 }}
+          >
+            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+          </button>
+        </div>
+
+        {rawTasks === undefined ? (
+          <div className="d-empty">
+            <div className="d-empty__title">Loading your day…</div>
+            <div className="d-empty__body">Pulling tasks from the server.</div>
+          </div>
+        ) : display.length === 0 ? (
+          <div className="d-empty">
+            <div className="d-empty__title">Your day is clear</div>
+            <div className="d-empty__body">
+              Nothing on the board for today. Capture a thought from the Today
+              view and it will appear here in its time slot.
+            </div>
+          </div>
+        ) : (
+          <ReactFlowProvider>
+            <DayGraphInner tasks={display} />
+          </ReactFlowProvider>
+        )}
+
+        <div className="d-legend">
+          <div className="d-legend__title">Legend</div>
+          <div className="d-legend__row">
+            <span className="d-legend__chip d-legend__chip--default" /> Time
+            bucket
+          </div>
+          <div className="d-legend__row">
+            <span className="d-legend__chip d-legend__chip--active" /> In
+            progress
+          </div>
+          <div className="d-legend__row">
+            <span className="d-legend__chip d-legend__chip--overdue" /> Overdue
           </div>
         </div>
-        <div className="d-spacer" />
-        <div className="d-stat">
-          <b>{display.length}</b> task{display.length === 1 ? '' : 's'}
-        </div>
-        {inProgress > 0 && (
-          <div className="d-stat"><b>{inProgress}</b> in progress</div>
-        )}
-        {overdueCount > 0 && (
-          <div className="d-stat d-stat--alert"><b>{overdueCount}</b> overdue</div>
-        )}
-        <button
-          type="button"
-          className="d-back"
-          onClick={() =>
-            setTheme((t) => {
-              const next = t === 'dark' ? 'light' : 'dark'
-              saveTheme(next)
-              return next
-            })
-          }
-          aria-label="Toggle theme"
-          style={{ paddingRight: 14 }}
-        >
-          {theme === 'dark' ? '☀ Light' : '☾ Dark'}
-        </button>
-      </div>
-
-      {rawTasks === undefined ? (
-        <div className="d-empty">
-          <div className="d-empty__title">Loading your day…</div>
-          <div className="d-empty__body">Pulling tasks from the server.</div>
-        </div>
-      ) : display.length === 0 ? (
-        <div className="d-empty">
-          <div className="d-empty__title">Your day is clear</div>
-          <div className="d-empty__body">
-            Nothing on the board for today. Capture a thought from the Today view
-            and it will appear here in its time slot.
-          </div>
-        </div>
-      ) : (
-        <ReactFlowProvider>
-          <DayGraphInner tasks={display} />
-        </ReactFlowProvider>
-      )}
-
-      <div className="d-legend">
-        <div className="d-legend__title">Legend</div>
-        <div className="d-legend__row">
-          <span className="d-legend__chip d-legend__chip--default" /> Time bucket
-        </div>
-        <div className="d-legend__row">
-          <span className="d-legend__chip d-legend__chip--active" /> In progress
-        </div>
-        <div className="d-legend__row">
-          <span className="d-legend__chip d-legend__chip--overdue" /> Overdue
-        </div>
-      </div>
       </div>
     </div>
   )
