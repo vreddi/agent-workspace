@@ -27,6 +27,8 @@ import {
 } from '@org/ui/components/tabs'
 import { cn } from '@org/ui/lib/utils'
 import { useId, useState } from 'react'
+import { useMutation, useQuery } from 'convex/react'
+import { api } from '@convex/_generated/api'
 import { AppShell } from '~/components/today/app-shell'
 
 const ACCENTS = [
@@ -38,12 +40,18 @@ const ACCENTS = [
 ]
 
 /**
- * Settings surface for logged-in users. Presentational only — controls hold
- * local state so the UI feels live, but nothing is persisted or sent to the
- * backend yet. Grouped into Appearance / Account / Notifications / Tasks tabs,
- * built entirely from the shared shadcn primitives for consistent a11y.
+ * Settings surface for logged-in users. Theme setting persists to backend;
+ * other controls hold local state. Grouped into Appearance / Account /
+ * Notifications / Tasks tabs, built entirely from shared shadcn primitives
+ * for consistent a11y.
  */
 export function SettingsPage() {
+  const currentUser = useQuery(api.users.current)
+  const themeInitial = (currentUser?.theme ?? 'system') as
+    | 'light'
+    | 'dark'
+    | 'system'
+
   return (
     <AppShell>
       <div className="t-page-head">
@@ -64,7 +72,7 @@ export function SettingsPage() {
             </TabsList>
 
             <TabsContent value="appearance" className="space-y-6">
-              <AppearanceSettings />
+              <AppearanceSettings themeInitial={themeInitial} />
             </TabsContent>
             <TabsContent value="account" className="space-y-6">
               <AccountSettings />
@@ -119,11 +127,29 @@ function SettingRow({
   )
 }
 
-function AppearanceSettings() {
-  const [theme, setTheme] = useState('light')
+function AppearanceSettings({
+  themeInitial,
+}: {
+  themeInitial: 'light' | 'dark' | 'system'
+}) {
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(themeInitial)
   const [accent, setAccent] = useState(ACCENTS[0]!.value)
   const [reduceMotion, setReduceMotion] = useState(false)
   const [compact, setCompact] = useState(false)
+  const updateTheme = useMutation(api.users.updateTheme)
+
+  const handleThemeChange = async (newTheme: string) => {
+    if (newTheme !== 'light' && newTheme !== 'dark' && newTheme !== 'system') {
+      return
+    }
+    setTheme(newTheme)
+    try {
+      await updateTheme({ theme: newTheme })
+    } catch (error) {
+      console.error('Failed to update theme:', error)
+      setTheme(themeInitial)
+    }
+  }
 
   return (
     <Card>
@@ -138,7 +164,7 @@ function AppearanceSettings() {
           <Label className="mb-3 block text-sm font-medium">Theme</Label>
           <RadioGroup
             value={theme}
-            onValueChange={setTheme}
+            onValueChange={handleThemeChange}
             className="grid-cols-3 gap-3"
           >
             {(

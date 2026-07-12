@@ -30,12 +30,19 @@ export const metricDirection = v.union(
   v.literal('decrease'),
 )
 
+export const theme = v.union(
+  v.literal('light'),
+  v.literal('dark'),
+  v.literal('system'),
+)
+
 export default defineSchema({
   users: defineTable({
     externalId: v.string(),
     email: v.string(),
     name: v.string(),
     imageUrl: v.optional(v.string()),
+    theme: v.optional(v.union(theme, v.null())),
   })
     .index('by_externalId', ['externalId'])
     // Assignee picker: prefix match on email, full-text match on name.

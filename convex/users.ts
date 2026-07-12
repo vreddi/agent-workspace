@@ -1,7 +1,8 @@
-import { internalMutation, query, QueryCtx } from './_generated/server'
+import { internalMutation, mutation, query, QueryCtx } from './_generated/server'
 import { Validator, v } from 'convex/values'
 import { UserJSON } from '@clerk/backend'
 import { Id } from './_generated/dataModel'
+import { theme } from './schema'
 
 export const current = query({
   args: {},
@@ -109,3 +110,15 @@ async function userByExternalId(ctx: QueryCtx, externalId: string) {
     .withIndex('by_externalId', (q) => q.eq('externalId', externalId))
     .unique()
 }
+
+export const updateTheme = mutation({
+  args: { theme: v.union(theme, v.null()) },
+  async handler(ctx, args) {
+    const user = await getCurrentUser(ctx)
+    if (!user) {
+      throw new Error('Not authenticated')
+    }
+    await ctx.db.patch(user._id, { theme: args.theme })
+    return { theme: args.theme }
+  },
+})
