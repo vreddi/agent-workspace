@@ -120,43 +120,43 @@ type ColorClasses = { dot: string; chip: string; swatch: string }
 
 const GOAL_TYPE_COLOR_CLASSES: Record<GoalTypeColorToken, ColorClasses> = {
   emerald: {
-    dot: 'bg-emerald-500',
-    chip: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    dot: 'bg-emerald-500 dark:bg-emerald-400',
+    chip: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-300',
     swatch: 'bg-emerald-500',
   },
   orange: {
-    dot: 'bg-orange-500',
-    chip: 'border-orange-200 bg-orange-50 text-orange-700',
+    dot: 'bg-orange-500 dark:bg-orange-400',
+    chip: 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-400/25 dark:bg-orange-400/10 dark:text-orange-300',
     swatch: 'bg-orange-500',
   },
   indigo: {
-    dot: 'bg-indigo-500',
-    chip: 'border-indigo-200 bg-indigo-50 text-indigo-700',
+    dot: 'bg-indigo-500 dark:bg-indigo-400',
+    chip: 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-400/25 dark:bg-indigo-400/10 dark:text-indigo-300',
     swatch: 'bg-indigo-500',
   },
   sky: {
-    dot: 'bg-sky-500',
-    chip: 'border-sky-200 bg-sky-50 text-sky-700',
+    dot: 'bg-sky-500 dark:bg-sky-400',
+    chip: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-400/25 dark:bg-sky-400/10 dark:text-sky-300',
     swatch: 'bg-sky-500',
   },
   rose: {
-    dot: 'bg-rose-500',
-    chip: 'border-rose-200 bg-rose-50 text-rose-700',
+    dot: 'bg-rose-500 dark:bg-rose-400',
+    chip: 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-400/25 dark:bg-rose-400/10 dark:text-rose-300',
     swatch: 'bg-rose-500',
   },
   amber: {
-    dot: 'bg-amber-500',
-    chip: 'border-amber-200 bg-amber-50 text-amber-700',
+    dot: 'bg-amber-500 dark:bg-amber-400',
+    chip: 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-300',
     swatch: 'bg-amber-500',
   },
   violet: {
-    dot: 'bg-violet-500',
-    chip: 'border-violet-200 bg-violet-50 text-violet-700',
+    dot: 'bg-violet-500 dark:bg-violet-400',
+    chip: 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-400/25 dark:bg-violet-400/10 dark:text-violet-300',
     swatch: 'bg-violet-500',
   },
   slate: {
-    dot: 'bg-slate-500',
-    chip: 'border-slate-200 bg-slate-50 text-slate-700',
+    dot: 'bg-slate-500 dark:bg-slate-400',
+    chip: 'border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-400/25 dark:bg-slate-400/10 dark:text-slate-300',
     swatch: 'bg-slate-500',
   },
 }

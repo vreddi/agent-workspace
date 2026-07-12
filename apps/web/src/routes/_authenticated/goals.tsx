@@ -307,7 +307,7 @@ function GoalCard({ goal }: { goal: GoalListItem }) {
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-primary transition-[width]"
+            className="h-full rounded-full bg-primary transition-[width] dark:bg-muted-foreground"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -351,7 +351,7 @@ function GoalRow({ goal }: { goal: GoalListItem }) {
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-primary transition-[width]"
+            className="h-full rounded-full bg-primary transition-[width] dark:bg-muted-foreground"
             style={{ width: `${pct}%` }}
           />
         </div>
