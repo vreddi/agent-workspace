@@ -3,6 +3,7 @@ import {
   aiSuggestionFor,
   applyFilter,
   deriveDeadline,
+  effectiveCostDays,
   type TaskLike,
   sortForToday,
   toDisplayTask,
@@ -30,6 +31,26 @@ describe('deriveDeadline', () => {
     expect(deriveDeadline({})).toBeNull()
     expect(
       deriveDeadline({ hardDeadline: null, softDeadline: null }),
+    ).toBeNull()
+  })
+})
+
+describe('effectiveCostDays', () => {
+  it('prefers explicit costDays over the estimate', () => {
+    expect(effectiveCostDays({ costDays: 2, estimateMinutes: 30 })).toBe(2)
+  })
+
+  it('falls back to the time estimate, converted to days', () => {
+    expect(effectiveCostDays({ estimateMinutes: 720 })).toBe(0.5)
+    expect(effectiveCostDays({ costDays: null, estimateMinutes: 45 })).toBe(
+      45 / (24 * 60),
+    )
+  })
+
+  it('is null when neither is set', () => {
+    expect(effectiveCostDays({})).toBeNull()
+    expect(
+      effectiveCostDays({ costDays: null, estimateMinutes: null }),
     ).toBeNull()
   })
 })

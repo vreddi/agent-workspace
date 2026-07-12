@@ -47,11 +47,16 @@ scheme (`goalPosition`).
 ## Cost
 
 Goal progress is computed on read (`goals.list` / `goals.get`):
-`totalCostDays` sums `costDays` over non-cancelled tasks,
-`completeCostDays` over done tasks, and `uncostedTasks` counts tasks the
-totals undercount by. Computed-on-read keeps the numbers consistent under
-Convex reactivity; switch to denormalized counters only if goals grow past
-a few hundred tasks.
+`totalCostDays` sums each non-cancelled task's effective cost —
+its explicit `costDays`, or its `estimateMinutes` time estimate converted
+to days (1 cost day = 24h) when no `costDays` is set. `completeCostDays`
+sums the same over done tasks, and `uncostedTasks` counts tasks with
+neither a cost nor an estimate (the totals undercount by these). The
+fallback mirrors `effectiveCostDays` in `@org/app-core`, which the web
+task cards use so a card's clock and the goal totals always agree.
+Computed-on-read keeps the numbers consistent under Convex reactivity;
+switch to denormalized counters only if goals grow past a few hundred
+tasks.
 
 ## Reminders
 

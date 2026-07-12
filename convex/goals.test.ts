@@ -375,6 +375,27 @@ describe('goal cost progress', () => {
       uncostedTasks: 1,
     })
   })
+
+  test('time estimate stands in as cost; costDays overrides it', async () => {
+    const t = setup()
+    const asUser = await signUp(t, 'user_1')
+    const goalId = await createGoal(asUser)
+    // Estimate only → counts as cost (720 min = 0.5 day).
+    await createTask(asUser, 'A', { goalId, estimateMinutes: 720 })
+    // Both set → explicit costDays wins, estimate ignored.
+    await createTask(asUser, 'B', {
+      goalId,
+      costDays: 2,
+      estimateMinutes: 999,
+    })
+    // Neither → uncosted.
+    await createTask(asUser, 'C', { goalId })
+
+    const goal = await asUser.query(api.goals.get, { id: goalId })
+    expect(goal.progress.totalCostDays).toBe(2.5)
+    expect(goal.progress.remainingCostDays).toBe(2.5)
+    expect(goal.progress.uncostedTasks).toBe(1)
+  })
 })
 
 describe('goals.remove', () => {

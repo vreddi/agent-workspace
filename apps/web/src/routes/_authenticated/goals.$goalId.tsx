@@ -32,6 +32,7 @@ import {
 import {
   dateInputToMs,
   describeDeadline,
+  effectiveCostDays,
   formatCostDuration,
   goalTypeValue,
   GoalTypeSelect,
@@ -730,7 +731,8 @@ function BoardCard({
   const otherStages = STAGES.filter((s) => s.key !== stage)
   // Prefer the firm deadline; fall back to the soft target date.
   const deadline = task.hardDeadline ?? task.softDeadline
-  const hasCost = task.costDays != null
+  // Explicit costDays wins; otherwise the time estimate stands in as cost.
+  const costDays = effectiveCostDays(task)
 
   return (
     <div
@@ -800,7 +802,7 @@ function BoardCard({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {(task.priority != null || deadline != null || hasCost) && (
+      {(task.priority != null || deadline != null || costDays != null) && (
         <div className="mt-2 flex items-end justify-between gap-2">
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
             {task.priority != null && (
@@ -813,10 +815,10 @@ function BoardCard({
               </span>
             )}
           </div>
-          {hasCost && (
+          {costDays != null && (
             <span className="inline-flex shrink-0 items-center gap-1 text-[11px] tabular-nums text-muted-foreground">
               <Clock aria-hidden className="size-3" />
-              {formatCostDuration(task.costDays!)}
+              {formatCostDuration(costDays)}
             </span>
           )}
         </div>
