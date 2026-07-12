@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fmtDateBadge, formatDays, hashString, pick } from './format.js'
+import { fmtDateBadge, formatDays, hashString, pick } from './format'
 
 describe('hashString / pick', () => {
   it('hashString is deterministic and non-negative', () => {

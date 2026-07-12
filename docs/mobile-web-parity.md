@@ -69,6 +69,16 @@ is app-core's job; a function that renders or queries is not.
 > `apps/web/src/components/goals/goal-ui.tsx`) that re-export app-core and
 > specialize a couple of types to the web's concrete rows.
 
+> **Cross-platform packages are source-only, `moduleResolution: bundler`.**
+> A package that mobile imports (`@org/theme`, `@org/app-core`) is consumed
+> straight from `src/` via its `exports` map — no build, no composite `tsc`
+> project reference, and **extensionless** relative imports. Do **not** copy
+> the `@worldkit/*` headless convention (nodenext + `.js` import suffixes +
+> tsdown) for anything mobile touches: Metro does not do the `.js`→`.ts`
+> resolution that nodenext relies on and will fail with
+> `Unable to resolve module ./foo.js`. Mirror `@org/theme`'s
+> `package.json`/`tsconfig.json`, not `@worldkit/grid`'s.
+
 ## Adding a feature end-to-end
 
 Work outward from the backend so both clients build on settled logic:
