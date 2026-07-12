@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { goalTypeValue, parseTypeValue, type TypeSelection } from './goals.js'
+import { goalTypeValue, parseTypeValue, type TypeSelection } from './goals'
 
 describe('goalTypeValue / parseTypeValue round-trip', () => {
   const cases: Array<{

@@ -5,28 +5,20 @@
   "license": "MIT",
   "type": "module",
   "private": true,
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "sideEffects": false,
   "exports": {
-    ".": {
-      "@org/source": "./src/index.ts",
-      "default": "./src/index.ts"
-    }
+    ".": "./src/index.ts"
   },
   "files": [
-    "dist",
     "src",
     "README.md"
   ],
-  "sideEffects": false,
   "scripts": {
-    "build": "tsdown",
+    "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "tsdown": "catalog:",
     "vitest": "catalog:"
   }
 }

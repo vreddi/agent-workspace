@@ -5,7 +5,7 @@ import {
   formatDays,
   hashString,
   pick,
-} from './format.js'
+} from './format'
 
 describe('hashString / pick', () => {
   it('hashString is deterministic and non-negative', () => {

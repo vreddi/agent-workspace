@@ -4,7 +4,7 @@ export {
   formatDays,
   hashString,
   pick,
-} from './format.js'
+} from './format'
 export {
   addDays,
   DAY_MS,
@@ -14,7 +14,7 @@ export {
   formatDateLong,
   formatDue,
   startOfToday,
-} from './deadlines.js'
+} from './deadlines'
 export {
   firstName,
   greetingFor,
@@ -24,8 +24,8 @@ export {
   TONE_LIST,
   TONE_STYLES,
   toneFor,
-} from './people.js'
-export type { AssigneeLike, DisplayAssignee, Tone } from './people.js'
+} from './people'
+export type { AssigneeLike, DisplayAssignee, Tone } from './people'
 export {
   aiSuggestionFor,
   applyFilter,
@@ -34,7 +34,7 @@ export {
   sortForToday,
   sourceFor,
   toDisplayTask,
-} from './tasks.js'
+} from './tasks'
 export type {
   DisplayTask,
   FilterId,
@@ -44,14 +44,6 @@ export type {
   TaskSource,
   TaskStatus,
   TaskSuggestionLike,
-} from './tasks.js'
-export {
-  GOAL_TYPE_COLOR_TOKENS,
-  goalTypeValue,
-  parseTypeValue,
-} from './goals.js'
-export type {
-  GoalTypeColorToken,
-  GoalTypeInput,
-  TypeSelection,
-} from './goals.js'
+} from './tasks'
+export { GOAL_TYPE_COLOR_TOKENS, goalTypeValue, parseTypeValue } from './goals'
+export type { GoalTypeColorToken, GoalTypeInput, TypeSelection } from './goals'

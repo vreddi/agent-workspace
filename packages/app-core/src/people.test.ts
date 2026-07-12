@@ -7,7 +7,7 @@ import {
   toDisplayAssignees,
   TONE_LIST,
   toneFor,
-} from './people.js'
+} from './people'
 
 describe('initialsFromName', () => {
   it('takes first + last initial, upper-cased', () => {

@@ -1,12 +1,12 @@
 // Task view-model: deriving deadlines, overdue state, display rows, sorting,
 // and filtering. Structural types only — no backend/Convex imports.
 
-import { pick } from './format.js'
+import { pick } from './format'
 import {
   type AssigneeLike,
   type DisplayAssignee,
   toDisplayAssignees,
-} from './people.js'
+} from './people'
 
 export type TaskStatus = 'open' | 'in_progress' | 'done' | 'cancelled'
 
