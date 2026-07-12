@@ -24,6 +24,9 @@
       "path": "../tilemap"
     },
     {
+      "path": "../lighting"
+    },
+    {
       "path": "../pathfinding"
     },
     {

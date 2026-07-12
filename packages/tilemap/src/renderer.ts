@@ -1,7 +1,7 @@
 import { groundAt, isInsideMap } from './map.js'
 import type { TileMap } from './map.js'
 import { TILE_SIZE } from './tileset.js'
-import type { Tileset } from './tileset.js'
+import type { TileDef, Tileset } from './tileset.js'
 import type { PixelArt } from './pixel-art.js'
 
 export type TilemapRendererOptions = {
@@ -19,6 +19,20 @@ export type TilemapRendererOptions = {
 }
 
 const RIM_THICKNESS = 2 // art pixels
+
+/**
+ * Picks a frame-set for a cell: the base `frames` or one of the `variants`,
+ * chosen by a deterministic position hash so re-renders are stable and
+ * fields of one tile don't read as a repeated stamp.
+ */
+function pickVariant(tile: TileDef, x: number, y: number): PixelArt[] {
+  const variants = tile.variants
+  if (!variants || variants.length === 0) return tile.frames
+  const count = variants.length + 1
+  const hash = ((x * 0x9e3779b1) ^ (y * 0x85ebca77) ^ ((x + 1) * (y + 3))) >>> 0
+  const index = hash % count
+  return index === 0 ? tile.frames : variants[index - 1]!
+}
 
 /**
  * Framework-agnostic Canvas2D renderer for a TileMap. Call `render(frame)`
@@ -74,7 +88,8 @@ export class TilemapRenderer {
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {
         const tile = tileset.tiles[groundAt(map, x, y)]!
-        const art = tile.frames[frame % tile.frames.length]!
+        const frames = pickVariant(tile, x, y)
+        const art = frames[frame % frames.length]!
         ctx.drawImage(
           this.raster(art),
           x * cellSize,

@@ -9,10 +9,35 @@ export type PropId = string
  */
 export const TILE_SIZE = 32
 
+/**
+ * A light the tile or prop casts into the scene at night (window glow,
+ * lantern flame). Consumed by the lighting compositor; ignored by the base
+ * tile renderer.
+ */
+export type LightEmitter = {
+  /** Art-pixel offset of the light's center from the art's top-left. */
+  x: number
+  y: number
+  /** Reach of the light in art pixels. */
+  radius: number
+  /** CSS color of the emitted light. */
+  color: string
+  /** Brightness at the center, 0..1. */
+  intensity: number
+  /** Flicker amount, 0..1 (lanterns, torches). */
+  flicker?: number
+}
+
 export type TileDef = {
   id: TileId
   /** Animation frames (at least one), each TILE_SIZE x TILE_SIZE. */
   frames: PixelArt[]
+  /**
+   * Alternative frame-sets. The renderer picks one set per cell with a
+   * deterministic position hash, so large fields don't repeat one stamp.
+   * Each set must have the same frame size as `frames`.
+   */
+  variants?: PixelArt[][]
   walkable: boolean
   /**
    * Terrain kind used when bridging to @worldkit/world and for edge
@@ -24,6 +49,8 @@ export type TileDef = {
    * a different terrain (classic GBA shorelines).
    */
   rim?: string
+  /** Lights this tile casts (fireflies, embers). */
+  lights?: LightEmitter[]
 }
 
 export type PropDef = {
@@ -42,6 +69,8 @@ export type PropDef = {
   baseRows: number
   /** Props block movement by default. */
   walkable?: boolean
+  /** Lights this prop casts (lit windows, lamp heads). */
+  lights?: LightEmitter[]
 }
 
 export type Tileset = {
@@ -70,6 +99,9 @@ function assertFrameSize(
 
 export function defineTile(tile: TileDef): TileDef {
   assertFrameSize('tile', tile.id, tile.frames, TILE_SIZE, TILE_SIZE)
+  for (const variant of tile.variants ?? []) {
+    assertFrameSize('tile', tile.id, variant, TILE_SIZE, TILE_SIZE)
+  }
   return tile
 }
 
