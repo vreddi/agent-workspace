@@ -1,5 +1,8 @@
 export { CELL_SIZE, WorldCanvas } from './components/world-canvas'
-export type { WorldCanvasProps } from './components/world-canvas'
+export type {
+  WorldCanvasLighting,
+  WorldCanvasProps,
+} from './components/world-canvas'
 export { VillageCanvas } from './components/village-canvas'
 export type { VillageCanvasProps } from './components/village-canvas'
 export { DialogueBox } from './components/dialogue-box'
@@ -15,4 +18,10 @@ export type {
   VillageSimulation,
 } from './lib/use-village-simulation'
 export { useTimeOfDay } from './lib/use-time-of-day'
+export { useWorldClock } from './lib/use-world-clock'
+export type {
+  UseWorldClockOptions,
+  WorldClockState,
+} from './lib/use-world-clock'
+export type { DayPhase } from '@worldkit/lighting'
 export type { Resident, VillageScene } from './lib/scene'

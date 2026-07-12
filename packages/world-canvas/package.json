@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@worldkit/grid": "workspace:*",
+    "@worldkit/lighting": "workspace:*",
     "@worldkit/pathfinding": "workspace:*",
     "@worldkit/sprite-actor": "workspace:*",
     "@worldkit/tilemap": "workspace:*",

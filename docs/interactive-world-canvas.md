@@ -8,6 +8,10 @@ This is the first visual layer of the AI to-do app: agents will eventually
 represent the user's task assistants, "going to work" and collaborating. For
 now the deliverable is the reusable canvas + a showcase scene.
 
+> The painterly art theme and the day/night lighting that grade this canvas are
+> documented separately in
+> [verdant-world-engine.md](./verdant-world-engine.md).
+
 ## Packages
 
 Follows the existing **headless core → adapter → React** pattern.
