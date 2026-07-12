@@ -32,6 +32,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "devDependencies": {
     "@storybook/react-vite": "^10.0.0",
     "storybook": "^10.0.0",
@@ -39,6 +43,7 @@
     "@types/react-dom": "^19.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vitest": "catalog:"
   }
 }
