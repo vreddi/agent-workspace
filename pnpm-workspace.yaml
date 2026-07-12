@@ -3,6 +3,27 @@ packages:
   - examples/*
   - packages/*
 
+# pnpm 11 requires an explicit decision for every dependency that ships a
+# build (postinstall) script. All of these ship prebuilt platform binaries,
+# so the scripts are not needed — the full build, test, and deploy all pass
+# with them ignored. Set to `false` (do not run) to keep that behavior and
+# avoid running arbitrary install-time code. Flip an entry to `true` only if a
+# package turns out to genuinely need its build step.
+allowBuilds:
+  '@clerk/shared': false
+  '@swc/core': false
+  browser-tabs-lock: false
+  bufferutil: false
+  core-js: false
+  esbuild: false
+  msgpackr-extract: false
+  msw: false
+  nx: false
+  sharp: false
+  unrs-resolver: false
+  utf-8-validate: false
+  workerd: false
+
 catalog:
   # React: pinned to the exact version Expo SDK 57 / react-native 0.86 expect
   # (apps/mobile). The web/storybook ^19.0.0 ranges are satisfied by this too,

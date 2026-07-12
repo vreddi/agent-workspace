@@ -2,7 +2,7 @@
   "name": "@org/source",
   "version": "0.0.0",
   "license": "MIT",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@11.12.0",
   "scripts": {
     "test": "vitest run --config vitest.convex.config.mts",
     "test:packages": "nx run-many -t test",
@@ -25,7 +25,8 @@
   },
   "private": true,
   "engines": {
-    "node": ">=24"
+    "node": ">=26",
+    "pnpm": ">=11"
   },
   "devDependencies": {
     "@edge-runtime/vm": "^5.0.0",
