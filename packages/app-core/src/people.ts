@@ -1,7 +1,7 @@
 // People-facing view-model: names, initials, greetings, and the deterministic
 // "tone" palette used for avatars/badges.
 
-import { pick } from './format.js'
+import { pick } from './format'
 
 export type Tone =
   | 'sand'
