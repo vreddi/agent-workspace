@@ -35,9 +35,12 @@ pnpm deploy:web
 
 Or run the **deploy-web** GitHub Action after secrets are set.
 
-After deploy, Cloudflare creates a Worker named **`org-web-todo`** (see `apps/web/wrangler.jsonc`). Note the URL, e.g.:
+After deploy, Cloudflare creates the Worker. The CI workflow deploys one Worker per release environment (see the [two release environments](#ci-github-actions--two-release-environments) section):
 
-`https://org-web-todo.<your-subdomain>.workers.dev`
+- **production** (`prod` branch) → **`org-web-todo`** → `https://org-web-todo.<your-subdomain>.workers.dev`
+- **Dogfood** (`develop` branch) → **`org-web-todo-dogfood`** → `https://org-web-todo-dogfood.<your-subdomain>.workers.dev`
+
+A plain local `pnpm deploy:web` uses the single name in `apps/web/wrangler.jsonc` (`org-web-todo`).
 
 #### C. Worker environment variables (dashboard)
 
@@ -151,24 +154,35 @@ This runs `pnpm --filter @org/web cf-deploy` (`vite build && wrangler deploy`). 
 
 Cloudflare dashboard → Worker → **Custom Domains** → add `todo.yourdomain.com`. Update Clerk allowed origins to match.
 
-### CI: GitHub Actions
+### CI: GitHub Actions — two release environments
 
 Workflow: [`.github/workflows/deploy-web.yml`](../.github/workflows/deploy-web.yml)
 
-- **Trigger:** manual only (`workflow_dispatch`) from the Actions tab
-- **Source:** always checks out the latest **`develop`** branch, then runs `pnpm cf-deploy` in `apps/web`
+- **Trigger:** manual only (`workflow_dispatch`) from the Actions tab.
+- **Environment picker:** when you run the workflow, pick `Dogfood` or `production`. That choice selects the GitHub Environment, the branch checked out, and the Cloudflare Worker deployed to — so the two environments are fully isolated and never overwrite each other.
 
-Store these **repository secrets**:
+| Dispatch input | GitHub Environment | Release branch | Cloudflare Worker      | Default URL                                            |
+| -------------- | ------------------ | -------------- | ---------------------- | ------------------------------------------------------ |
+| `Dogfood`      | `Dogfood`          | `develop`      | `org-web-todo-dogfood` | `https://org-web-todo-dogfood.<subdomain>.workers.dev` |
+| `production`   | `production`       | `prod`         | `org-web-todo`         | `https://org-web-todo.<subdomain>.workers.dev`         |
+
+`<subdomain>` is your account's `workers.dev` subdomain (Cloudflare dashboard → **Workers & Pages**, or printed at the end of `wrangler deploy`). It is the same for both workers. Worker isolation comes from a `wrangler deploy --name` override in the workflow, not from `wrangler.jsonc` (which still names a single worker).
+
+**Secrets live in the GitHub _Environments_, not repository secrets.** Set all five in **both** the `Dogfood` and `production` environments (repo **Settings → Environments → _(name)_ → Environment secrets**). A job only sees an environment's secrets because it declares `environment:` — a missing or misplaced secret expands to an empty string and wrangler fails with _"necessary to set a CLOUDFLARE_API_TOKEN"_.
 
 | Secret                       | Purpose                                                                                                     |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `CLOUDFLARE_API_TOKEN`       | [API token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) with Workers edit |
 | `CLOUDFLARE_ACCOUNT_ID`      | Cloudflare dashboard sidebar                                                                                |
-| `CLERK_SECRET_KEY`           | Clerk production secret key                                                                                 |
+| `CLERK_SECRET_KEY`           | Clerk secret key for that environment                                                                       |
 | `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key (Vite build)                                                                          |
-| `VITE_CONVEX_URL`            | Production Convex URL                                                                                       |
+| `VITE_CONVEX_URL`            | Convex URL for that environment                                                                             |
 
-**Run:** GitHub → **Actions** → **deploy-web** → **Run workflow**.
+> Point `Dogfood` and `production` at **separate** Clerk instances and Convex deployments so pre-release testing never touches production data.
+
+**Verify:** `gh secret list --env Dogfood` and `gh secret list --env production` should each list all five.
+
+**Run:** GitHub → **Actions** → **deploy-web** → **Run workflow** → choose the environment.
 
 ### Alternative: Cloudflare Workers Builds
 
@@ -224,12 +238,13 @@ Add `.github/workflows/chromatic.yml` (see [GitHub Actions examples](#github-act
 
 ## Checklist before first production deploy
 
-- [ ] Clerk production keys and domains configured
-- [ ] Convex production deployment + `CLERK_JWT_ISSUER_DOMAIN` set on Convex
-- [ ] `VITE_CONVEX_URL` points at production Convex
-- [ ] Cloudflare Worker secrets / CI env vars set
-- [ ] `pnpm deploy:web` succeeds
-- [ ] Sign-in and `/today` work on the live URL
+- [ ] Clerk keys and domains configured for each environment (separate Dogfood / production instances)
+- [ ] Convex deployment per environment + `CLERK_JWT_ISSUER_DOMAIN` set on each
+- [ ] `VITE_CONVEX_URL` in each GitHub Environment points at that environment's Convex
+- [ ] All five secrets set in **both** the `Dogfood` and `production` GitHub Environments
+- [ ] `prod` branch exists (created off `develop`)
+- [ ] **deploy-web** run for `Dogfood` succeeds; sign-in and `/today` work on the dogfood URL
+- [ ] **deploy-web** run for `production` succeeds; sign-in and `/today` work on the prod URL
 - [ ] Chromatic project connected; `CHROMATIC_PROJECT_TOKEN` in GitHub
 
 ## GitHub Actions examples
