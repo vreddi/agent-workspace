@@ -85,12 +85,13 @@ function toSnapshots(actors: SimActor[]): ActorSnapshot[] {
  * thin wrapper that owns the clock and React state.
  */
 export class VillageSimulation {
-  readonly stepMs: number;
+  /** Milliseconds per walked cell. Mutable so a live scene can retime. */
+  stepMs: number;
 
-  private readonly scene: VillageScene;
-  private readonly world: World;
+  private scene: VillageScene;
+  private world: World;
   private readonly rng: Rng;
-  private readonly actors: SimActor[];
+  private actors: SimActor[];
   private dialogue: DialogueState | null = null;
 
   constructor(scene: VillageScene, options: VillageSimulationOptions = {}) {
@@ -105,6 +106,48 @@ export class VillageSimulation {
       plan: { kind: 'idle', until: 0 },
       bubble: null,
     }));
+  }
+
+  /**
+   * Swaps in a new scene without resetting the village. Scene identity
+   * changes at runtime — day/night lighting mints a new scene object at
+   * dawn/dusk, and the office rebuilds its scene whenever the agent list
+   * updates — so residents that persist keep their position, plan, facing,
+   * and bubble (matched by resident id, with the resident reference
+   * refreshed). New residents spawn at their home; removed ones leave, and
+   * an open dialogue with a removed resident closes.
+   */
+  setScene(scene: VillageScene): void {
+    if (scene === this.scene) return;
+    this.scene = scene;
+    this.world = mapToWorld(scene.map, scene.tileset, { id: scene.name });
+    const existing = new Map(
+      this.actors.map((actor) => [actor.resident.id, actor]),
+    );
+    this.actors = scene.residents.map((resident) => {
+      const actor = existing.get(resident.id);
+      if (actor) {
+        actor.resident = resident;
+        return actor;
+      }
+      return {
+        resident,
+        position: { ...resident.home },
+        facing: 'right' as const,
+        plan: { kind: 'idle' as const, until: 0 },
+        bubble: null,
+      };
+    });
+    if (this.dialogue) {
+      const resident = scene.residents.find(
+        (r) => r.id === this.dialogue!.resident.id,
+      );
+      if (!resident || this.dialogue.lineIndex >= resident.lines.length) {
+        this.dialogue = null;
+      } else {
+        this.dialogue = { ...this.dialogue, resident };
+      }
+    }
   }
 
   /** A render-ready view of every actor. */

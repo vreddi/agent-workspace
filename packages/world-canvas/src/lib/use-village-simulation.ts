@@ -39,6 +39,12 @@ const TICK_MS = 100;
  * owns only the clock (a `setInterval` ticking the engine) and the React
  * state mirrors; all the autonomous-village behavior lives in the engine so
  * it can be tested without React.
+ *
+ * One engine lives for the whole component lifetime. Scene identity changes
+ * at runtime (day/night lighting mints a new scene object at dawn/dusk; the
+ * office rebuilds its scene when agents change), so scene changes flow
+ * through `engine.setScene`, which preserves actor positions and plans
+ * rather than resetting everyone to their homes.
  */
 export function useVillageSimulation(
   scene: VillageScene,
@@ -47,10 +53,11 @@ export function useVillageSimulation(
   const stepMs = options.stepMs ?? 360;
   const paused = options.paused ?? false;
 
-  const engine = React.useMemo(
-    () => new VillageSimulationEngine(scene, { stepMs }),
-    [scene, stepMs],
-  );
+  const engineRef = React.useRef<VillageSimulationEngine | null>(null);
+  if (engineRef.current === null) {
+    engineRef.current = new VillageSimulationEngine(scene, { stepMs });
+  }
+  const engine = engineRef.current;
 
   const [snapshot, setSnapshot] = React.useState<ActorSnapshot[]>(() =>
     engine.snapshot(),
@@ -59,11 +66,13 @@ export function useVillageSimulation(
     engine.getDialogue(),
   );
 
-  // Resync React state whenever a fresh engine takes over (scene/stepMs change).
+  // Follow scene swaps and retimes without rebuilding the village.
   React.useEffect(() => {
+    engine.setScene(scene);
+    engine.stepMs = stepMs;
     setSnapshot(engine.snapshot());
     setDialogue(engine.getDialogue());
-  }, [engine]);
+  }, [engine, scene, stepMs]);
 
   React.useEffect(() => {
     if (paused) return;
