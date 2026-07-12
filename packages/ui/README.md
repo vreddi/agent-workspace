@@ -25,8 +25,8 @@ references stay path-stable.
 
 ## Components
 
-`avatar`, `breadcrumb`, `button`, `calendar`, `card`, `chart`, `drawer`,
-`dropdown-menu`, `input`, `label`, `popover`, `radio-group`, `select`,
+`alert-dialog`, `avatar`, `breadcrumb`, `button`, `calendar`, `card`, `chart`,
+`drawer`, `dropdown-menu`, `input`, `label`, `popover`, `radio-group`, `select`,
 `separator`, `slider`, `switch`, `tabs`.
 
 ```tsx
