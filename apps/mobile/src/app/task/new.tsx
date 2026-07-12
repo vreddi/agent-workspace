@@ -5,6 +5,7 @@
  * optional ?goalId= param to prefill the goal (the goals screen links here).
  */
 import type { Id } from '@convex/_generated/dataModel'
+import { type EstimateUnit, estimateToMinutes } from '@org/app-core'
 import { priority as priorityColors, radius, space } from '@org/theme'
 import * as Haptics from 'expo-haptics'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -12,6 +13,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react-native'
 import { useState } from 'react'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
 import {
+  CheckboxRow,
   ChipRowGroup,
   DateFieldRow,
   FooterButton,
@@ -22,6 +24,12 @@ import {
   StepperRow,
   type SelectOption,
 } from '@/components/forms'
+import {
+  ESTIMATE_UNIT_CHIPS,
+  estimateInUnit,
+  UNIT_STEP,
+  UNIT_SUFFIX,
+} from '@/components/estimate-units'
 import { AppText, Card } from '@/components/ui'
 import type { TaskPriority } from '@/data/hooks'
 import { useCreateTask, useGoalOptions } from '@/data/tasks-data'
@@ -47,12 +55,14 @@ export default function NewTaskScreen() {
   const [emoji, setEmoji] = useState('')
   const [priority, setPriority] = useState<TaskPriority | 'none'>('none')
   const [softDeadline, setSoftDeadline] = useState<Date | null>(null)
+  const [allowEarlyCompletion, setAllowEarlyCompletion] = useState(false)
   const [goalId, setGoalId] = useState<string>(params.goalId ?? NO_GOAL)
 
   const [showDetails, setShowDetails] = useState(false)
   const [description, setDescription] = useState('')
   const [hardDeadline, setHardDeadline] = useState<Date | null>(null)
   const [estimateMinutes, setEstimateMinutes] = useState(0)
+  const [estimateUnit, setEstimateUnit] = useState<EstimateUnit>('minutes')
   const [costDays, setCostDays] = useState(0)
 
   const [saving, setSaving] = useState(false)
@@ -76,6 +86,8 @@ export default function NewTaskScreen() {
       priority: priority === 'none' ? null : priority,
       softDeadline: softDeadline ? softDeadline.getTime() : null,
       hardDeadline: hardDeadline ? hardDeadline.getTime() : null,
+      // The flag only means anything once a target date is set.
+      allowEarlyCompletion: softDeadline ? allowEarlyCompletion : false,
       description: description.trim() || undefined,
       estimateMinutes: estimateMinutes > 0 ? estimateMinutes : null,
       costDays: costDays > 0 ? costDays : null,
@@ -139,6 +151,14 @@ export default function NewTaskScreen() {
           value={softDeadline}
           onChange={setSoftDeadline}
         />
+        {softDeadline ? (
+          <CheckboxRow
+            label="OK to finish early"
+            hint="Otherwise the task is scheduled for the target date."
+            value={allowEarlyCompletion}
+            onChange={setAllowEarlyCompletion}
+          />
+        ) : null}
         <SelectRow
           label="Goal"
           value={goalId}
@@ -178,13 +198,19 @@ export default function NewTaskScreen() {
             value={hardDeadline}
             onChange={setHardDeadline}
           />
+          <ChipRowGroup
+            label="Estimate unit"
+            value={estimateUnit}
+            options={ESTIMATE_UNIT_CHIPS}
+            onChange={setEstimateUnit}
+          />
           <StepperRow
             label="Estimate"
-            value={estimateMinutes}
-            onChange={setEstimateMinutes}
-            step={15}
+            value={estimateInUnit(estimateMinutes, estimateUnit)}
+            onChange={(v) => setEstimateMinutes(estimateToMinutes(v, estimateUnit))}
+            step={UNIT_STEP[estimateUnit]}
             min={0}
-            unit="min"
+            unit={UNIT_SUFFIX[estimateUnit]}
           />
           <StepperRow
             label="Cost"

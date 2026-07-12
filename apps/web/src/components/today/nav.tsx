@@ -192,6 +192,7 @@ export function Nav({
       title: input.title,
       estimateMinutes: input.estimateMinutes,
       softDeadline,
+      allowEarlyCompletion: input.allowEarlyCompletion,
       scheduledStartMinutes: input.scheduledStartMinutes,
       priority: input.priority,
       difficulty: input.difficulty,

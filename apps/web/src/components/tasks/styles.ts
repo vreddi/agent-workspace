@@ -213,6 +213,15 @@ export const taskDetailStyles = `
 .tdp-input::placeholder { color: var(--t-ink-3); }
 textarea.tdp-input { min-height: 96px; resize: vertical; line-height: 1.55; }
 .tdp-field__hint { font-size: 11.5px; font-weight: 500; color: var(--t-ink-3); }
+.tdp-field__label--info { display: inline-flex; align-items: center; gap: 5px; }
+.tdp-estimate { display: flex; gap: 8px; align-items: center; }
+.tdp-estimate .tdp-input { flex: 1 1 auto; min-width: 0; }
+.tdp-estimate > button { flex: 0 0 auto; }
+.tdp-check {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 2px; font-size: 12.5px; font-weight: 500; color: var(--t-ink-2);
+  cursor: pointer;
+}
 .tdp-slider-head { display: flex; align-items: center; gap: 8px; min-height: 20px; }
 .tdp-slider-value {
   font-size: 13px; font-weight: 600; color: var(--t-ink-1);

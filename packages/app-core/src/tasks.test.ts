@@ -4,7 +4,10 @@ import {
   applyFilter,
   deriveDeadline,
   effectiveCostDays,
+  estimateToMinutes,
+  fmtEstimate,
   type TaskLike,
+  minutesToEstimateParts,
   sortForToday,
   toDisplayTask,
 } from './tasks'
@@ -118,6 +121,53 @@ describe('sortForToday', () => {
       'later',
       'undated',
     ])
+  })
+})
+
+describe('estimate units', () => {
+  it('converts each unit to whole minutes', () => {
+    expect(estimateToMinutes(45, 'minutes')).toBe(45)
+    expect(estimateToMinutes(2, 'hours')).toBe(120)
+    expect(estimateToMinutes(1.5, 'hours')).toBe(90)
+    expect(estimateToMinutes(1, 'days')).toBe(1440)
+    expect(estimateToMinutes(0.5, 'days')).toBe(720)
+  })
+
+  it('rounds fractional minutes to whole', () => {
+    expect(estimateToMinutes(1.005, 'hours')).toBe(60)
+  })
+
+  it('reopens in the largest unit that divides evenly', () => {
+    expect(minutesToEstimateParts(45)).toEqual({ value: 45, unit: 'minutes' })
+    expect(minutesToEstimateParts(90)).toEqual({ value: 90, unit: 'minutes' })
+    expect(minutesToEstimateParts(120)).toEqual({ value: 2, unit: 'hours' })
+    expect(minutesToEstimateParts(1440)).toEqual({ value: 1, unit: 'days' })
+    expect(minutesToEstimateParts(2880)).toEqual({ value: 2, unit: 'days' })
+    expect(minutesToEstimateParts(0)).toEqual({ value: 0, unit: 'minutes' })
+  })
+
+  it('is a round trip through minutes and back', () => {
+    for (const minutes of [15, 60, 90, 120, 1440, 2880]) {
+      const { value, unit } = minutesToEstimateParts(minutes)
+      expect(estimateToMinutes(value, unit)).toBe(minutes)
+    }
+  })
+})
+
+describe('fmtEstimate', () => {
+  it('shows minutes under an hour', () => {
+    expect(fmtEstimate(45)).toBe('45 min')
+  })
+
+  it('shows hours and minutes', () => {
+    expect(fmtEstimate(90)).toBe('1h 30m')
+    expect(fmtEstimate(120)).toBe('2h')
+  })
+
+  it('shows days for long estimates', () => {
+    expect(fmtEstimate(1440)).toBe('1d')
+    expect(fmtEstimate(1500)).toBe('1d 1h')
+    expect(fmtEstimate(2880)).toBe('2d')
   })
 })
 

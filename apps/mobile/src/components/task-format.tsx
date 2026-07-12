@@ -42,11 +42,20 @@ export function fmtEventTime(ms: number, now = Date.now()): string {
   return fmtDateTime(ms)
 }
 
+// Mirrors @org/app-core's fmtEstimate (kept local so this module stays a plain
+// formatter used across the app). Days use the same 24h span as cost days.
+const MINUTES_PER_DAY = 24 * 60
 export function fmtEstimate(minutes: number): string {
   if (minutes < 60) return `${minutes} min`
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return m ? `${h}h ${m}m` : `${h}h`
+  const days = Math.floor(minutes / MINUTES_PER_DAY)
+  const rem = minutes - days * MINUTES_PER_DAY
+  const h = Math.floor(rem / 60)
+  const m = rem % 60
+  const parts: string[] = []
+  if (days) parts.push(`${days}d`)
+  if (h) parts.push(`${h}h`)
+  if (m) parts.push(`${m}m`)
+  return parts.join(' ')
 }
 
 export function fmtCost(days: number): string {
@@ -135,6 +144,10 @@ export function phraseForChange(
       if (after === null) return 'cleared the cost'
       if (typeof after !== 'number') return 'changed the cost'
       return `set the cost to ${fmtCost(after)}`
+    case 'allowEarlyCompletion':
+      return after === true
+        ? 'allowed finishing before the target date'
+        : 'required the task to wait for its target date'
     case 'assignees': {
       if (change.before === null) return null
       const beforeNames = Array.isArray(before) ? before.map(String) : []
