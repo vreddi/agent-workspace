@@ -53,6 +53,7 @@ import { TargetDateInfo } from '~/components/tasks/target-date-info'
 import { AppShell } from '~/components/today/app-shell'
 import { AppBreadcrumbs, type AppCrumb } from '~/components/today/breadcrumbs'
 import { EmojiGlyphButton } from '~/components/today/emoji-picker'
+import { useConfirm } from '~/components/ui/confirm-dialog'
 
 export const Route = createFileRoute('/_authenticated/tasks/$taskId')({
   component: TaskDetailPage,
@@ -222,6 +223,7 @@ function TaskView({ task }: { task: TaskDetail }) {
   const navigate = useNavigate()
   const updateTask = useMutation(api.tasks.update)
   const removeTask = useMutation(api.tasks.remove)
+  const { confirm, confirmDialog } = useConfirm()
   const [editing, setEditing] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -240,7 +242,13 @@ function TaskView({ task }: { task: TaskDetail }) {
   }
 
   async function handleDelete() {
-    if (!window.confirm('Delete this task? This cannot be undone.')) return
+    const ok = await confirm({
+      title: 'Delete this task?',
+      description: 'This cannot be undone.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    })
+    if (!ok) return
     setBusy(true)
     setError(null)
     try {
@@ -466,6 +474,7 @@ function TaskView({ task }: { task: TaskDetail }) {
         viewerId={task.viewerId}
       />
       <ActivitySection taskId={task._id} />
+      {confirmDialog}
     </>
   )
 }

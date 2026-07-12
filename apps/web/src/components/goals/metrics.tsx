@@ -29,6 +29,7 @@ import {
   msToDateInputValue,
 } from '~/components/goals/metric-format'
 import { INPUT_CLASSES } from '~/components/goals/goal-ui'
+import { useConfirm } from '~/components/ui/confirm-dialog'
 
 // The chart pulls in recharts; loaded lazily so it never weighs down the goal
 // detail route's initial JS (see metric-chart.tsx).
@@ -119,6 +120,7 @@ function MetricCard({
 }) {
   const removeMetric = useMutation(api.metrics.remove)
   const updateMetric = useMutation(api.metrics.update)
+  const { confirm, confirmDialog } = useConfirm()
   const [editOpen, setEditOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -129,13 +131,13 @@ function MetricCard({
       : null
 
   async function handleDelete() {
-    if (
-      !window.confirm(
-        `Delete the "${metric.name}" metric and all its readings? This cannot be undone.`,
-      )
-    ) {
-      return
-    }
+    const ok = await confirm({
+      title: `Delete the "${metric.name}" metric?`,
+      description: 'This deletes all its readings and cannot be undone.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    })
+    if (!ok) return
     setError(null)
     try {
       await removeMetric({ id: metric._id })
@@ -267,6 +269,7 @@ function MetricCard({
         open={editOpen}
         onClose={() => setEditOpen(false)}
       />
+      {confirmDialog}
     </div>
   )
 }
