@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "cf-deploy": "vite build && wrangler deploy",
     "cf-typegen": "wrangler types",
-    "start": "node .output/server/index.mjs"
+    "start": "node .output/server/index.mjs",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@clerk/tanstack-react-start": "^0.27.11",
@@ -28,8 +29,8 @@
     "@xyflow/react": "^12.10.2",
     "convex": "^1.39.1",
     "lucide-react": "^0.511.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "recharts": "^3.9.2",
     "unicode-emoji-json": "^0.9.0",
     "uploadthing": "^7.7.4",
@@ -39,11 +40,11 @@
     "@cloudflare/vite-plugin": "^1.37.1",
     "@tailwindcss/vite": "^4.1.8",
     "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
+    "@types/react": "catalog:",
     "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "tailwindcss": "^4.1.8",
-    "vite": "^7.0.0",
+    "@vitejs/plugin-react": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:",
     "wrangler": "^4.92.0"
   }
 }

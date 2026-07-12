@@ -21,6 +21,9 @@
     "src",
     "README.md"
   ],
+  "scripts": {
+    "lint": "eslint ."
+  },
   "dependencies": {
     "@worldkit/grid": "workspace:*",
     "@worldkit/pathfinding": "workspace:*",
@@ -37,13 +40,13 @@
     "test:watch": "vitest"
   },
   "devDependencies": {
-    "@storybook/react-vite": "^10.0.0",
-    "storybook": "^10.0.0",
-    "@types/react": "^19.0.0",
+    "@storybook/react-vite": "catalog:",
+    "storybook": "catalog:",
+    "@types/react": "catalog:",
     "@types/react-dom": "^19.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "typescript": "~5.9.2",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:",
     "vitest": "catalog:"
   }
 }
