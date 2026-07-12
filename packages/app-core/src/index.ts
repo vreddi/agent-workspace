@@ -1,4 +1,10 @@
-export { fmtDateBadge, formatDays, hashString, pick } from './format'
+export {
+  fmtDateBadge,
+  formatCostDuration,
+  formatDays,
+  hashString,
+  pick,
+} from './format'
 export {
   addDays,
   DAY_MS,

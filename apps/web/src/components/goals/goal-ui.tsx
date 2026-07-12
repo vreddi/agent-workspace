@@ -26,6 +26,7 @@ import { useEffect, useState } from 'react'
 export {
   DAY_MS,
   describeDeadline,
+  formatCostDuration,
   formatDays,
   GOAL_TYPE_COLOR_TOKENS,
   goalTypeValue,
