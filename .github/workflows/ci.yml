@@ -20,15 +20,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+      # Provision pnpm from the packageManager field via Corepack (bundled with
+      # Node). Enabled before setup-node so its `cache: pnpm` can find pnpm.
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: pnpm
@@ -38,7 +40,7 @@ jobs:
 
       - name: Set Nx SHAs
         if: github.event_name == 'pull_request'
-        uses: nrwl/nx-set-shas@v4
+        uses: nrwl/nx-set-shas@v5
 
       # Pull requests: only re-validate what changed.
       - name: Verify affected projects
