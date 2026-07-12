@@ -160,7 +160,7 @@ class TaskErrorBoundary extends Component<
         <div className="tdp-deadend">
           <h2>Task not found</h2>
           <p>It may have been deleted, or you don't have access.</p>
-          <Link to="/today" className="tdp-btn">
+          <Link to="/app" className="tdp-btn">
             Back to Today
           </Link>
         </div>
@@ -231,7 +231,7 @@ function TaskView({ task }: { task: TaskDetail }) {
     setError(null)
     try {
       await removeTask({ id: task._id })
-      await navigate({ to: '/today' })
+      await navigate({ to: '/app' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete task')
       setBusy(false)
@@ -250,7 +250,7 @@ function TaskView({ task }: { task: TaskDetail }) {
         },
         { label: task.title },
       ]
-    : [{ label: 'Today', to: '/today' }, { label: task.title }]
+    : [{ label: 'Today', to: '/app' }, { label: task.title }]
 
   if (editing) {
     return (

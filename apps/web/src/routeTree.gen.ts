@@ -13,11 +13,11 @@ import { Route as WorldRouteImport } from './routes/world'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
-import { Route as AuthenticatedTodayRouteImport } from './routes/_authenticated/today'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedDayRouteImport } from './routes/_authenticated/day'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedAgentsRouteImport } from './routes/_authenticated/agents'
 import { Route as AuthenticatedTasksTaskIdRouteImport } from './routes/_authenticated/tasks.$taskId'
 import { Route as AuthenticatedGoalsTypesRouteImport } from './routes/_authenticated/goals.types'
@@ -42,11 +42,6 @@ const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   path: '/api/uploadthing',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedTodayRoute = AuthenticatedTodayRouteImport.update({
-  id: '/today',
-  path: '/today',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -65,6 +60,11 @@ const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
 const AuthenticatedDayRoute = AuthenticatedDayRouteImport.update({
   id: '/day',
   path: '/day',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedAgentsRoute = AuthenticatedAgentsRouteImport.update({
@@ -94,11 +94,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/world': typeof WorldRoute
   '/agents': typeof AuthenticatedAgentsRoute
+  '/app': typeof AuthenticatedAppRoute
   '/day': typeof AuthenticatedDayRoute
   '/goals': typeof AuthenticatedGoalsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/tasks': typeof AuthenticatedTasksRouteWithChildren
-  '/today': typeof AuthenticatedTodayRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/goals/$goalId': typeof AuthenticatedGoalsGoalIdRoute
   '/goals/types': typeof AuthenticatedGoalsTypesRoute
@@ -108,11 +108,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/world': typeof WorldRoute
   '/agents': typeof AuthenticatedAgentsRoute
+  '/app': typeof AuthenticatedAppRoute
   '/day': typeof AuthenticatedDayRoute
   '/goals': typeof AuthenticatedGoalsRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/tasks': typeof AuthenticatedTasksRouteWithChildren
-  '/today': typeof AuthenticatedTodayRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/goals/$goalId': typeof AuthenticatedGoalsGoalIdRoute
   '/goals/types': typeof AuthenticatedGoalsTypesRoute
@@ -124,11 +124,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/world': typeof WorldRoute
   '/_authenticated/agents': typeof AuthenticatedAgentsRoute
+  '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/day': typeof AuthenticatedDayRoute
   '/_authenticated/goals': typeof AuthenticatedGoalsRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRouteWithChildren
-  '/_authenticated/today': typeof AuthenticatedTodayRoute
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/_authenticated/goals/$goalId': typeof AuthenticatedGoalsGoalIdRoute
   '/_authenticated/goals/types': typeof AuthenticatedGoalsTypesRoute
@@ -140,11 +140,11 @@ export interface FileRouteTypes {
     | '/'
     | '/world'
     | '/agents'
+    | '/app'
     | '/day'
     | '/goals'
     | '/settings'
     | '/tasks'
-    | '/today'
     | '/api/uploadthing'
     | '/goals/$goalId'
     | '/goals/types'
@@ -154,11 +154,11 @@ export interface FileRouteTypes {
     | '/'
     | '/world'
     | '/agents'
+    | '/app'
     | '/day'
     | '/goals'
     | '/settings'
     | '/tasks'
-    | '/today'
     | '/api/uploadthing'
     | '/goals/$goalId'
     | '/goals/types'
@@ -169,11 +169,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/world'
     | '/_authenticated/agents'
+    | '/_authenticated/app'
     | '/_authenticated/day'
     | '/_authenticated/goals'
     | '/_authenticated/settings'
     | '/_authenticated/tasks'
-    | '/_authenticated/today'
     | '/api/uploadthing'
     | '/_authenticated/goals/$goalId'
     | '/_authenticated/goals/types'
@@ -217,13 +217,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUploadthingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/today': {
-      id: '/_authenticated/today'
-      path: '/today'
-      fullPath: '/today'
-      preLoaderRoute: typeof AuthenticatedTodayRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/tasks': {
       id: '/_authenticated/tasks'
       path: '/tasks'
@@ -250,6 +243,13 @@ declare module '@tanstack/react-router' {
       path: '/day'
       fullPath: '/day'
       preLoaderRoute: typeof AuthenticatedDayRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/agents': {
@@ -309,20 +309,20 @@ const AuthenticatedTasksRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAgentsRoute: typeof AuthenticatedAgentsRoute
+  AuthenticatedAppRoute: typeof AuthenticatedAppRoute
   AuthenticatedDayRoute: typeof AuthenticatedDayRoute
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRouteWithChildren
-  AuthenticatedTodayRoute: typeof AuthenticatedTodayRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAgentsRoute: AuthenticatedAgentsRoute,
+  AuthenticatedAppRoute: AuthenticatedAppRoute,
   AuthenticatedDayRoute: AuthenticatedDayRoute,
   AuthenticatedGoalsRoute: AuthenticatedGoalsRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRouteWithChildren,
-  AuthenticatedTodayRoute: AuthenticatedTodayRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
