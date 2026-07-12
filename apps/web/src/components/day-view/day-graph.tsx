@@ -1,5 +1,5 @@
 import { api } from '@convex/_generated/api'
-import { useQuery } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import {
   Background,
   BackgroundVariant,
@@ -14,13 +14,30 @@ import { useEffect, useMemo, useState } from 'react'
 import { sortForToday, toDisplayTask, type DisplayTask } from '../today/helpers'
 import { Nav } from '../today/nav'
 import { todayStyles } from '../today/styles'
-import { TWEAKS_STORAGE_KEY, loadTweaks } from '../today/tweaks'
+import { loadTweaks } from '../today/tweaks'
 import { bucketize } from './buckets'
 import { buildGraph, type DayNode } from './layout'
 import { nodeTypes } from './nodes'
 import { dayViewStyles } from './styles'
 
 type Theme = 'light' | 'dark'
+
+/** Resolve the effective theme from the saved preference (system → OS). */
+function useResolvedTheme(): Theme {
+  const currentUser = useQuery(api.users.current)
+  const pref = (currentUser?.theme ?? 'system') as 'light' | 'dark' | 'system'
+  const [systemDark, setSystemDark] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    setSystemDark(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setSystemDark(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  if (pref === 'dark') return 'dark'
+  if (pref === 'light') return 'light'
+  return systemDark ? 'dark' : 'light'
+}
 
 function useNow(intervalMs: number): Date {
   const [now, setNow] = useState(() => new Date())
@@ -43,18 +60,6 @@ function startOfDayLabel(now: Date): { label: string; sub: string } {
 
 function dayName(d: Date): string {
   return d.toLocaleDateString('en-US', { weekday: 'long' })
-}
-
-/** Flip the theme and persist it to the shared tweaks so all pages agree. */
-function saveTheme(theme: Theme) {
-  try {
-    window.localStorage.setItem(
-      TWEAKS_STORAGE_KEY,
-      JSON.stringify({ ...loadTweaks(), theme }),
-    )
-  } catch {
-    /* ignore */
-  }
 }
 
 function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
@@ -129,25 +134,11 @@ function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
 export function DayGraph() {
   const rawTasks = useQuery(api.tasks.list, {})
   const [tweaks] = useState(() => loadTweaks())
-  const [theme, setTheme] = useState<Theme>(tweaks.theme)
+  // Theme comes from the account preference (shared with Settings); useTheme()
+  // at the root turns it into the `.dark` class that styles every surface.
+  const theme = useResolvedTheme()
+  const updateTheme = useMutation(api.users.updateTheme)
   const now = useNow(30_000)
-
-  useEffect(() => {
-    // Keep in sync with Today dashboard tweaks if the user toggles theme there.
-    function onStorage(e: StorageEvent) {
-      if (e.key === TWEAKS_STORAGE_KEY) setTheme(loadTweaks().theme)
-    }
-    window.addEventListener('storage', onStorage)
-    return () => window.removeEventListener('storage', onStorage)
-  }, [])
-
-  // Portaled menus (the nav's avatar dropdown) live outside .today-root and
-  // follow the shadcn dark class, so keep it in sync.
-  useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'dark') root.classList.add('dark')
-    else root.classList.remove('dark')
-  }, [theme])
 
   const display = useMemo<DisplayTask[]>(() => {
     if (!rawTasks) return []
@@ -215,11 +206,7 @@ export function DayGraph() {
             type="button"
             className="d-back"
             onClick={() =>
-              setTheme((t) => {
-                const next = t === 'dark' ? 'light' : 'dark'
-                saveTheme(next)
-                return next
-              })
+              updateTheme({ theme: theme === 'dark' ? 'light' : 'dark' })
             }
             aria-label="Toggle theme"
             style={{ paddingRight: 14 }}

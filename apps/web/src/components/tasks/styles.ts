@@ -207,7 +207,7 @@ export const taskDetailStyles = `
   transition: border-color 0.12s;
   color-scheme: light;
 }
-[data-today-theme="dark"] .tdp-input { color-scheme: dark; }
+.dark .tdp-input { color-scheme: dark; }
 .tdp-input:focus { border-color: var(--t-accent); }
 .tdp-input:disabled { opacity: 0.5; cursor: not-allowed; }
 .tdp-input::placeholder { color: var(--t-ink-3); }

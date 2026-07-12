@@ -38,15 +38,17 @@ export const dayViewStyles = `
   overflow: hidden;
 }
 
-.day-root[data-theme='dark'] {
-  --d-bg: #0c0d12;
-  --d-bg-2: #14161c;
-  --d-ink-1: #f5f6f8;
-  --d-ink-2: #b9bdc6;
-  --d-ink-3: #7d8390;
+/* Keys off the global .dark class (see today/styles.ts). Colors reference
+   the GitHub-dark tokens from @org/ui globals.css. */
+.dark .day-root {
+  --d-bg: var(--gh-canvas);
+  --d-bg-2: var(--gh-surface);
+  --d-ink-1: var(--gh-fg);
+  --d-ink-2: var(--gh-fg-muted);
+  --d-ink-3: var(--gh-fg-subtle);
   --d-line: rgba(255, 255, 255, 0.08);
   --d-line-strong: rgba(255, 255, 255, 0.18);
-  --d-card: #1a1c23;
+  --d-card: var(--gh-surface);
   --d-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
   --d-shadow-md: 0 4px 10px rgba(0, 0, 0, 0.25), 0 12px 24px rgba(0, 0, 0, 0.45);
   --d-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.30), 0 30px 60px rgba(0, 0, 0, 0.55);

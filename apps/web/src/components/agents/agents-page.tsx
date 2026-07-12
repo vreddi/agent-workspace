@@ -453,13 +453,8 @@ export function AgentsPage() {
   const [composerOpen, setComposerOpen] = useState(false)
   const autoOpened = useRef(false)
 
-  // Portaled menus (model picker) live outside .today-root and follow the
-  // shadcn dark class, so keep it in sync when landing on this page directly.
-  useEffect(() => {
-    const root = document.documentElement
-    if (tweaks.theme === 'dark') root.classList.add('dark')
-    else root.classList.remove('dark')
-  }, [tweaks.theme])
+  // Dark mode is applied globally by useTheme() (root) via the `.dark` class,
+  // which drives both shadcn tokens and the `--t-*` surfaces here.
 
   // First visit with an empty roster drops you straight into creation.
   useEffect(() => {

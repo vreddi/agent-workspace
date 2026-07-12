@@ -4,7 +4,7 @@ import { useUser } from '@clerk/tanstack-react-start'
 import { Link } from '@tanstack/react-router'
 import type { SpriteSheet } from '@worldkit/sprite-actor'
 import { VillageCanvas, useTimeOfDay } from '@worldkit/world-canvas'
-import { useQuery } from 'convex/react'
+import { useMutation, useQuery } from 'convex/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { customSheet, stubSheet } from '../agents/sprites'
 import { BrandIcon } from './brand-icons'
@@ -210,11 +210,15 @@ function TaskRow({ task, now }: { task: DisplayTask; now: Date }) {
 function TweaksPanel({
   tweaks,
   setTweaks,
+  themePref,
+  onThemeChange,
   open,
   onOpenChange,
 }: {
   tweaks: Tweaks
   setTweaks: (t: Tweaks) => void
+  themePref: 'light' | 'dark' | 'system'
+  onThemeChange: (t: 'light' | 'dark') => void
   open: boolean
   onOpenChange: (next: boolean) => void
 }) {
@@ -230,8 +234,8 @@ function TweaksPanel({
               <button
                 key={opt}
                 type="button"
-                data-active={tweaks.theme === opt}
-                onClick={() => setTweaks({ ...tweaks, theme: opt })}
+                data-active={themePref === opt}
+                onClick={() => onThemeChange(opt)}
               >
                 {opt}
               </button>
@@ -315,12 +319,14 @@ export function TodayDashboard() {
     }
   }, [])
 
-  // Sync dark theme to the global shadcn token system as well
-  useEffect(() => {
-    const root = document.documentElement
-    if (tweaks.theme === 'dark') root.classList.add('dark')
-    else root.classList.remove('dark')
-  }, [tweaks.theme])
+  // Theme lives on the account (shared with Settings) so it applies app-wide
+  // and across devices; useTheme() at the root turns it into the `.dark` class.
+  const currentUser = useQuery(api.users.current)
+  const themePref = (currentUser?.theme ?? 'system') as
+    | 'light'
+    | 'dark'
+    | 'system'
+  const updateTheme = useMutation(api.users.updateTheme)
 
   const live = useLiveTime(30_000)
   const [tweaksOpen, setTweaksOpen] = useState(false)
@@ -417,6 +423,8 @@ export function TodayDashboard() {
       <TweaksPanel
         tweaks={tweaks}
         setTweaks={setTweaks}
+        themePref={themePref}
+        onThemeChange={(t) => updateTheme({ theme: t })}
         open={tweaksOpen}
         onOpenChange={setTweaksOpen}
       />

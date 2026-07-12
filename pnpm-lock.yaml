@@ -296,6 +296,9 @@ importers:
       '@org/app-core':
         specifier: workspace:*
         version: link:../../packages/app-core
+      '@org/theme':
+        specifier: workspace:*
+        version: link:../../packages/theme
       '@org/ui':
         specifier: workspace:*
         version: link:../../packages/ui

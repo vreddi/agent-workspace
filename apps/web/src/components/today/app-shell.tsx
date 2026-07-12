@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Nav, type NavPage } from './nav'
 import { todayStyles } from './styles'
 import { loadTweaks } from './tweaks'
@@ -18,14 +18,9 @@ export function AppShell({
 }) {
   const [tweaks] = useState(() => loadTweaks())
 
-  // Portaled menus (dropdowns, selects) live outside .today-root and follow
-  // the shadcn dark class, so keep it in sync when landing here directly.
-  useEffect(() => {
-    const root = document.documentElement
-    if (tweaks.theme === 'dark') root.classList.add('dark')
-    else root.classList.remove('dark')
-  }, [tweaks.theme])
-
+  // Dark mode is applied globally by useTheme() (root) from the saved theme
+  // preference — the `.dark` class it toggles drives both shadcn tokens and
+  // the `--t-*` surfaces below, so this shell needs no theme wiring of its own.
   return (
     <div
       className="today-root"

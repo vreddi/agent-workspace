@@ -1,49 +1,60 @@
+import { dark, light } from '@org/theme'
+
+/**
+ * The `--t-*` app-surface tokens are built from the shared `@org/theme`
+ * palettes — the same values the mobile app renders from — so web and mobile
+ * can't drift. Light is the warm "soft white"; dark is GitHub's dark palette.
+ * Only the accent-soft / accent-ink fills stay as `color-mix()` here because
+ * they're derived live from the user's chosen accent (`--t-accent-raw`).
+ */
 export const todayStyles = `
-[data-today-theme="light"] {
-  /* Soft white: warm near-neutrals (no blue cast), chroma kept under 0.004. */
-  --t-bg: oklch(0.986 0.002 95);
-  --t-surface: oklch(0.998 0.001 95);
-  --t-rail: oklch(0.998 0.001 95);
-  --t-ink-1: oklch(0.24 0.006 85);
-  --t-ink-2: oklch(0.5 0.008 85);
-  --t-ink-3: oklch(0.65 0.007 85);
-  --t-ink-4: oklch(0.845 0.005 85);
-  --t-divider: oklch(0.938 0.003 90);
-  --t-chip-bg: oklch(0.962 0.003 90);
-  --t-hover: oklch(0.973 0.003 90);
-  --t-accent: var(--t-accent-raw, #2b6ef5);
+.today-root {
+  --t-bg: ${light.bg};
+  --t-surface: ${light.surface};
+  --t-rail: ${light.rail};
+  --t-ink-1: ${light.ink1};
+  --t-ink-2: ${light.ink2};
+  --t-ink-3: ${light.ink3};
+  --t-ink-4: ${light.ink4};
+  --t-divider: ${light.divider};
+  --t-chip-bg: ${light.chipBg};
+  --t-hover: ${light.hover};
+  --t-accent: var(--t-accent-raw, ${light.accent});
   --t-accent-soft: color-mix(in srgb, var(--t-accent) 14%, var(--t-surface));
   --t-accent-ink: color-mix(in srgb, var(--t-accent) 80%, #000);
-  --t-overdue: #e25151;
-  --t-overdue-soft: #fde8e8;
+  --t-overdue: ${light.overdue};
+  --t-overdue-soft: ${light.overdueSoft};
   --t-shadow-card: 0 1px 0 rgba(30,28,22,0.03), 0 4px 14px -6px rgba(30,28,22,0.08);
   --t-shadow-elev: 0 1px 0 rgba(30,28,22,0.04), 0 10px 28px -12px rgba(30,28,22,0.16);
-  --t-kbd-bg: oklch(0.998 0.001 95);
+  --t-kbd-bg: ${light.surface};
   --t-kbd-border: oklch(0.908 0.004 90);
   background: var(--t-bg);
   color: var(--t-ink-1);
 }
 
-[data-today-theme="dark"] {
-  --t-bg: #0d0f15;
-  --t-surface: #15181f;
-  --t-rail: #11141a;
-  --t-ink-1: #f1f3f8;
-  --t-ink-2: #9aa1b2;
-  --t-ink-3: #6b7185;
-  --t-ink-4: #3a3f4e;
-  --t-divider: #1f242e;
-  --t-chip-bg: #1c2029;
-  --t-hover: #1a1e26;
-  --t-accent: var(--t-accent-raw, #5b8df8);
+/* Dark mode keys off the global .dark class (set from the saved theme
+   preference by useTheme), so every .today-root surface flips together with
+   the shadcn tokens. Values come from the shared @org/theme dark palette. */
+.dark .today-root {
+  --t-bg: ${dark.bg};
+  --t-surface: ${dark.surface};
+  --t-rail: ${dark.rail};
+  --t-ink-1: ${dark.ink1};
+  --t-ink-2: ${dark.ink2};
+  --t-ink-3: ${dark.ink3};
+  --t-ink-4: ${dark.ink4};
+  --t-divider: ${dark.divider};
+  --t-chip-bg: ${dark.chipBg};
+  --t-hover: ${dark.hover};
+  --t-accent: var(--t-accent-raw, ${dark.accent});
   --t-accent-soft: color-mix(in srgb, var(--t-accent) 22%, var(--t-surface));
   --t-accent-ink: color-mix(in srgb, var(--t-accent) 60%, #fff);
-  --t-overdue: #f37777;
-  --t-overdue-soft: #2d1a1a;
+  --t-overdue: ${dark.overdue};
+  --t-overdue-soft: ${dark.overdueSoft};
   --t-shadow-card: 0 1px 0 rgba(0,0,0,0.4), 0 8px 24px -10px rgba(0,0,0,0.4);
   --t-shadow-elev: 0 1px 0 rgba(0,0,0,0.4), 0 12px 30px -12px rgba(0,0,0,0.6);
-  --t-kbd-bg: #1a1e26;
-  --t-kbd-border: #2a2f3a;
+  --t-kbd-bg: ${dark.chipBg};
+  --t-kbd-border: ${dark.divider};
   background: var(--t-bg);
   color: var(--t-ink-1);
 }
@@ -265,7 +276,7 @@ export const todayStyles = `
   z-index: 50;
   animation: t-fade-in 0.14s ease-out;
 }
-[data-today-theme="dark"] .t-palette-bd { background: rgba(0,0,0,0.55); }
+.dark .t-palette-bd { background: rgba(0,0,0,0.55); }
 .t-palette {
   width: 600px; max-width: calc(100% - 32px);
   background: var(--t-surface);
@@ -608,7 +619,7 @@ export const todayStyles = `
   font-size: 12px; font-weight: 500;
   border-bottom: 1px solid var(--t-divider);
 }
-[data-today-theme="dark"] .t-palette__error {
+.dark .t-palette__error {
   background: rgba(248, 113, 113, 0.12);
   color: #fca5a5;
 }

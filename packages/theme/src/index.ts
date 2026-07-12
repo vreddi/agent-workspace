@@ -1,6 +1,7 @@
 export {
   brandGradient,
   dark,
+  githubDark,
   light,
   palettes,
   priority,
