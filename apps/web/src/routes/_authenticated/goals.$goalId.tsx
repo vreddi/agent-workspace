@@ -47,6 +47,7 @@ import { MetricsSection } from '~/components/goals/metrics'
 import { PriorityBadge } from '~/components/tasks/priority'
 import { AppShell } from '~/components/today/app-shell'
 import { AppBreadcrumbs } from '~/components/today/breadcrumbs'
+import { useConfirm } from '~/components/ui/confirm-dialog'
 
 export const Route = createFileRoute('/_authenticated/goals/$goalId')({
   component: GoalDetailPage,
@@ -141,6 +142,7 @@ function GoalHeader({ goal }: { goal: GoalListItem }) {
   const navigate = useNavigate()
   const setStatus = useMutation(api.goals.setStatus)
   const removeGoal = useMutation(api.goals.remove)
+  const { confirm, confirmDialog } = useConfirm()
   const [editOpen, setEditOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -161,13 +163,14 @@ function GoalHeader({ goal }: { goal: GoalListItem }) {
   }
 
   async function handleDelete() {
-    if (
-      !window.confirm(
-        'Delete this goal? Its tasks are kept but detached from the goal. This cannot be undone.',
-      )
-    ) {
-      return
-    }
+    const ok = await confirm({
+      title: 'Delete this goal?',
+      description:
+        'Its tasks are kept but detached from the goal. This cannot be undone.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    })
+    if (!ok) return
     setBusy(true)
     setError(null)
     try {
@@ -280,6 +283,7 @@ function GoalHeader({ goal }: { goal: GoalListItem }) {
       {editOpen && (
         <GoalEditor goal={goal} onSaved={() => setEditOpen(false)} />
       )}
+      {confirmDialog}
     </section>
   )
 }
