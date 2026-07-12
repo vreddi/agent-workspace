@@ -1,11 +1,13 @@
-import { space } from '@org/theme'
+import { radius, space } from '@org/theme'
+import { router } from 'expo-router'
+import { Plus } from 'lucide-react-native'
 import { useMemo, useState } from 'react'
-import { ScrollView, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Screen, ScreenHeader, ScreenLoading } from '@/components/screen'
 import { TaskRow } from '@/components/task-row'
 import { AppText, Card, Chip } from '@/components/ui'
 import { useTaskList } from '@/data/hooks'
-import { daysFromToday } from '@/lib/dates'
+import { daysFromToday } from '@org/app-core'
 import { useTheme } from '@/theme/theme-context'
 
 const FILTERS = ['All', 'Open', 'Overdue', 'Done'] as const
@@ -34,7 +36,21 @@ export default function TasksScreen() {
 
   return (
     <Screen>
-      <ScreenHeader title="Tasks" meta={tasks === undefined ? undefined : `${visible.length}`} />
+      <View style={styles.headerRow}>
+        <View style={{ flex: 1 }}>
+          <ScreenHeader title="Tasks" meta={tasks === undefined ? undefined : `${visible.length}`} />
+        </View>
+        <Pressable
+          onPress={() => router.push('/task/new')}
+          hitSlop={8}
+          style={({ pressed }) => [
+            styles.addButton,
+            { backgroundColor: palette.accent, opacity: pressed ? 0.85 : 1 },
+          ]}
+        >
+          <Plus size={22} color="#ffffff" strokeWidth={2.5} />
+        </Pressable>
+      </View>
 
       <ScrollView
         horizontal
@@ -70,3 +86,19 @@ export default function TasksScreen() {
     </Screen>
   )
 }
+
+const styles = StyleSheet.create({
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    paddingRight: space.sm,
+  },
+  addButton: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+})

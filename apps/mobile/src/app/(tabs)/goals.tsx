@@ -1,19 +1,38 @@
+import type { GoalListItem } from '@convex/goals'
+import { formatDue } from '@org/app-core'
 import { radius, space } from '@org/theme'
+import * as Haptics from 'expo-haptics'
 import { router } from 'expo-router'
+import { Plus } from 'lucide-react-native'
+import { useState } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { GoalTypeIcon } from '@/components/goal-type-icon'
-import { Screen, ScreenHeader, ScreenLoading } from '@/components/screen'
-import { AppText, Card } from '@/components/ui'
-import { useGoalList, type Goal } from '@/data/hooks'
-import { formatDue } from '@/lib/dates'
+import { RemindersBanner } from '@/components/reminders-banner'
+import { Screen, ScreenLoading } from '@/components/screen'
+import { AppText, Card, Chip } from '@/components/ui'
+import { useGoalsByStatus, type GoalStatus } from '@/data/goals-data'
 import { useTheme } from '@/theme/theme-context'
 
-function GoalCard({ goal }: { goal: Goal }) {
+const STATUS_FILTERS: { value: GoalStatus; label: string }[] = [
+  { value: 'active', label: 'Active' },
+  { value: 'achieved', label: 'Achieved' },
+  { value: 'archived', label: 'Archived' },
+]
+
+const EMPTY_COPY: Record<GoalStatus, string> = {
+  active: 'No active goals yet. Tap + to set one and start stacking wins.',
+  achieved: 'Nothing here yet — achieved goals will show up as trophies.',
+  archived: 'No archived goals. Set-aside goals land here.',
+}
+
+function GoalCard({ goal }: { goal: GoalListItem }) {
   const { palette } = useTheme()
-  const progress = goal.totalTasks === 0 ? 0 : goal.doneTasks / goal.totalTasks
+  const total = goal.progress.totalTasks
+  const done = goal.progress.completeTasks
+  const progress = total === 0 ? 0 : done / total
 
   return (
-    <Pressable onPress={() => router.push(`/goal/${goal.id}`)}>
+    <Pressable onPress={() => router.push(`/goal/${goal._id}`)}>
       {({ pressed }) => (
         <Card style={[styles.card, pressed && { backgroundColor: palette.hover }]}>
           <View style={styles.head}>
@@ -23,13 +42,13 @@ function GoalCard({ goal }: { goal: Goal }) {
               icon={goal.type?.icon ?? null}
             />
             <View style={{ flex: 1, gap: 3 }}>
-              <AppText variant="heading">{goal.title}</AppText>
+              <AppText variant="heading" numberOfLines={1}>
+                {goal.title}
+              </AppText>
               <AppText variant="meta" color={palette.ink3}>
-                {goal.totalTasks === 0
-                  ? 'No tasks yet'
-                  : `${goal.doneTasks} of ${goal.totalTasks} tasks`}
+                {total === 0 ? 'No tasks yet' : `${done} of ${total} tasks`}
                 {' · target '}
-                {formatDue(goal.deadline)}
+                {formatDue(new Date(goal.deadline))}
               </AppText>
             </View>
             <AppText variant="heading" color={palette.accentInk}>
@@ -52,19 +71,49 @@ function GoalCard({ goal }: { goal: Goal }) {
 
 export default function GoalsScreen() {
   const { palette } = useTheme()
-  const goals = useGoalList()
+  const [status, setStatus] = useState<GoalStatus>('active')
+  const goals = useGoalsByStatus(status)
 
   return (
     <Screen>
-      <ScreenHeader title="Goals" meta={goals === undefined ? undefined : `${goals.length}`} />
+      <View style={styles.header}>
+        <AppText variant="title">Goals</AppText>
+        <Pressable
+          onPress={() => {
+            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+            router.push('/goal/new')
+          }}
+          style={({ pressed }) => [
+            styles.addButton,
+            { backgroundColor: palette.accent, opacity: pressed ? 0.85 : 1 },
+          ]}
+          hitSlop={8}
+        >
+          <Plus size={20} color="#ffffff" strokeWidth={2.5} />
+        </Pressable>
+      </View>
+
+      <RemindersBanner />
+
+      <View style={styles.filters}>
+        {STATUS_FILTERS.map((filter) => (
+          <Chip
+            key={filter.value}
+            label={filter.label}
+            selected={filter.value === status}
+            onPress={() => setStatus(filter.value)}
+          />
+        ))}
+      </View>
+
       {goals === undefined ? (
         <ScreenLoading />
       ) : goals.length > 0 ? (
-        goals.map((goal) => <GoalCard key={goal.id} goal={goal} />)
+        goals.map((goal) => <GoalCard key={goal._id} goal={goal} />)
       ) : (
         <Card style={{ padding: space.xl }}>
           <AppText variant="label" color={palette.ink3}>
-            No active goals. Create one in the web app and it will show up here.
+            {EMPTY_COPY[status]}
           </AppText>
         </Card>
       )}
@@ -73,6 +122,26 @@ export default function GoalsScreen() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: space.sm,
+    paddingTop: space.sm,
+    paddingBottom: space.xs,
+  },
+  addButton: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filters: {
+    flexDirection: 'row',
+    gap: space.sm,
+    paddingHorizontal: space.sm,
+  },
   card: {
     padding: space.xl,
     gap: space.lg,

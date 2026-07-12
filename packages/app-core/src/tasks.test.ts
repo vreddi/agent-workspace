@@ -1,0 +1,129 @@
+import { describe, expect, it } from 'vitest'
+import {
+  aiSuggestionFor,
+  applyFilter,
+  deriveDeadline,
+  type TaskLike,
+  sortForToday,
+  toDisplayTask,
+} from './tasks.js'
+
+const HOUR = 60 * 60 * 1000
+const NOW = 1_000_000_000_000
+
+function task(over: Partial<TaskLike> & { _id: string }): TaskLike {
+  return {
+    title: 'Task',
+    description: null,
+    status: 'open',
+    assignees: [],
+    ...over,
+  }
+}
+
+describe('deriveDeadline', () => {
+  it('prefers the hard deadline over the soft one', () => {
+    expect(deriveDeadline({ hardDeadline: 5, softDeadline: 9 })?.getTime()).toBe(5)
+    expect(deriveDeadline({ softDeadline: 9 })?.getTime()).toBe(9)
+    expect(deriveDeadline({})).toBeNull()
+    expect(deriveDeadline({ hardDeadline: null, softDeadline: null })).toBeNull()
+  })
+})
+
+describe('aiSuggestionFor', () => {
+  it('formats estimate-based suggestions', () => {
+    expect(aiSuggestionFor({ estimateMinutes: 90, status: 'open' })).toBe(
+      'Estimated 1h 30m of focus',
+    )
+    expect(aiSuggestionFor({ estimateMinutes: 120, status: 'open' })).toBe(
+      'Estimated 2h of focus',
+    )
+    expect(aiSuggestionFor({ estimateMinutes: 20, status: 'open' })).toBe(
+      'Estimated 20m of focus — block after standup',
+    )
+  })
+
+  it('falls back to status-based copy', () => {
+    expect(aiSuggestionFor({ status: 'in_progress' })).toBe(
+      'In motion — finish before lunch',
+    )
+    expect(aiSuggestionFor({ status: 'open' })).toBe('Quick — under 15m')
+  })
+})
+
+describe('toDisplayTask', () => {
+  it('marks open tasks with a past deadline overdue', () => {
+    const d = toDisplayTask(
+      task({ _id: 'a', hardDeadline: NOW - HOUR, status: 'open' }),
+      NOW,
+    )
+    expect(d.overdue).toBe(true)
+    expect(d.deadline?.getTime()).toBe(NOW - HOUR)
+  })
+
+  it('never marks completed tasks overdue', () => {
+    const d = toDisplayTask(
+      task({ _id: 'a', hardDeadline: NOW - HOUR, status: 'done' }),
+      NOW,
+    )
+    expect(d.overdue).toBe(false)
+  })
+
+  it('preserves the raw row type for callers', () => {
+    const raw = task({ _id: 'a', title: 'Hello' })
+    const d = toDisplayTask(raw, NOW)
+    expect(d.raw).toBe(raw)
+    expect(d.title).toBe('Hello')
+  })
+})
+
+describe('sortForToday', () => {
+  it('puts overdue first, then soonest deadline, undated last', () => {
+    const mk = (id: string, deadline: number | null, status = 'open') =>
+      toDisplayTask(
+        task({ _id: id, hardDeadline: deadline, status }),
+        NOW,
+      )
+    const undated = mk('undated', null)
+    const soon = mk('soon', NOW + HOUR)
+    const later = mk('later', NOW + 5 * HOUR)
+    const overdue = mk('overdue', NOW - HOUR)
+
+    const sorted = sortForToday([undated, later, soon, overdue])
+    expect(sorted.map((t) => t.id)).toEqual([
+      'overdue',
+      'soon',
+      'later',
+      'undated',
+    ])
+  })
+})
+
+describe('applyFilter', () => {
+  const mk = (id: string, deadline: number | null, status = 'open') =>
+    toDisplayTask(task({ _id: id, hardDeadline: deadline, status }), NOW)
+  const overdue = mk('overdue', NOW - HOUR)
+  const soon = mk('soon', NOW + HOUR)
+  const later = mk('later', NOW + 12 * HOUR)
+  const undated = mk('undated', null)
+  const all = [overdue, soon, later, undated]
+
+  it('all returns everything', () => {
+    expect(applyFilter(all, 'all', NOW)).toHaveLength(4)
+  })
+
+  it('overdue keeps only overdue tasks', () => {
+    expect(applyFilter(all, 'overdue', NOW).map((t) => t.id)).toEqual(['overdue'])
+  })
+
+  it('soon keeps upcoming within six hours', () => {
+    expect(applyFilter(all, 'soon', NOW).map((t) => t.id)).toEqual(['soon'])
+  })
+
+  it('later keeps undated and far-out tasks', () => {
+    expect(applyFilter(all, 'later', NOW).map((t) => t.id)).toEqual([
+      'later',
+      'undated',
+    ])
+  })
+})

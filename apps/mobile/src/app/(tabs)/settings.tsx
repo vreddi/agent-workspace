@@ -1,10 +1,10 @@
 import { useClerk, useUser } from '@clerk/clerk-expo'
 import { radius, space } from '@org/theme'
 import Constants from 'expo-constants'
-import { useState } from 'react'
 import { Image, Pressable, StyleSheet, Switch, View } from 'react-native'
 import { Screen, ScreenHeader } from '@/components/screen'
 import { AppText, Card, SectionLabel } from '@/components/ui'
+import { useLocalPreference } from '@/lib/preferences'
 import { useTheme, type ThemePreference } from '@/theme/theme-context'
 
 const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
@@ -52,7 +52,7 @@ export default function SettingsScreen() {
   const { palette, preference, setPreference } = useTheme()
   const { user } = useUser()
   const { signOut } = useClerk()
-  const [reminders, setReminders] = useState(true)
+  const [reminders, setReminders] = useLocalPreference('reminders', true)
 
   const fullName =
     user?.fullName ??

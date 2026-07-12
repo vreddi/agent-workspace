@@ -1,5 +1,10 @@
 import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
+import {
+  GOAL_TYPE_COLOR_TOKENS,
+  parseTypeValue as parseTypeValueCore,
+} from '@org/app-core'
+import type { GoalTypeColorToken } from '@org/app-core'
 import { Button } from '@org/ui/components/button'
 import {
   Select,
@@ -16,18 +21,16 @@ import { useMutation, useQuery } from 'convex/react'
 import { LayoutGrid, List } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-export const DAY_MS = 24 * 60 * 60 * 1000
-
-// Encodes a goal's type as a GoalTypeSelect/GoalTypeSelectionIcon value:
-// '' = none, 'sys:<slug>' for built-ins, 'custom:<id>' for custom types.
-export function goalTypeValue(goal: {
-  typeSlug: string | null
-  customTypeId: Id<'goalTypes'> | null
-}): string {
-  if (goal.typeSlug !== null) return `sys:${goal.typeSlug}`
-  if (goal.customTypeId !== null) return `custom:${goal.customTypeId}`
-  return ''
-}
+// Pure goal view-model logic lives in @org/app-core (shared with mobile);
+// re-exported here so existing web imports keep resolving through goal-ui.
+export {
+  DAY_MS,
+  describeDeadline,
+  formatDays,
+  GOAL_TYPE_COLOR_TOKENS,
+  goalTypeValue,
+} from '@org/app-core'
+export type { GoalTypeColorToken } from '@org/app-core'
 
 export type ViewMode = 'card' | 'list'
 
@@ -107,21 +110,10 @@ export const TEXTAREA_CLASSES = cn(
   'placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
 )
 
-// Color tokens used by goal types (system types use exactly these; custom
-// types are created from the same palette). Classes are spelled out — no
-// dynamic class-string construction — so Tailwind can see them.
-export const GOAL_TYPE_COLOR_TOKENS = [
-  'emerald',
-  'orange',
-  'indigo',
-  'sky',
-  'rose',
-  'amber',
-  'violet',
-  'slate',
-] as const
-export type GoalTypeColorToken = (typeof GOAL_TYPE_COLOR_TOKENS)[number]
-
+// The color tokens (GOAL_TYPE_COLOR_TOKENS / GoalTypeColorToken) come from
+// @org/app-core. Their Tailwind class mapping stays here because the classes
+// are spelled out — no dynamic class-string construction — so Tailwind can
+// see them.
 type ColorClasses = { dot: string; chip: string; swatch: string }
 
 const GOAL_TYPE_COLOR_CLASSES: Record<GoalTypeColorToken, ColorClasses> = {
@@ -346,24 +338,6 @@ export function GoalTypeSelectionIcon({
   )
 }
 
-export function describeDeadline(
-  deadline: number,
-  now: number,
-): { label: string; overdue: boolean } {
-  if (deadline < now) {
-    const over = Math.max(1, Math.ceil((now - deadline) / DAY_MS))
-    return { label: `Overdue by ${over} day${over === 1 ? '' : 's'}`, overdue: true }
-  }
-  const days = Math.ceil((deadline - now) / DAY_MS)
-  if (days === 0) return { label: 'Due today', overdue: false }
-  return { label: `${days} day${days === 1 ? '' : 's'} left`, overdue: false }
-}
-
-export function formatDays(n: number): string {
-  const rounded = Math.round(n * 10) / 10
-  return `${rounded}`
-}
-
 export function msToDateInput(ms: number): string {
   const d = new Date(ms)
   if (Number.isNaN(d.getTime())) return ''
@@ -410,17 +384,10 @@ export function formatDeadlineLabel(value: string): string {
 const NEW_TYPE_VALUE = '__new__'
 const NONE_VALUE = '__none__'
 
-export type TypeSelection =
-  | { kind: 'none' }
-  | { kind: 'system'; slug: string }
-  | { kind: 'custom'; id: Id<'goalTypes'> }
-
-export function parseTypeValue(value: string): TypeSelection {
-  if (value.startsWith('sys:')) return { kind: 'system', slug: value.slice(4) }
-  if (value.startsWith('custom:')) {
-    return { kind: 'custom', id: value.slice(7) as Id<'goalTypes'> }
-  }
-  return { kind: 'none' }
+// Web-typed wrapper over the shared parser: recovers the branded goalTypes id
+// so callers can pass `selection.id` straight to Convex mutations.
+export function parseTypeValue(value: string) {
+  return parseTypeValueCore<Id<'goalTypes'>>(value)
 }
 
 export function GoalTypeSelect({

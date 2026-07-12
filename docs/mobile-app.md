@@ -4,29 +4,65 @@ The native iOS/Android companion to the web app, built with
 [Expo](https://docs.expo.dev) SDK 57 + React Native 0.86. It is a real
 native app — native tab bars, headers, transitions and haptics — not a
 webview. It shares the web app's look through
-[`@org/theme`](../packages/theme/README.md): the same soft-white palettes,
-Plus Jakarta Sans type scale, radii and spacing that drive the web's
+[`@org/theme`](../packages/theme/README.md) and its product logic through
+[`@org/app-core`](../packages/app-core/README.md): the same palettes, type
+scale, deadline math and task/goal view-model helpers that drive the web's
 logged-in surfaces.
+
+The app now has full **task and goal parity** with the web — you can
+create, edit, and manage tasks and goals from the phone, not just read
+them. For how the two clients stay in sync and where new logic belongs, see
+[mobile-web-parity.md](./mobile-web-parity.md).
 
 ## What's inside
 
 - **expo-router** file-based routes in `src/app/`: five native tabs
-  (Today, Tasks, Goals, Agents, Settings) plus a pushed task-detail screen,
-  gated behind sign-in with `Stack.Protected`. Tabs use `NativeTabs` — real
-  `UITabBar` on iOS (liquid glass on iOS 26) and Material bottom navigation
-  on Android.
+  (Today, Tasks, Goals, Agents, Settings) plus pushed and modal screens for
+  task and goal detail/create/edit, gated behind sign-in with
+  `Stack.Protected`. Tabs use `NativeTabs` — real `UITabBar` on iOS (liquid
+  glass on iOS 26) and Material bottom navigation on Android.
 - **Clerk auth** (`@clerk/clerk-expo`) against the same Clerk application
   as the web app: email-code sign-in plus Google/Apple SSO, matching the
   instance's enabled strategies. Session tokens are cached in the platform
   keychain/keystore via `expo-secure-store` — never in plain storage.
 - **Live Convex data** (`convex/react` + `ConvexProviderWithClerk`) from
-  the same deployment as the web — `src/data/hooks.ts` wraps the shared
-  `tasks` / `goals` / `agents` / `users` functions in mobile view models.
-  Completing a task on the phone updates the web in real time and vice
-  versa.
+  the same deployment as the web. `src/data/hooks.ts`, `tasks-data.ts` and
+  `goals-data.ts` wrap the shared Convex functions in mobile view models;
+  mutations write straight through, so a change on the phone shows on the
+  web in real time and vice versa.
+- **`@org/app-core`** — the headless, cross-platform view-model logic
+  (deadline formatting, task display/sort/filter, tone/assignee helpers,
+  goal type value coding) shared with the web. Mobile imports it from
+  source the same way it imports `@org/theme`.
 - **`src/components/`** — native UI primitives (`AppText`, `Card`, `Chip`,
-  `TaskRow`, ...) styled from `@org/theme`. This is the mobile counterpart
-  of `@org/ui` (which is web-only — Radix + Tailwind can't render in RN).
+  `TaskRow`, ...) and the create/edit **form kit** in `forms.tsx`
+  (`FormScreen`, `FormSection`, `TextFieldRow`, `SelectRow`, `DateFieldRow`,
+  `StepperRow`, `ChipRowGroup`, `FooterButton`, `confirmDestructive`), all
+  styled from `@org/theme`. This is the mobile counterpart of `@org/ui`
+  (web-only — Radix + Tailwind can't render in RN).
+
+## Screens
+
+| Route | What it does |
+| --- | --- |
+| `(tabs)/index` — Today | Agenda: overdue / due-today / done-today sections and a greeting; FAB opens the capture modal. |
+| `(tabs)/tasks` — Tasks | Full task list with All / Open / Overdue / Done filter chips; `+` opens capture. |
+| `(tabs)/goals` — Goals | Goals by status (Active / Achieved / Archived) with progress, an unread-reminders banner, and create. |
+| `(tabs)/agents` — Agents | Read-only list of your agents (the village view is roadmap). |
+| `(tabs)/settings` — Settings | Account + sign out, theme preference, reminders toggle, version/about. |
+| `task/new` (modal) | Quick-capture: title + emoji, priority, target date, goal link, and an "Add details" disclosure (description, hard deadline, estimate, cost). Accepts `?goalId=` to prefill. |
+| `task/[id]` | Task detail: status chips, metadata, linked goal, notes, assignees (with user search), activity history, and delete (creator only). |
+| `task/[id]/edit` (modal) | Full task editor over the form kit. |
+| `goal/[id]` | Goal detail: progress, deadline, achieve / archive / reactivate / delete, a board of stages (In progress / To do / Done) with per-task stage moves, attach/detach, and add-task, plus a **Metrics** section (per-goal numeric metrics with sparkline, progress toward target, and inline reading capture). |
+| `goal/new`, `goal/edit` (modals) | Create/edit a goal, including inline custom goal-type creation. These register their own `Stack.Screen` options in-route. |
+| `goal/metric` (modal) | Create/edit a numeric metric for a goal (name, unit, direction, target, baseline). Opened from the goal-detail Metrics section; registers its own `Stack.Screen` options in-route. |
+
+Per-goal **metrics** are at full parity with the web: the goal-detail
+screen renders a Metrics section where you can create, edit, and delete a
+numeric metric (name, unit, direction, target, baseline) and log, edit, or
+delete individual readings. Each metric card shows the latest value, its
+delta from baseline, a progress bar toward target, and a `react-native-svg`
+sparkline.
 
 ## Environment variables & secrets
 
@@ -55,6 +91,9 @@ Rules:
   the env file, restart with `expo start --clear`.
 - Session tokens at runtime are stored in the iOS Keychain / Android
   Keystore (`expo-secure-store` via Clerk's token cache), not AsyncStorage.
+- Device-local UI preferences (theme, the reminders toggle) are persisted
+  with AsyncStorage via `src/lib/preferences.ts` — never user data (that's
+  Convex) and never secrets (that's `expo-secure-store`).
 - Store builds later: configure env per profile with EAS environment
   variables (`eas env`) — local `.env.local` files are dev-only.
 
@@ -124,7 +163,9 @@ setup:
 ## Theming rules
 
 - Never hardcode colors/fonts/radii in screens — pull them from
-  `@org/theme` via `useTheme()` (see `src/theme/theme-context.tsx`).
+  `@org/theme` via `useTheme()` (see `src/theme/theme-context.tsx`). The
+  provider resolves `system`/`light`/`dark`, persisting the choice through
+  `src/lib/preferences.ts`.
 - The palette's source of truth is the web theme in
   `apps/web/src/components/today/styles.ts`; `packages/theme` mirrors it in
   hex (React Native cannot parse `oklch()` / `color-mix()`). Change both
@@ -135,6 +176,8 @@ setup:
 
 ## Roadmap
 
-1. Task capture (the web app's quick-capture palette, as a native sheet).
-2. A mobile village view rendered from the `@worldkit/*` headless packages.
-3. Push notifications for agent reminders (expo-notifications + Convex).
+1. A mobile **village view** rendered from the `@worldkit/*` headless
+   packages (the Agents tab is a plain list today).
+2. **Push notifications** for agent reminders (expo-notifications + Convex).
+</content>
+</invoke>

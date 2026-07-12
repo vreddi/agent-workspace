@@ -1,0 +1,32 @@
+{
+  "name": "@org/app-core",
+  "version": "0.0.0",
+  "description": "Cross-platform, headless view-model helpers for tasks, goals, deadlines, people, and formatting. Pure functions with no React, DOM, or Convex imports; consumed by the web app and the Expo mobile app.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "@org/source": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:",
+    "vitest": "catalog:"
+  }
+}
