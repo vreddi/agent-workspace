@@ -1,5 +1,5 @@
 import type { SpriteSheet } from '@worldkit/sprite-actor'
-import { makeCozyTileset, type Legend, parseMap } from '@worldkit/tilemap'
+import { makeVerdantTileset, type Legend, parseMap } from '@worldkit/tilemap'
 import type { TimeOfDay } from '@worldkit/tilemap'
 import type { Resident, VillageScene } from '@worldkit/world-canvas'
 
@@ -9,33 +9,40 @@ const LEGEND: Legend = {
   '"': { kind: 'tile', tile: 'tall-grass' },
   '*': { kind: 'tile', tile: 'flowers' },
   '#': { kind: 'tile', tile: 'path' },
-  T: { kind: 'prop', prop: 'tree' },
+  c: { kind: 'tile', tile: 'cobble' },
+  Y: { kind: 'prop', prop: 'pine' },
+  b: { kind: 'prop', prop: 'bush' },
   r: { kind: 'prop', prop: 'rock' },
-  P: { kind: 'prop', prop: 'house-moss' },
+  L: { kind: 'prop', prop: 'lamp-post' },
+  P: { kind: 'prop', prop: 'house-thatch' },
   O: { kind: 'prop', prop: 'house-slate' },
-  D: { kind: 'prop', prop: 'house-rust' },
+  D: { kind: 'prop', prop: 'house-plum' },
   '1': { kind: 'marker', marker: 'desk-1', ground: 'path' },
   '2': { kind: 'marker', marker: 'desk-2', ground: 'path' },
   '3': { kind: 'marker', marker: 'desk-3', ground: 'path' },
 }
 
-// A shallow office block: three house pods on one lane, sized to sit inside
-// a hero card (18×9 cells = 576×288 at zoom 1) without dwarfing the page.
+// A shallow verdant clearing: three cottages on one lamp-lit lane, sized to
+// sit inside a hero card (18×10 cells = 576×320 at zoom 1) without dwarfing
+// the page. Pines wall the left/right/top so the forest reads as continuing
+// past the frame; the cottages (4 tall, drawn from their row-6 anchors up to
+// row 3) sit clear of the top treeline.
 const ROWS = [
-  'TTTTTTTTTTTTTTTTTT',
-  'T....,.....*.....T',
-  'T................T',
-  'T..P....O.....D..T',
-  'T...1....2.....3.T',
-  'T...#....#.....#.T',
-  'T..#############.T',
-  'T.*..""....,..r..T',
-  'TTTTTTTTTTTTTTTTTT',
+  'YYYYYYYYYYYYYYYYYY',
+  'Y................Y',
+  'Y....,......*....Y',
+  'Y................Y',
+  'Y..............b.Y',
+  'Y................Y',
+  'Y.P.....O.....D..Y',
+  'Y..1.....2.....3.Y',
+  'YL##############LY',
+  'Y..*.."".r..,..b.Y',
 ]
 
 // Tile/prop ids are identical across lighting moods, so one parsed map
 // serves both.
-const officeMap = parseMap(ROWS, LEGEND, makeCozyTileset('night'))
+const officeMap = parseMap(ROWS, LEGEND, makeVerdantTileset('night'))
 
 const DESK_MARKERS = ['desk-1', 'desk-2', 'desk-3'] as const
 
@@ -72,7 +79,7 @@ export function buildOfficeScene(
   return {
     name: `office-${time}`,
     map: officeMap,
-    tileset: makeCozyTileset(time),
+    tileset: makeVerdantTileset(time),
     residents,
   }
 }

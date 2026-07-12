@@ -34,5 +34,4 @@ export type {
   LightingLayerState,
   LightingRendererOptions,
 } from './lighting-renderer.js'
-export * from './tiles/index.js'
 export * from './themes/verdant/index.js'

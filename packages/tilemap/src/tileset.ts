@@ -46,7 +46,7 @@ export type TileDef = {
   terrain?: string
   /**
    * If set, the renderer draws a rim of this color along edges that border
-   * a different terrain (classic GBA shorelines).
+   * a different terrain (classic shorelines).
    */
   rim?: string
   /** Lights this tile casts (fireflies, embers). */

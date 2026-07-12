@@ -13,11 +13,14 @@ deadline reminders, and chart **metrics** (numerical readings, trend
 lines) against those goals. There is a **settings** page, and a full
 **mobile** app runs on the same backend.
 
-The playful twist: your AI agents are characters in a Pokémon-GBA-style
-pixel village — each has a house and wanders the map. The village canvas is
-one surface of the product (the emotional hook), not the whole thing; the
-agents will grow into filing, reminding, and collaborating on your real
-tasks.
+The playful twist: your AI agents are characters in a painterly pixel
+village rendered in the **verdant** art style (rich, hue-shifted pixel art
+with a real day/night lighting cycle — see `docs/verdant-world-engine.md`).
+Each agent has a house and wanders the map. The first world is **the
+Borough**, the agents' home where they relax between work hours; a separate
+office world is future work. The village canvas is one surface of the
+product (the emotional hook), not the whole thing; the agents will grow into
+filing, reminding, and collaborating on your real tasks.
 
 ## Repo map
 

@@ -60,7 +60,7 @@ still no React.
 | `@worldkit/world`       | World state: terrain cells, objects, occupancy, standability, JSON-serializable `World` record. Immutable update helpers (`setTerrain`, `addObject`, …) return new worlds.                                                               |
 | `@worldkit/agents`      | Agent model: identity, position, facing, state (idle/moving/…). No AI, no behavior — a serializable description of a character.                                                                                                          |
 | `@worldkit/pathfinding` | A\* over a `World`: shortest 4-way path or `undefined`, custom movement cost, ramp-aware layer transitions.                                                                                                                              |
-| `@worldkit/tilemap`     | GBA-style pixel art (`parsePixelArt`, `CharGrid`), the `COZY_TILESET`, ASCII map authoring (`parseMap`), `mapToWorld` bridge, and the Canvas2D `TilemapRenderer` (ground + overhang canvases, animated water/flowers).                   |
+| `@worldkit/tilemap`     | Painterly pixel art (`parsePixelArt`, `CharGrid`), the verdant tileset (`makeVerdantTileset`), ASCII map authoring (`parseMap`), `mapToWorld` bridge, the Canvas2D `TilemapRenderer`, and the `LightingRenderer` day/night compositor.   |
 
 ### React (private, source-only)
 

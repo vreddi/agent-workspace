@@ -1,10 +1,10 @@
 import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { makeCozyVillageScene } from '../demo/cozy-village'
+import { makeBoroughScene } from '../demo/the-borough'
 
-const nightScene = makeCozyVillageScene('night')
-const dayScene = makeCozyVillageScene('day')
+const nightScene = makeBoroughScene('night')
+const dayScene = makeBoroughScene('day')
 import { WorldCanvas } from './world-canvas'
 
 const meta: Meta<typeof WorldCanvas> = {

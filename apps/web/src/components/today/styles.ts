@@ -189,7 +189,7 @@ export const todayStyles = `
   overflow: hidden;
 }
 .t-office__placeholder {
-  height: 288px; width: 100%;
+  height: 320px; width: 100%;
 }
 .t-office__overlay {
   position: absolute; inset: 0;

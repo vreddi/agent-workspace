@@ -37,7 +37,7 @@ function pickVariant(tile: TileDef, x: number, y: number): PixelArt[] {
 /**
  * Framework-agnostic Canvas2D renderer for a TileMap. Call `render(frame)`
  * whenever the animation frame advances (a low tick rate like 3-4 fps gives
- * the classic GBA shimmer).
+ * the classic tile shimmer).
  */
 export class TilemapRenderer {
   readonly cellSize: number
@@ -104,7 +104,7 @@ export class TilemapRenderer {
     }
   }
 
-  /** Light rim on edges bordering a different terrain (GBA shorelines). */
+  /** Light rim on edges bordering a different terrain (shorelines). */
   private drawRim(
     ctx: CanvasRenderingContext2D,
     x: number,

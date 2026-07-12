@@ -45,7 +45,7 @@ const ANIMATION_MS = 300
 export const CELL_SIZE = TILE_SIZE * PIXEL_SCALE
 
 /**
- * The GBA-style stage: a tile map rendered to canvas with a slot for
+ * The tile stage: a tile map rendered to canvas with a slot for
  * character sprites in between the ground and the overhang layer.
  */
 export function WorldCanvas({

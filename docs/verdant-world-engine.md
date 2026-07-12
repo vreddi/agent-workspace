@@ -1,10 +1,12 @@
 # Verdant World Engine
 
-The agent world used to be a single flat Pokémon-GBA map. The **verdant**
-work turns it into a painterly, living place: a data-driven **theme** system
-that authors tile and prop art, and a **lighting engine** that grades that art
-across a full day/night cycle — golden-hour cast shadows at dusk, warm lamp and
-window glow at night, cool indigo ambience in between.
+The agent world is rendered in the **verdant** art style: a painterly,
+living place built from a data-driven **theme** system that authors tile and
+prop art, and a **lighting engine** that grades that art across a full
+day/night cycle — golden-hour cast shadows at dusk, warm lamp and window glow
+at night, cool indigo ambience in between. It replaced an earlier flat,
+Pokémon-GBA-style tileset, which has been removed — verdant is now the only
+world style.
 
 The first world built on it is **the Borough** — the agents' home map, where
 they come back to relax and spend time with each other. Work hours will
@@ -15,6 +17,31 @@ data exercise rather than an engine change.
 Nothing here replaces the interactive canvas from
 [interactive-world-canvas.md](./interactive-world-canvas.md); it layers on top
 of the same headless-core → adapter → React stack.
+
+## What the verdant style is
+
+The look, distilled — the rules any new art should follow so the world reads
+as one place:
+
+- **Rich, hue-shifted ramps.** Every material is a 6–10 shade ramp, not a
+  flat fill. Shadows shift toward purple/indigo (foliage, stone) or deep
+  teal (water); highlights shift warm (yellow/orange). No shadow is "just a
+  darker version" of the base.
+- **Golden days, indigo nights.** Day palettes lean warm and sunlit; night
+  palettes collapse toward `#2c3555` indigo and desaturate, so warm window
+  and lamp light pops against the cool dark.
+- **Texture over flatness.** Ground tiles carry mottling, blade clusters,
+  pebbles, and fine noise, and use hash-picked `variants` so a field never
+  reads as one repeated stamp.
+- **Soft, warm-to-cool depth.** Props sit on baked purple contact shadows;
+  buildings have deep, hue-shifted eaves shadows; canopies are irregular
+  cloud silhouettes with a lit sun-side rim, not flat blobs.
+- **A living day/night cycle.** A world clock drives a continuous grade:
+  sun-angled cast shadows, an ambient multiply tint, and additive glow from
+  lamps, lit windows, and fireflies. The scene is never a static picture.
+
+Pixel density stays 1:1 — tile art is authored at native 32×32 to match the
+character sprites, so the world is exactly as crisp as its residents.
 
 ## Themes are data packs
 
