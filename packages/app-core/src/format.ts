@@ -33,3 +33,17 @@ export function formatDays(n: number): string {
   const rounded = Math.round(n * 10) / 10
   return `${rounded}`
 }
+
+/** Human-friendly effort cost from a fractional day count (1 day = 24h).
+ * Sub-hour reads in minutes ("30m"), under a day in hours ("2h", "2h 30m"),
+ * and a day or more in days rounded to one decimal ("1.5d"). */
+export function formatCostDuration(days: number): string {
+  const totalMinutes = Math.round(days * 24 * 60)
+  if (totalMinutes < 60) return `${totalMinutes}m`
+  if (totalMinutes < 24 * 60) {
+    const h = Math.floor(totalMinutes / 60)
+    const m = totalMinutes % 60
+    return m ? `${h}h ${m}m` : `${h}h`
+  }
+  return `${formatDays(days)}d`
+}

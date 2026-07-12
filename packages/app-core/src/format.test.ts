@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { fmtDateBadge, formatDays, hashString, pick } from './format.js'
+import {
+  fmtDateBadge,
+  formatCostDuration,
+  formatDays,
+  hashString,
+  pick,
+} from './format.js'
 
 describe('hashString / pick', () => {
   it('hashString is deterministic and non-negative', () => {
@@ -20,6 +26,26 @@ describe('formatDays', () => {
     expect(formatDays(2.25)).toBe('2.3')
     expect(formatDays(3)).toBe('3')
     expect(formatDays(0.04)).toBe('0')
+  })
+})
+
+describe('formatCostDuration', () => {
+  it('shows sub-hour costs in minutes', () => {
+    expect(formatCostDuration(30 / (24 * 60))).toBe('30m')
+    expect(formatCostDuration(1 / (24 * 60))).toBe('1m')
+    expect(formatCostDuration(0)).toBe('0m')
+  })
+
+  it('shows under-a-day costs in hours', () => {
+    expect(formatCostDuration(1 / 24)).toBe('1h')
+    expect(formatCostDuration(0.5)).toBe('12h')
+    expect(formatCostDuration(1.5 / 24)).toBe('1h 30m')
+  })
+
+  it('shows a day or more in days with one decimal', () => {
+    expect(formatCostDuration(1)).toBe('1d')
+    expect(formatCostDuration(2.5)).toBe('2.5d')
+    expect(formatCostDuration(2.25)).toBe('2.3d')
   })
 })
 

@@ -20,6 +20,7 @@ import {
 import { cn } from '@org/ui/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Authenticated, useMutation, useQuery } from 'convex/react'
+import { CalendarDays, Clock } from 'lucide-react'
 import {
   Component,
   useEffect,
@@ -31,7 +32,7 @@ import {
 import {
   dateInputToMs,
   describeDeadline,
-  formatDays,
+  formatCostDuration,
   goalTypeValue,
   GoalTypeSelect,
   GoalTypeSelectionIcon,
@@ -463,11 +464,11 @@ function GoalEditor({
 function CostStrip({ goal }: { goal: GoalListItem }) {
   const progress = goal.progress
   const stats: { label: string; value: string }[] = [
-    { label: 'Total cost', value: `${formatDays(progress.totalCostDays)}d` },
-    { label: 'Done', value: `${formatDays(progress.completeCostDays)}d` },
+    { label: 'Total cost', value: formatCostDuration(progress.totalCostDays) },
+    { label: 'Done', value: formatCostDuration(progress.completeCostDays) },
     {
       label: 'Remaining',
-      value: `${formatDays(progress.remainingCostDays)}d`,
+      value: formatCostDuration(progress.remainingCostDays),
     },
     {
       label: 'Tasks',
@@ -693,6 +694,17 @@ function BoardColumn({
   )
 }
 
+/** Compact deadline for a board card, e.g. "Jul 9" ("Jul 9, 2027" off-year). */
+function fmtCardDate(ms: number): string {
+  const d = new Date(ms)
+  const sameYear = d.getFullYear() === new Date().getFullYear()
+  return d.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    ...(sameYear ? {} : { year: 'numeric' }),
+  })
+}
+
 function BoardCard({
   task,
   stage,
@@ -716,6 +728,9 @@ function BoardCard({
   onRemove: (taskId: Id<'tasks'>) => Promise<void>
 }) {
   const otherStages = STAGES.filter((s) => s.key !== stage)
+  // Prefer the firm deadline; fall back to the soft target date.
+  const deadline = task.hardDeadline ?? task.softDeadline
+  const hasCost = task.costDays != null
 
   return (
     <div
@@ -785,13 +800,23 @@ function BoardCard({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {(task.priority != null ||
-        (task.costDays !== undefined && task.costDays !== null)) && (
-        <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          {task.priority != null && <PriorityBadge priority={task.priority} />}
-          {task.costDays !== undefined && task.costDays !== null && (
-            <span className="inline-block rounded-full border px-1.5 py-0.5 text-[11px] tabular-nums text-muted-foreground">
-              {formatDays(task.costDays)}d
+      {(task.priority != null || deadline != null || hasCost) && (
+        <div className="mt-2 flex items-end justify-between gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+            {task.priority != null && (
+              <PriorityBadge priority={task.priority} />
+            )}
+            {deadline != null && (
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                <CalendarDays aria-hidden className="size-3" />
+                {fmtCardDate(deadline)}
+              </span>
+            )}
+          </div>
+          {hasCost && (
+            <span className="inline-flex shrink-0 items-center gap-1 text-[11px] tabular-nums text-muted-foreground">
+              <Clock aria-hidden className="size-3" />
+              {formatCostDuration(task.costDays!)}
             </span>
           )}
         </div>

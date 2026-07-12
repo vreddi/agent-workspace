@@ -1,4 +1,10 @@
-export { fmtDateBadge, formatDays, hashString, pick } from './format.js'
+export {
+  fmtDateBadge,
+  formatCostDuration,
+  formatDays,
+  hashString,
+  pick,
+} from './format.js'
 export {
   addDays,
   DAY_MS,
