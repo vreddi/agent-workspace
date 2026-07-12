@@ -9,6 +9,7 @@ export type BucketId =
   | 'evening'
   | 'night'
   | 'anytime'
+  | 'suggested'
 
 export type Bucket = {
   id: BucketId
@@ -26,6 +27,7 @@ const BUCKET_ORDER: BucketId[] = [
   'evening',
   'night',
   'anytime',
+  'suggested',
 ]
 
 const BUCKET_META: Record<BucketId, { label: string; hint: string }> = {
@@ -37,12 +39,14 @@ const BUCKET_META: Record<BucketId, { label: string; hint: string }> = {
   evening: { label: 'Evening', hint: '5 – 8 PM' },
   night: { label: 'Night', hint: 'After 8 PM' },
   anytime: { label: 'Anytime today', hint: 'No fixed time' },
+  suggested: { label: 'Suggestions', hint: 'Fits your spare time today' },
 }
 
-function bucketForTask(task: DisplayTask, _now: Date): BucketId {
+// Tasks reaching here are already scoped to today (partitionForDayView), so
+// the deadline's hour-of-day is the task's slot in the day.
+function bucketForTask(task: DisplayTask): BucketId {
   if (task.overdue) return 'overdue'
   if (!task.deadline) return 'anytime'
-  // If deadline is on a different day, still place by hour-of-day in the day view.
   const hour = task.deadline.getHours()
   if (hour < 9) return 'early'
   if (hour < 12) return 'morning'
@@ -52,14 +56,18 @@ function bucketForTask(task: DisplayTask, _now: Date): BucketId {
   return 'night'
 }
 
-export function bucketize(tasks: DisplayTask[], now: Date): Bucket[] {
+export function bucketize(
+  tasks: DisplayTask[],
+  suggestions: DisplayTask[],
+): Bucket[] {
   const map = new Map<BucketId, DisplayTask[]>()
   for (const t of tasks) {
-    const id = bucketForTask(t, now)
+    const id = bucketForTask(t)
     const list = map.get(id) ?? []
     list.push(t)
     map.set(id, list)
   }
+  if (suggestions.length > 0) map.set('suggested', [...suggestions])
   // Sort inside each bucket by deadline asc; tasks without deadlines drift to the end.
   for (const [id, list] of map) {
     list.sort((a, b) => {

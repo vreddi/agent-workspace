@@ -158,6 +158,10 @@ export const dayViewStyles = `
 .d-legend__chip--overdue { background: var(--d-overdue); }
 .d-legend__chip--active { background: var(--d-active); }
 .d-legend__chip--default { background: var(--d-accent); }
+.d-legend__chip--suggested {
+  background: transparent;
+  border: 1.5px dashed var(--d-accent);
+}
 
 /* ── Empty state ─────────────────────────────────────────────────────── */
 .d-empty {
@@ -326,6 +330,13 @@ export const dayViewStyles = `
 .d-task--overdue:hover, .d-task--overdue:focus-visible {
   box-shadow: 0 0 0 1px rgba(226, 81, 81, 0.30), var(--d-shadow-lg);
 }
+.d-task--suggested {
+  border-style: dashed;
+  border-color: rgba(43, 110, 245, 0.45);
+}
+.d-task--suggested:hover, .d-task--suggested:focus-visible {
+  border-color: rgba(43, 110, 245, 0.75);
+}
 .d-task--active::before {
   content: '';
   position: absolute;
@@ -360,6 +371,43 @@ export const dayViewStyles = `
   0%   { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.55); }
   70%  { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
   100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+.d-task__badge {
+  flex: 0 0 auto;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px dashed rgba(43, 110, 245, 0.5);
+  color: var(--d-accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.d-task__progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.d-task__progress-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--d-bg-2);
+  overflow: hidden;
+}
+.d-task__progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--d-accent), #6b6fdc);
+}
+.d-task__progress-num {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--d-ink-3);
+  font-variant-numeric: tabular-nums;
 }
 
 .d-task__body {

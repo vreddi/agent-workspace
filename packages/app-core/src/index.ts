@@ -58,5 +58,7 @@ export type {
   TaskStatus,
   TaskSuggestionLike,
 } from './tasks'
+export { partitionForDayView } from './day'
+export type { DayPartition, DayPlanFields } from './day'
 export { GOAL_TYPE_COLOR_TOKENS, goalTypeValue, parseTypeValue } from './goals'
 export type { GoalTypeColorToken, GoalTypeInput, TypeSelection } from './goals'

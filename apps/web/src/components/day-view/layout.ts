@@ -20,6 +20,8 @@ export type BucketNodeData = {
 export type TaskNodeData = {
   kind: 'task'
   task: DisplayTask
+  /** True for early-completion suggestions — future tasks that fit today. */
+  suggested?: boolean
 }
 
 export type DayNodeData = AnchorNodeData | BucketNodeData | TaskNodeData
@@ -111,7 +113,7 @@ export function buildGraph({
         id: taskNodeId,
         type: 'task',
         position: { x: 0, y: 0 },
-        data: { kind: 'task', task },
+        data: { kind: 'task', task, suggested: bucket.id === 'suggested' },
       })
       edges.push({
         id: `${bucketNodeId}->${taskNodeId}`,

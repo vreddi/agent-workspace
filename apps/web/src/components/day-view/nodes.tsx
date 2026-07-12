@@ -83,13 +83,19 @@ export function TaskNode({
   const navigate = useNavigate()
   const task: DisplayTask = data.task
   const cd = task.deadline ? fmtCountdown(task.deadline) : null
-  const status = (task.raw as Doc<'tasks'>).status
+  const raw = task.raw as Doc<'tasks'>
+  const status = raw.status
+  const progress =
+    raw.progressPercent == null
+      ? null
+      : Math.min(100, Math.max(0, raw.progressPercent))
   return (
     <div
       className={
         'd-task' +
         (task.overdue ? ' d-task--overdue' : '') +
-        (status === 'in_progress' ? ' d-task--active' : '')
+        (status === 'in_progress' ? ' d-task--active' : '') +
+        (data.suggested ? ' d-task--suggested' : '')
       }
       onClick={() =>
         navigate({ to: '/tasks/$taskId', params: { taskId: task.raw._id } })
@@ -105,6 +111,14 @@ export function TaskNode({
       <Handle type="target" position={Position.Top} isConnectable={false} />
       <div className="d-task__header">
         <div className="d-task__title">{task.title}</div>
+        {data.suggested && (
+          <span
+            className="d-task__badge"
+            title="Scheduled for later, but it fits your spare time today"
+          >
+            Fits today
+          </span>
+        )}
         {status === 'in_progress' && (
           <span
             className="d-task__pulse"
@@ -114,6 +128,23 @@ export function TaskNode({
         )}
       </div>
       {task.body && <div className="d-task__body">{task.body}</div>}
+      {progress !== null && (
+        <div
+          className="d-task__progress"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <span className="d-task__progress-track">
+            <span
+              className="d-task__progress-fill"
+              style={{ width: `${progress}%` }}
+            />
+          </span>
+          <span className="d-task__progress-num">{progress}%</span>
+        </div>
+      )}
       <div className="d-task__meta">
         {task.deadline ? (
           <span

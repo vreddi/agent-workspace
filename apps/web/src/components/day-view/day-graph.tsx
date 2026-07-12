@@ -10,6 +10,7 @@ import {
   useReactFlow,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import { partitionForDayView } from '@org/app-core'
 import { useEffect, useMemo, useState } from 'react'
 import { sortForToday, toDisplayTask, type DisplayTask } from '../today/helpers'
 import { Nav } from '../today/nav'
@@ -62,10 +63,19 @@ function dayName(d: Date): string {
   return d.toLocaleDateString('en-US', { weekday: 'long' })
 }
 
-function DayGraphInner({ tasks }: { tasks: DisplayTask[] }) {
+function DayGraphInner({
+  tasks,
+  suggestions,
+}: {
+  tasks: DisplayTask[]
+  suggestions: DisplayTask[]
+}) {
   const now = useNow(60_000)
   const start = startOfDayLabel(now)
-  const buckets = useMemo(() => bucketize(tasks, now), [tasks, now])
+  const buckets = useMemo(
+    () => bucketize(tasks, suggestions),
+    [tasks, suggestions],
+  )
   const { nodes, edges } = useMemo(
     () =>
       buildGraph({
@@ -140,12 +150,19 @@ export function DayGraph() {
   const updateTheme = useMutation(api.users.updateTheme)
   const now = useNow(30_000)
 
-  const display = useMemo<DisplayTask[]>(() => {
-    if (!rawTasks) return []
+  // Only what's actually on today's plate belongs on the chart: overdue,
+  // due today, or undated tasks. Future-dated tasks that may finish early
+  // come back as suggestions when their remaining cost fits the day.
+  const { display, suggestions } = useMemo(() => {
+    if (!rawTasks) return { display: [], suggestions: [] }
     const openish = rawTasks.filter(
       (t) => t.status === 'open' || t.status === 'in_progress',
     )
-    return sortForToday(openish.map((t) => toDisplayTask(t, now.getTime())))
+    const all = sortForToday(
+      openish.map((t) => toDisplayTask(t, now.getTime())),
+    )
+    const { today, suggested } = partitionForDayView(all, now)
+    return { display: today, suggestions: suggested }
   }, [rawTasks, now])
 
   const overdueCount = display.filter((t) => t.overdue).length
@@ -197,6 +214,11 @@ export function DayGraph() {
               <b>{inProgress}</b> in progress
             </div>
           )}
+          {suggestions.length > 0 && (
+            <div className="d-stat">
+              <b>{suggestions.length}</b> suggested
+            </div>
+          )}
           {overdueCount > 0 && (
             <div className="d-stat d-stat--alert">
               <b>{overdueCount}</b> overdue
@@ -220,7 +242,7 @@ export function DayGraph() {
             <div className="d-empty__title">Loading your day…</div>
             <div className="d-empty__body">Pulling tasks from the server.</div>
           </div>
-        ) : display.length === 0 ? (
+        ) : display.length === 0 && suggestions.length === 0 ? (
           <div className="d-empty">
             <div className="d-empty__title">Your day is clear</div>
             <div className="d-empty__body">
@@ -230,7 +252,7 @@ export function DayGraph() {
           </div>
         ) : (
           <ReactFlowProvider>
-            <DayGraphInner tasks={display} />
+            <DayGraphInner tasks={display} suggestions={suggestions} />
           </ReactFlowProvider>
         )}
 
@@ -246,6 +268,10 @@ export function DayGraph() {
           </div>
           <div className="d-legend__row">
             <span className="d-legend__chip d-legend__chip--overdue" /> Overdue
+          </div>
+          <div className="d-legend__row">
+            <span className="d-legend__chip d-legend__chip--suggested" />{' '}
+            Suggested early start
           </div>
         </div>
       </div>
