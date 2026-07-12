@@ -68,6 +68,26 @@ export function deriveDeadline(task: TaskDeadlineLike): Date | null {
   return ms ? new Date(ms) : null
 }
 
+/** Minutes in a cost "day". Cost and time estimates share this scale so a
+ * task's time estimate can stand in as its effort cost. Mirrored inline in
+ * convex/goals.ts (Convex can't import this package). */
+export const MINUTES_PER_COST_DAY = 24 * 60
+
+/** Fields that can supply a task's effort cost, in effect-order. */
+export interface TaskCostLike {
+  costDays?: number | null
+  estimateMinutes?: number | null
+}
+
+/** A task's effort cost in days: the explicit `costDays` when set, otherwise
+ * the time estimate converted to days. Null when the task has neither. */
+export function effectiveCostDays(task: TaskCostLike): number | null {
+  if (task.costDays != null) return task.costDays
+  if (task.estimateMinutes != null)
+    return task.estimateMinutes / MINUTES_PER_COST_DAY
+  return null
+}
+
 export function aiSuggestionFor(task: TaskSuggestionLike): string {
   if (task.estimateMinutes && task.estimateMinutes > 0) {
     if (task.estimateMinutes >= 60) {

@@ -144,11 +144,13 @@ export type GoalProgress = {
   inactiveTasks: number
   activeTasks: number
   completeTasks: number
-  // Cost totals in days, summed over non-cancelled tasks with a cost set.
+  // Cost totals in days, summed over non-cancelled tasks that have a cost —
+  // an explicit costDays, or a time estimate standing in for one.
   totalCostDays: number
   completeCostDays: number
   remainingCostDays: number
-  // Non-cancelled tasks with no costDays — the totals above undercount by these.
+  // Non-cancelled tasks with neither costDays nor an estimate — the totals
+  // above undercount by these.
   uncostedTasks: number
 }
 
@@ -177,7 +179,12 @@ function computeProgress(tasks: Doc<'tasks'>[]): GoalProgress {
     if (stage === 'inactive') progress.inactiveTasks += 1
     if (stage === 'active') progress.activeTasks += 1
     if (stage === 'complete') progress.completeTasks += 1
-    const cost = task.costDays ?? null
+    // Explicit costDays wins; otherwise the time estimate stands in as cost
+    // (1 cost day = 24h). Mirrors effectiveCostDays in @org/app-core, which
+    // Convex can't import. A task counts as uncosted only with neither set.
+    const cost =
+      task.costDays ??
+      (task.estimateMinutes != null ? task.estimateMinutes / (24 * 60) : null)
     if (cost === null) {
       progress.uncostedTasks += 1
       continue
