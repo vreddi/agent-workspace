@@ -4,7 +4,7 @@ import { router } from 'expo-router'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { AppText } from '@/components/ui'
 import { useToggleDone, type Task } from '@/data/hooks'
-import { daysFromToday, formatDue } from '@/lib/dates'
+import { daysFromToday, formatDue } from '@org/app-core'
 import { useTheme } from '@/theme/theme-context'
 
 /**

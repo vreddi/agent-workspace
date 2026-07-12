@@ -49,6 +49,11 @@ const GOAL_TYPE_COLORS: Record<string, string> = {
   violet: '#8b5cf6',
 }
 
+/** Resolve a goal-type color token (or unknown) to its hex swatch. */
+export function goalTypeColorHex(token: string | null | undefined): string {
+  return (token && GOAL_TYPE_COLORS[token]) || GOAL_TYPE_COLORS.slate!
+}
+
 export function GoalTypeIcon({
   name,
   color,

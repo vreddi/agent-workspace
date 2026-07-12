@@ -17,6 +17,9 @@
     },
     {
       "path": "./packages/tilemap"
+    },
+    {
+      "path": "./packages/app-core"
     }
   ]
 }

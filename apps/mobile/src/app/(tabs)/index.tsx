@@ -1,12 +1,13 @@
 import { radius, space } from '@org/theme'
+import { router } from 'expo-router'
 import { Plus } from 'lucide-react-native'
-import { Alert, Pressable, StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Screen, ScreenLoading } from '@/components/screen'
 import { TaskRow } from '@/components/task-row'
 import { AppText, BottomTabInset, Card, SectionLabel } from '@/components/ui'
 import { useCurrentUser, useTaskList, type Task } from '@/data/hooks'
-import { daysFromToday, formatDateLong, greetingForHour } from '@/lib/dates'
+import { daysFromToday, formatDateLong, greetingForHour } from '@org/app-core'
 import { useTheme } from '@/theme/theme-context'
 
 function TaskCard({ tasks }: { tasks: Task[] }) {
@@ -103,12 +104,7 @@ export default function TodayScreen() {
       </Screen>
 
       <Pressable
-        onPress={() =>
-          Alert.alert(
-            'New task',
-            'Task capture on mobile is coming soon — use the web app for now.',
-          )
-        }
+        onPress={() => router.push('/task/new')}
         style={({ pressed }) => [
           styles.fab,
           {

@@ -15,6 +15,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import { env } from '@/env'
+import { modalScreenOptions } from '@/lib/navigation'
 import { Font } from '@/theme/fonts'
 import { AppThemeProvider, useTheme } from '@/theme/theme-context'
 
@@ -94,7 +95,20 @@ function RootNavigator() {
         <Stack.Protected guard={isSignedIn === true}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="task/[id]" options={{ title: 'Task' }} />
+          <Stack.Screen
+            name="task/new"
+            options={modalScreenOptions('New task')}
+          />
+          <Stack.Screen
+            name="task/[id]/edit"
+            options={modalScreenOptions('Edit task')}
+          />
           <Stack.Screen name="goal/[id]" options={{ title: 'Goal' }} />
+          {/*
+            The goals agent registers its own create/edit modals in-route via
+            per-screen <Stack.Screen options>; keep this list focused on the
+            top-level task routes.
+          */}
         </Stack.Protected>
         <Stack.Protected guard={!isSignedIn}>
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />

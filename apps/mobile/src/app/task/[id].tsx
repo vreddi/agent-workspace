@@ -1,13 +1,42 @@
 import type { Id } from '@convex/_generated/dataModel'
 import { priority as priorityColors, radius, space } from '@org/theme'
 import * as Haptics from 'expo-haptics'
-import { useLocalSearchParams } from 'expo-router'
-import { Bot, Calendar, Flag, Target, Users } from 'lucide-react-native'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { router, useLocalSearchParams } from 'expo-router'
+import {
+  Calendar,
+  Clock,
+  Flag,
+  Gauge,
+  Pencil,
+  Target,
+  Timer,
+} from 'lucide-react-native'
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { ScreenLoading } from '@/components/screen'
-import { AccentButton, AppText, Card } from '@/components/ui'
-import { useTaskDetail, useToggleDone } from '@/data/hooks'
-import { daysFromToday, formatDateLong } from '@/lib/dates'
+import { TaskActivitySection } from '@/components/task-activity'
+import { TaskAssigneesSection } from '@/components/task-assignees'
+import {
+  fmtCost,
+  fmtDateTime,
+  fmtEstimate,
+  fmtTimeOfDay,
+  nowMs,
+} from '@/components/task-format'
+import { AppText, Card } from '@/components/ui'
+import {
+  ChipRowGroup,
+  FooterButton,
+  confirmDestructive,
+} from '@/components/forms'
+import type { TaskStatus } from '@/data/hooks'
+import {
+  DIFFICULTY_WORDS,
+  PRIORITY_LABELS,
+  STATUS_OPTIONS,
+  useRemoveTask,
+  useTaskDetail,
+  useUpdateTask,
+} from '@/data/tasks-data'
 import { useTheme } from '@/theme/theme-context'
 import type { ReactNode } from 'react'
 
@@ -26,6 +55,11 @@ export function ErrorBoundary() {
     </View>
   )
 }
+
+const STATUS_CHIPS = STATUS_OPTIONS.map((o) => ({
+  label: o.label,
+  value: o.value,
+}))
 
 function MetaRow({
   icon,
@@ -71,7 +105,8 @@ export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { palette } = useTheme()
   const task = useTaskDetail(id as Id<'tasks'> | undefined)
-  const toggleDone = useToggleDone()
+  const updateTask = useUpdateTask()
+  const removeTask = useRemoveTask()
 
   if (task === undefined) {
     return (
@@ -82,21 +117,37 @@ export default function TaskDetailScreen() {
   }
 
   const done = task.status === 'done'
-  const due = task.hardDeadline ?? task.softDeadline
-  const dueDate = due === null ? null : new Date(due)
-  const overdue = !done && dueDate != null && daysFromToday(dueDate) < 0
-  const priority = task.priority ?? null
-  const others = task.assignees.filter((a) => a.userId !== task.viewerId)
+  const open = task.status === 'open' || task.status === 'in_progress'
+  const deadline = task.hardDeadline ?? task.softDeadline
+  const overdue = open && deadline !== null && deadline < nowMs()
   const iconColor = palette.ink3
 
-  const complete = () => {
-    Haptics.notificationAsync(
-      done
-        ? Haptics.NotificationFeedbackType.Warning
-        : Haptics.NotificationFeedbackType.Success,
-    )
-    toggleDone({ id: task._id, done }).catch(() => {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+  const setStatus = (status: TaskStatus) => {
+    if (status === task.status) return
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    updateTask({ id: task._id, status }).catch(() => {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+    })
+  }
+
+  const del = () => {
+    confirmDestructive({
+      title: 'Delete task?',
+      message: 'This cannot be undone.',
+      onConfirm: () => {
+        removeTask(task._id)
+          .then(() => {
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success,
+            )
+            router.back()
+          })
+          .catch(() => {
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error,
+            )
+          })
+      },
     })
   }
 
@@ -111,15 +162,15 @@ export default function TaskDetailScreen() {
           <AppText style={styles.emoji}>{task.emoji}</AppText>
         ) : null}
         <AppText variant="hero">{task.title}</AppText>
-        {done ? (
+        {done && task.completedAt !== null ? (
           <View
             style={[styles.statusChip, { backgroundColor: palette.chipBg }]}
           >
             <AppText variant="meta" color={palette.ink2}>
-              Completed
+              Finished {fmtDateTime(task.completedAt)}
             </AppText>
           </View>
-        ) : overdue ? (
+        ) : overdue && deadline !== null ? (
           <View
             style={[
               styles.statusChip,
@@ -127,64 +178,56 @@ export default function TaskDetailScreen() {
             ]}
           >
             <AppText variant="meta" color={palette.overdue}>
-              Overdue
+              Was due {fmtDateTime(deadline)}
             </AppText>
           </View>
-        ) : task.status === 'in_progress' ? (
+        ) : deadline !== null ? (
           <View
-            style={[styles.statusChip, { backgroundColor: palette.accentSoft }]}
+            style={[styles.statusChip, { backgroundColor: palette.chipBg }]}
           >
-            <AppText variant="meta" color={palette.accentInk}>
-              In progress
+            <AppText variant="meta" color={palette.ink2}>
+              Due {fmtDateTime(deadline)}
             </AppText>
           </View>
         ) : null}
       </View>
 
-      <Card>
-        {dueDate != null && (
+      <Card style={styles.statusCard}>
+        <ChipRowGroup<TaskStatus>
+          label="Status"
+          value={task.status}
+          options={STATUS_CHIPS}
+          onChange={setStatus}
+        />
+      </Card>
+
+      <Pressable
+        onPress={() => router.push(`/task/${task._id}/edit`)}
+        style={({ pressed }) => [
+          styles.editRow,
+          {
+            backgroundColor: pressed ? palette.hover : palette.surface,
+            borderColor: palette.divider,
+          },
+        ]}
+      >
+        <Pencil size={17} color={palette.accent} />
+        <AppText variant="label" color={palette.accent}>
+          Edit task
+        </AppText>
+      </Pressable>
+
+      <DetailsCard task={task} iconColor={iconColor} open={open} />
+
+      {task.goal ? (
+        <Card>
           <MetaRow
-            icon={<Calendar size={17} color={iconColor} />}
-            label="Due"
-            value={formatDateLong(dueDate)}
-            valueColor={overdue ? palette.overdue : undefined}
-          />
-        )}
-        {priority && (
-          <MetaRow
-            divider={dueDate != null}
-            icon={<Flag size={17} color={priorityColors[priority]} />}
-            label="Priority"
-            value={priority[0].toUpperCase() + priority.slice(1)}
-          />
-        )}
-        {task.goal && (
-          <MetaRow
-            divider={dueDate != null || priority != null}
             icon={<Target size={17} color={iconColor} />}
-            label="Goal"
+            label="Part of goal"
             value={task.goal.title}
           />
-        )}
-        {others.length > 0 && (
-          <MetaRow
-            divider
-            icon={<Users size={17} color={iconColor} />}
-            label="Shared with"
-            value={others
-              .map((a) => a.name.split(/\s+/)[0] || a.email)
-              .join(', ')}
-          />
-        )}
-        {!task.viewerIsCreator && (
-          <MetaRow
-            divider
-            icon={<Bot size={17} color={iconColor} />}
-            label="Assigned to you"
-            value="by the task's creator"
-          />
-        )}
-      </Card>
+        </Card>
+      ) : null}
 
       {task.description ? (
         <Card style={styles.notes}>
@@ -199,12 +242,128 @@ export default function TaskDetailScreen() {
         </Card>
       ) : null}
 
-      <AccentButton
-        label={done ? 'Mark as not done' : 'Mark as done'}
-        onPress={complete}
+      <TaskAssigneesSection
+        taskId={task._id}
+        assignees={task.assignees}
+        viewerId={task.viewerId}
+        viewerIsCreator={task.viewerIsCreator}
       />
+
+      <TaskActivitySection taskId={task._id} />
+
+      {task.viewerIsCreator ? (
+        <FooterButton label="Delete task" variant="destructive" onPress={del} />
+      ) : null}
     </ScrollView>
   )
+}
+
+function DetailsCard({
+  task,
+  iconColor,
+  open,
+}: {
+  task: NonNullable<ReturnType<typeof useTaskDetail>>
+  iconColor: string
+  open: boolean
+}) {
+  const { palette } = useTheme()
+  const now = nowMs()
+  const rows: ReactNode[] = []
+
+  if (task.priority != null) {
+    rows.push(
+      <MetaRow
+        key="priority"
+        divider={rows.length > 0}
+        icon={<Flag size={17} color={priorityColors[task.priority]} />}
+        label="Priority"
+        value={PRIORITY_LABELS[task.priority]}
+      />,
+    )
+  }
+  if (task.difficulty != null) {
+    rows.push(
+      <MetaRow
+        key="difficulty"
+        divider={rows.length > 0}
+        icon={<Gauge size={17} color={iconColor} />}
+        label="Difficulty"
+        value={`${DIFFICULTY_WORDS[task.difficulty] ?? task.difficulty} (${task.difficulty}/5)`}
+      />,
+    )
+  }
+  if (task.estimateMinutes !== null) {
+    rows.push(
+      <MetaRow
+        key="estimate"
+        divider={rows.length > 0}
+        icon={<Timer size={17} color={iconColor} />}
+        label="Estimate"
+        value={fmtEstimate(task.estimateMinutes)}
+      />,
+    )
+  }
+  if (task.costDays != null) {
+    rows.push(
+      <MetaRow
+        key="cost"
+        divider={rows.length > 0}
+        icon={<Gauge size={17} color={iconColor} />}
+        label="Cost"
+        value={fmtCost(task.costDays)}
+      />,
+    )
+  }
+  if (task.softDeadline !== null) {
+    rows.push(
+      <MetaRow
+        key="soft"
+        divider={rows.length > 0}
+        icon={<Calendar size={17} color={iconColor} />}
+        label="Target date"
+        value={fmtDateTime(task.softDeadline)}
+        valueColor={
+          open && task.softDeadline < now ? palette.overdue : undefined
+        }
+      />,
+    )
+  }
+  if (task.hardDeadline !== null) {
+    rows.push(
+      <MetaRow
+        key="hard"
+        divider={rows.length > 0}
+        icon={<Calendar size={17} color={iconColor} />}
+        label="Hard deadline"
+        value={fmtDateTime(task.hardDeadline)}
+        valueColor={
+          open && task.hardDeadline < now ? palette.overdue : undefined
+        }
+      />,
+    )
+  }
+  if (task.scheduledStartMinutes != null) {
+    const start = fmtTimeOfDay(task.scheduledStartMinutes)
+    const end =
+      task.estimateMinutes !== null
+        ? fmtTimeOfDay(
+            (task.scheduledStartMinutes + task.estimateMinutes) % (24 * 60),
+          )
+        : null
+    rows.push(
+      <MetaRow
+        key="slot"
+        divider={rows.length > 0}
+        icon={<Clock size={17} color={iconColor} />}
+        label="Time slot"
+        value={end ? `${start} – ${end}` : start}
+      />,
+    )
+  }
+
+  if (rows.length === 0) return null
+  return <Card>{rows}</Card>
 }
 
 const styles = StyleSheet.create({
@@ -225,6 +384,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: radius.pill,
+  },
+  statusCard: {
+    paddingVertical: space.xs,
+  },
+  editRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+    height: 46,
+    borderRadius: radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   metaRow: {
     flexDirection: 'row',
