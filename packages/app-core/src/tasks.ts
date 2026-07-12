@@ -149,6 +149,34 @@ export function effectiveCostDays(task: TaskCostLike): number | null {
   return null
 }
 
+/** Fields a long-running task uses to track partial progress. */
+export interface TaskProgressLike {
+  progressPercent?: number | null
+}
+
+/** A task is long-running when it tracks partial progress (0–100%). */
+export function isLongRunning(task: TaskProgressLike): boolean {
+  return task.progressPercent != null
+}
+
+/** Progress clamped to 0–100; 0 for tasks that don't track progress. */
+export function progressOf(task: TaskProgressLike): number {
+  const percent = task.progressPercent
+  if (percent == null) return 0
+  return Math.min(100, Math.max(0, percent))
+}
+
+/** The effort cost still ahead: the total cost scaled by how much progress
+ * remains. Equals the full cost for tasks that don't track progress; null
+ * when the task has no cost or estimate to derive it from. */
+export function remainingCostDays(
+  task: TaskCostLike & TaskProgressLike,
+): number | null {
+  const total = effectiveCostDays(task)
+  if (total == null) return null
+  return total * (1 - progressOf(task) / 100)
+}
+
 export function aiSuggestionFor(task: TaskSuggestionLike): string {
   if (task.estimateMinutes && task.estimateMinutes > 0) {
     if (task.estimateMinutes >= 60) {

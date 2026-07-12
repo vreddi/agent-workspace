@@ -243,6 +243,17 @@ textarea.tdp-input { min-height: 96px; resize: vertical; line-height: 1.55; }
 }
 .tdp-form [data-unset] [data-slot=slider-range] { background: var(--t-ink-4); }
 .tdp-form [data-unset] [data-slot=slider-thumb] { border-color: var(--t-ink-4); }
+
+/* Progress section (long-running tasks) — read view, outside the form. */
+.tdp-progress { display: flex; flex-direction: column; gap: 10px; }
+.tdp-progress [data-slot=slider] { height: 16px; }
+.tdp-progress [data-slot=slider-track] { background: var(--t-chip-bg); }
+.tdp-progress [data-slot=slider-range] { background: var(--t-accent); }
+.tdp-progress [data-slot=slider-thumb] {
+  border-color: var(--t-accent); background: var(--t-surface);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+}
+.tdp-progress__hint { margin: 0; font-size: 12.5px; font-weight: 500; color: var(--t-ink-3); }
 .tdp-form [data-slot=select-trigger] {
   width: 100%; padding: 8px 10px; height: auto;
   background: var(--t-bg);

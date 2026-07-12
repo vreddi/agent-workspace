@@ -36,8 +36,11 @@ export {
   estimateToMinutes,
   FILTER_IDS,
   fmtEstimate,
+  isLongRunning,
   MINUTES_PER_COST_DAY,
   minutesToEstimateParts,
+  progressOf,
+  remainingCostDays,
   sortForToday,
   sourceFor,
   toDisplayTask,
@@ -50,9 +53,12 @@ export type {
   TaskCostLike,
   TaskDeadlineLike,
   TaskLike,
+  TaskProgressLike,
   TaskSource,
   TaskStatus,
   TaskSuggestionLike,
 } from './tasks'
+export { partitionForDayView } from './day'
+export type { DayPartition, DayPlanFields } from './day'
 export { GOAL_TYPE_COLOR_TOKENS, goalTypeValue, parseTypeValue } from './goals'
 export type { GoalTypeColorToken, GoalTypeInput, TypeSelection } from './goals'
