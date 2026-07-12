@@ -39,7 +39,7 @@ const BUCKET_META: Record<BucketId, { label: string; hint: string }> = {
   anytime: { label: 'Anytime today', hint: 'No fixed time' },
 }
 
-function bucketForTask(task: DisplayTask, now: Date): BucketId {
+function bucketForTask(task: DisplayTask, _now: Date): BucketId {
   if (task.overdue) return 'overdue'
   if (!task.deadline) return 'anytime'
   // If deadline is on a different day, still place by hour-of-day in the day view.
@@ -70,12 +70,14 @@ export function bucketize(tasks: DisplayTask[], now: Date): Bucket[] {
     })
     map.set(id, list)
   }
-  return BUCKET_ORDER.filter((id) => (map.get(id)?.length ?? 0) > 0).map((id) => ({
-    id,
-    label: BUCKET_META[id].label,
-    hint: BUCKET_META[id].hint,
-    tasks: map.get(id)!,
-  }))
+  return BUCKET_ORDER.filter((id) => (map.get(id)?.length ?? 0) > 0).map(
+    (id) => ({
+      id,
+      label: BUCKET_META[id].label,
+      hint: BUCKET_META[id].hint,
+      tasks: map.get(id)!,
+    }),
+  )
 }
 
 export function bucketTimeLabel(id: BucketId): string {
