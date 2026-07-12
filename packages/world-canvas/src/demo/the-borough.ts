@@ -77,9 +77,7 @@ const CACHE = new Map<TimeOfDay, VillageScene>()
  * to a separate office map; that world doesn't exist yet.) Scenes are cached
  * so repeated calls return stable identities.
  */
-export function makeBoroughScene(
-  time: TimeOfDay = 'night',
-): VillageScene {
+export function makeBoroughScene(time: TimeOfDay = 'night'): VillageScene {
   const cached = CACHE.get(time)
   if (cached) return cached
   const scene: VillageScene = {

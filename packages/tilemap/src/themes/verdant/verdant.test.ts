@@ -72,9 +72,9 @@ describe('verdant tileset', () => {
       })
 
       it('grass has at least two variant frame-sets', () => {
-        expect(tileset.tiles.grass!.variants?.length ?? 0).toBeGreaterThanOrEqual(
-          2,
-        )
+        expect(
+          tileset.tiles.grass!.variants?.length ?? 0,
+        ).toBeGreaterThanOrEqual(2)
       })
 
       it('animated ground tiles have at least two frames', () => {
@@ -98,9 +98,10 @@ describe('verdant tileset', () => {
 
       it('props draw substantial art (not near-empty frames)', () => {
         for (const id of ['oak', 'well', 'market-stall', 'house-thatch']) {
-          expect(opaqueFraction(tileset.props[id]!.frames[0]!), id).toBeGreaterThan(
-            0.15,
-          )
+          expect(
+            opaqueFraction(tileset.props[id]!.frames[0]!),
+            id,
+          ).toBeGreaterThan(0.15)
         }
       })
     })
@@ -109,7 +110,12 @@ describe('verdant tileset', () => {
   it('night lights the lamp-post and all three houses; day does not', () => {
     const night = makeVerdantTileset('night')
     const day = makeVerdantTileset('day')
-    for (const id of ['lamp-post', 'house-thatch', 'house-slate', 'house-plum']) {
+    for (const id of [
+      'lamp-post',
+      'house-thatch',
+      'house-slate',
+      'house-plum',
+    ]) {
       expect(night.props[id]!.lights?.length ?? 0, id).toBeGreaterThan(0)
       expect(day.props[id]!.lights?.length ?? 0, id).toBe(0)
     }

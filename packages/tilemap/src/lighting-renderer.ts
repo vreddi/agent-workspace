@@ -123,10 +123,7 @@ export class LightingRenderer {
     return ctx
   }
 
-  private drawShadows(
-    shadow: ShadowProjection | null,
-    frame: number,
-  ): void {
+  private drawShadows(shadow: ShadowProjection | null, frame: number): void {
     const ctx = this.context(this.shadows)
     ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.clearRect(0, 0, this.shadows.width, this.shadows.height)

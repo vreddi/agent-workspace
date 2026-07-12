@@ -45,11 +45,9 @@ export type WorldClockState = {
  * stays accurate across dropped frames), and derives the ambient grade, sun
  * shadow, phase, art mood, and scene brightness from the current hour.
  */
-export function useWorldClock(
-  options?: UseWorldClockOptions,
-): WorldClockState {
-  const [hour, setHourState] = React.useState(() =>
-    createClock({ hour: options?.hour, speed: options?.speed }).hour,
+export function useWorldClock(options?: UseWorldClockOptions): WorldClockState {
+  const [hour, setHourState] = React.useState(
+    () => createClock({ hour: options?.hour, speed: options?.speed }).hour,
   )
 
   // The authoritative clock lives in a ref so the interval reads fresh values

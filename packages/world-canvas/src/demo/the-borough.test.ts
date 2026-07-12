@@ -38,7 +38,12 @@ function reachableFrom(
     if (x < 0 || y < 0 || x >= map.width || y >= map.height) continue
     if (blocked.has(key)) continue
     seen.add(key)
-    stack.push({ x: x + 1, y }, { x: x - 1, y }, { x, y: y + 1 }, { x, y: y - 1 })
+    stack.push(
+      { x: x + 1, y },
+      { x: x - 1, y },
+      { x, y: y + 1 },
+      { x, y: y - 1 },
+    )
   }
   return seen
 }
@@ -62,9 +67,7 @@ describe('makeBoroughScene', () => {
     const { map } = makeBoroughScene('night')
     const houses = map.props.filter((p) => p.prop.startsWith('house-'))
     const ids = new Set(houses.map((p) => p.prop))
-    expect(ids).toEqual(
-      new Set(['house-thatch', 'house-slate', 'house-plum']),
-    )
+    expect(ids).toEqual(new Set(['house-thatch', 'house-slate', 'house-plum']))
   })
 
   it('keeps every resident spawn mutually reachable', () => {

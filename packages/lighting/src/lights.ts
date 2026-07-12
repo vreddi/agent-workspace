@@ -19,6 +19,7 @@ export function flickerScale(light: PointLight, frame: number): number {
   const seed = hashId(light.id)
   // Two incommensurate waves give an organic waver instead of a pulse.
   const wave =
-    Math.sin(frame * 0.9 + seed) * 0.6 + Math.sin(frame * 2.3 + seed * 0.31) * 0.4
+    Math.sin(frame * 0.9 + seed) * 0.6 +
+    Math.sin(frame * 2.3 + seed * 0.31) * 0.4
   return 1 + wave * flicker * 0.25
 }

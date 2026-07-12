@@ -3,13 +3,7 @@ import { TILE_SIZE, defineTile } from '../../tileset.js'
 import type { PixelArt } from '../../pixel-art.js'
 import type { TileDef } from '../../tileset.js'
 import type { TimeOfDay } from '../../time.js'
-import {
-  COBBLE,
-  DIRT,
-  FLOWER,
-  GRASS,
-  WATER,
-} from './palette.js'
+import { COBBLE, DIRT, FLOWER, GRASS, WATER } from './palette.js'
 
 const S = TILE_SIZE
 
@@ -36,11 +30,25 @@ function rng(seed: number): () => number {
  */
 function grassPalette(time: TimeOfDay) {
   const p = GRASS[time]
-  return { a: p.base, b: p.mid, c: p.lt, d: p.sh, e: p.deep, f: p.hi, g: p.shadow }
+  return {
+    a: p.base,
+    b: p.mid,
+    c: p.lt,
+    d: p.sh,
+    e: p.deep,
+    f: p.hi,
+    g: p.shadow,
+  }
 }
 
 /** A three-blade tuft with a lit tip. */
-function tuft(g: CharGrid, x: number, y: number, tip: string, body: string): void {
+function tuft(
+  g: CharGrid,
+  x: number,
+  y: number,
+  tip: string,
+  body: string,
+): void {
   g.px(x, y, body)
   g.px(x, y - 1, body)
   g.px(x + 1, y - 1, tip)

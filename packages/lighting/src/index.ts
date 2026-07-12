@@ -1,9 +1,4 @@
-export {
-  DAWN_START,
-  DAY_START,
-  DUSK_START,
-  NIGHT_START,
-} from './types.js'
+export { DAWN_START, DAY_START, DUSK_START, NIGHT_START } from './types.js'
 export type {
   AmbientGrade,
   DayPhase,

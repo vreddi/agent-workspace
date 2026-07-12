@@ -22,14 +22,14 @@ A theme is just a `Tileset` — `{ tiles, props }` of `TileDef`/`PropDef` — bu
 for one lighting mood. The verdant theme lives in
 `packages/tilemap/src/themes/verdant/`:
 
-| File         | Contents                                                        |
-| ------------ | -------------------------------------------------------------- |
-| `palette.ts` | The master colour ramps, one entry per material and mood.       |
+| File         | Contents                                                                   |
+| ------------ | -------------------------------------------------------------------------- |
+| `palette.ts` | The master colour ramps, one entry per material and mood.                  |
 | `ground.ts`  | Tiles: grass, meadow, tall-grass, flowers, fireflies, path, cobble, water. |
-| `trees.ts`   | Props: oak, pine, bush.                                         |
-| `props.ts`   | Props: rock, stump, sign, mushrooms, lamp-post, well, market-stall. |
-| `houses.ts`  | Props: house-thatch / house-slate / house-plum.                |
-| `index.ts`   | `makeVerdantTileset(time)` — assembles and caches one per mood. |
+| `trees.ts`   | Props: oak, pine, bush.                                                    |
+| `props.ts`   | Props: rock, stump, sign, mushrooms, lamp-post, well, market-stall.        |
+| `houses.ts`  | Props: house-thatch / house-slate / house-plum.                            |
+| `index.ts`   | `makeVerdantTileset(time)` — assembles and caches one per mood.            |
 
 Both moods share tile/prop **ids**, so a single parsed map renders against
 either — the only thing that changes is the baked palette.

@@ -182,7 +182,12 @@ type RoofByTime = Record<TimeOfDay, Roof>
 
 /** Warm straw thatch. */
 export const ROOF_THATCH = {
-  day: { ridge: '#f0d488', light: '#d9b062', mid: '#b8904a', shadow: '#8a6836' },
+  day: {
+    ridge: '#f0d488',
+    light: '#d9b062',
+    mid: '#b8904a',
+    shadow: '#8a6836',
+  },
   night: {
     ridge: '#6f6552',
     light: '#585040',
@@ -193,7 +198,12 @@ export const ROOF_THATCH = {
 
 /** Blue-green slate shingle. */
 export const ROOF_SLATE = {
-  day: { ridge: '#8fbcb2', light: '#5c9b96', mid: '#3f7a78', shadow: '#2b5a5c' },
+  day: {
+    ridge: '#8fbcb2',
+    light: '#5c9b96',
+    mid: '#3f7a78',
+    shadow: '#2b5a5c',
+  },
   night: {
     ridge: '#4d6570',
     light: '#3b4f5a',
@@ -204,7 +214,12 @@ export const ROOF_SLATE = {
 
 /** Plum shingle. */
 export const ROOF_PLUM = {
-  day: { ridge: '#b57694', light: '#8a4f6e', mid: '#6b3b54', shadow: '#4d2a3e' },
+  day: {
+    ridge: '#b57694',
+    light: '#8a4f6e',
+    mid: '#6b3b54',
+    shadow: '#4d2a3e',
+  },
   night: {
     ridge: '#584560',
     light: '#453450',
@@ -268,32 +283,88 @@ export const OAK = {
 
 /** Conifer needles. */
 export const PINE = {
-  day: { hi: '#5f7f50', lt: '#4a684c', mid: '#3b5640', dark: '#2f4534', core: '#26333f' },
-  night: { hi: '#43593e', lt: '#35493a', mid: '#293c30', dark: '#1f2f27', core: '#1a2430' },
+  day: {
+    hi: '#5f7f50',
+    lt: '#4a684c',
+    mid: '#3b5640',
+    dark: '#2f4534',
+    core: '#26333f',
+  },
+  night: {
+    hi: '#43593e',
+    lt: '#35493a',
+    mid: '#293c30',
+    dark: '#1f2f27',
+    core: '#1a2430',
+  },
 } satisfies ByTime
 
 /** Round shrub — rides the grass ramp with a rounder crown. */
 export const BUSH = {
-  day: { hi: '#a4bf5e', lt: '#7fa04c', mid: '#5c7f46', dark: '#47624b', core: '#33484a' },
-  night: { hi: '#4d6753', lt: '#3c5340', mid: '#314539', dark: '#283a34', core: '#1e2c30' },
+  day: {
+    hi: '#a4bf5e',
+    lt: '#7fa04c',
+    mid: '#5c7f46',
+    dark: '#47624b',
+    core: '#33484a',
+  },
+  night: {
+    hi: '#4d6753',
+    lt: '#3c5340',
+    mid: '#314539',
+    dark: '#283a34',
+    core: '#1e2c30',
+  },
 } satisfies ByTime
 
 /** Flower accents — lavender and cream blooms scattered in meadows. */
 export const FLOWER = {
-  day: { petal: '#b79bd4', center: '#e0b060', cream: '#f2ecc9', stem: '#5f7347' },
-  night: { petal: '#a289bd', center: '#d9a561', cream: '#ddd6b4', stem: '#3c5340' },
+  day: {
+    petal: '#b79bd4',
+    center: '#e0b060',
+    cream: '#f2ecc9',
+    stem: '#5f7347',
+  },
+  night: {
+    petal: '#a289bd',
+    center: '#d9a561',
+    cream: '#ddd6b4',
+    stem: '#3c5340',
+  },
 } satisfies ByTime
 
 /** Toadstool cluster — warm red caps, cream stalks. */
 export const MUSHROOM = {
-  day: { cap: '#c96a5a', hi: '#dc8a6a', stalk: '#e8dcbc', spot: '#f2e8ce', shade: '#a08059' },
-  night: { cap: '#a8544a', hi: '#bd6a5a', stalk: '#c9bda0', spot: '#ddd0b0', shade: '#7a6250' },
+  day: {
+    cap: '#c96a5a',
+    hi: '#dc8a6a',
+    stalk: '#e8dcbc',
+    spot: '#f2e8ce',
+    shade: '#a08059',
+  },
+  night: {
+    cap: '#a8544a',
+    hi: '#bd6a5a',
+    stalk: '#c9bda0',
+    spot: '#ddd0b0',
+    shade: '#7a6250',
+  },
 } satisfies ByTime
 
 /** Market-stall awning stripes and crates. */
 export const MARKET = {
-  day: { stripeA: '#c9564a', stripeB: '#f2e6cc', crate: '#8a5a38', crateLt: '#a8734a' },
-  night: { stripeA: '#7a4048', stripeB: '#847e8e', crate: '#3b2a20', crateLt: '#4a3529' },
+  day: {
+    stripeA: '#c9564a',
+    stripeB: '#f2e6cc',
+    crate: '#8a5a38',
+    crateLt: '#a8734a',
+  },
+  night: {
+    stripeA: '#7a4048',
+    stripeB: '#847e8e',
+    crate: '#3b2a20',
+    crateLt: '#4a3529',
+  },
 } satisfies ByTime
 
 /** Iron for lamp posts, well fittings, sign brackets. */

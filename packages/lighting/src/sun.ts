@@ -39,7 +39,9 @@ export function shadowAt(hour: number): ShadowProjection | null {
   return {
     // Shadows point away from the sun: east sun (-1) leans them west.
     skewX: sun.azimuth * MAX_SKEW,
-    scaleY: SHORTEST_SHADOW + (LONGEST_SHADOW - SHORTEST_SHADOW) * (1 - sun.elevation),
+    scaleY:
+      SHORTEST_SHADOW +
+      (LONGEST_SHADOW - SHORTEST_SHADOW) * (1 - sun.elevation),
     // Fade in/out near the horizon instead of popping.
     alpha: MAX_ALPHA * Math.min(1, sun.elevation / 0.25),
   }

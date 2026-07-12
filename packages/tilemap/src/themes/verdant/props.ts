@@ -169,7 +169,10 @@ function makeMushrooms(time: TimeOfDay): PropDef {
  * post with a glass head. At night the head glows warm (baked bloom in the
  * art) and casts a flickering light; by day it's unlit with no light emitter.
  */
-function lampFrame(time: TimeOfDay, flare: boolean): ReturnType<typeof parsePixelArt> {
+function lampFrame(
+  time: TimeOfDay,
+  flare: boolean,
+): ReturnType<typeof parsePixelArt> {
   const g = new CharGrid(32, 64)
   const isNight = time === 'night'
   const palette = {
