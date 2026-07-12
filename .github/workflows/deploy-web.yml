@@ -12,6 +12,13 @@
 #   CLERK_SECRET_KEY
 #   VITE_CLERK_PUBLISHABLE_KEY
 #   VITE_CONVEX_URL
+#   CLERK_JWT_ISSUER_DOMAIN
+#
+# These feed two distinct places, which is the subtlety that bit us before:
+#   - BUILD time: VITE_* are baked into the client bundle by `vite build`.
+#   - RUNTIME:    the Worker's SSR needs CLERK_SECRET_KEY et al. as Worker
+#                 bindings. `wrangler deploy` does NOT carry the job's env onto
+#                 the Worker, so we set them explicitly below (secret + vars).
 name: deploy-web
 
 on:
@@ -62,15 +69,33 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: .
 
-      # --name overrides the worker in wrangler.jsonc so each environment
-      # deploys to its own isolated Worker and they never overwrite each other.
-      - name: Build and deploy to Cloudflare
+      # Bakes the VITE_* values into the client bundle. CI=true (set by Actions)
+      # makes env.ts skip validation here; the real check runs on the Worker.
+      - name: Build web app
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+          VITE_CONVEX_URL: ${{ secrets.VITE_CONVEX_URL }}
+        run: pnpm exec vite build
+
+      # `--name` overrides the worker in wrangler.jsonc so each environment
+      # deploys to its own isolated Worker. `wrangler deploy` does NOT put the
+      # job's env onto the Worker, so we provision runtime bindings explicitly:
+      # public config as plaintext --var, the Clerk secret via `secret put`
+      # (stdin, never logged). Without this the SSR Worker has no CLERK_SECRET_KEY
+      # and every request 500s inside clerkMiddleware.
+      - name: Deploy to Cloudflare and provision runtime bindings
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
           VITE_CONVEX_URL: ${{ secrets.VITE_CONVEX_URL }}
-          CLOUDFLARE_INCLUDE_PROCESS_ENV: true
+          CLERK_JWT_ISSUER_DOMAIN: ${{ secrets.CLERK_JWT_ISSUER_DOMAIN }}
           WORKER_NAME: ${{ inputs.environment == 'production' && 'org-web-todo' || 'org-web-todo-dogfood' }}
-        run: pnpm exec vite build && pnpm exec wrangler deploy --name "$WORKER_NAME"
+        run: |
+          pnpm exec wrangler deploy --name "$WORKER_NAME" \
+            --var "VITE_CONVEX_URL:$VITE_CONVEX_URL" \
+            --var "VITE_CLERK_PUBLISHABLE_KEY:$VITE_CLERK_PUBLISHABLE_KEY" \
+            --var "CLERK_JWT_ISSUER_DOMAIN:$CLERK_JWT_ISSUER_DOMAIN"
+          printf '%s' "$CLERK_SECRET_KEY" \
+            | pnpm exec wrangler secret put CLERK_SECRET_KEY --name "$WORKER_NAME"
