@@ -161,10 +161,10 @@ Workflow: [`.github/workflows/deploy-web.yml`](../.github/workflows/deploy-web.y
 - **Trigger:** manual only (`workflow_dispatch`) from the Actions tab.
 - **Environment picker:** when you run the workflow, pick `Dogfood` or `production`. That choice selects the GitHub Environment, the branch checked out, and the Cloudflare Worker deployed to — so the two environments are fully isolated and never overwrite each other.
 
-| Dispatch input | GitHub Environment | Release branch | Cloudflare Worker       | Default URL                                             |
-| -------------- | ------------------ | -------------- | ----------------------- | ------------------------------------------------------ |
-| `Dogfood`      | `Dogfood`          | `develop`      | `org-web-todo-dogfood`  | `https://org-web-todo-dogfood.<subdomain>.workers.dev` |
-| `production`   | `production`       | `prod`         | `org-web-todo`          | `https://org-web-todo.<subdomain>.workers.dev`         |
+| Dispatch input | GitHub Environment | Release branch | Cloudflare Worker      | Default URL                                            |
+| -------------- | ------------------ | -------------- | ---------------------- | ------------------------------------------------------ |
+| `Dogfood`      | `Dogfood`          | `develop`      | `org-web-todo-dogfood` | `https://org-web-todo-dogfood.<subdomain>.workers.dev` |
+| `production`   | `production`       | `prod`         | `org-web-todo`         | `https://org-web-todo.<subdomain>.workers.dev`         |
 
 `<subdomain>` is your account's `workers.dev` subdomain (Cloudflare dashboard → **Workers & Pages**, or printed at the end of `wrangler deploy`). It is the same for both workers. Worker isolation comes from a `wrangler deploy --name` override in the workflow, not from `wrangler.jsonc` (which still names a single worker).
 
