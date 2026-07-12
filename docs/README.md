@@ -21,6 +21,7 @@ lowercase-kebab-case.
 | [tech-stack.md](./tech-stack.md) | Technologies in `apps/web` and workspace tooling; the Clerk + Convex auth flow. |
 | [deployment.md](./deployment.md) | Deploying `apps/web` to Cloudflare Workers and Storybook to Chromatic. |
 | [clerk-auth-cost-projection.md](./clerk-auth-cost-projection.md) | Clerk pricing model, growth scenarios, and COGS analysis. |
+| [claude-code-workflow.md](./claude-code-workflow.md) | Opt-in two-model Claude Code workflow: Fable plans, Opus implements. How to trigger it, cost notes, and requirements. |
 
 ## Reading paths
 
