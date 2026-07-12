@@ -161,3 +161,65 @@ describe('tasks.update with planning fields', () => {
     ).rejects.toThrowError(/difficulty/)
   })
 })
+
+describe('tasks allowEarlyCompletion flag', () => {
+  test('defaults to null and can be set on create', async () => {
+    const t = setup()
+    const asUser = await signUp(t, 'user_1')
+
+    const plain = await asUser.mutation(api.tasks.create, {
+      title: 'Scheduled',
+    })
+    expect(await asUser.query(api.tasks.get, { id: plain })).toMatchObject({
+      allowEarlyCompletion: null,
+    })
+
+    const flexible = await asUser.mutation(api.tasks.create, {
+      title: 'Flexible',
+      softDeadline: Date.now() + 86_400_000,
+      allowEarlyCompletion: true,
+    })
+    expect(await asUser.query(api.tasks.get, { id: flexible })).toMatchObject({
+      allowEarlyCompletion: true,
+    })
+    const history = await asUser.query(api.tasks.history, { taskId: flexible })
+    const created = history.find((e) => e.kind === 'created')
+    expect(created!.changes.map((c) => c.field)).toContain(
+      'allowEarlyCompletion',
+    )
+  })
+
+  test('toggles on update and records the diff', async () => {
+    const t = setup()
+    const asUser = await signUp(t, 'user_1')
+    const taskId = await asUser.mutation(api.tasks.create, { title: 'Task' })
+
+    const on = await asUser.mutation(api.tasks.update, {
+      id: taskId,
+      allowEarlyCompletion: true,
+    })
+    expect(on).toEqual({ changed: true })
+    expect(await asUser.query(api.tasks.get, { id: taskId })).toMatchObject({
+      allowEarlyCompletion: true,
+    })
+
+    // Re-setting the same value is a no-op (undefined-as-null diffing).
+    const noop = await asUser.mutation(api.tasks.update, {
+      id: taskId,
+      allowEarlyCompletion: true,
+    })
+    expect(noop).toEqual({ changed: false })
+
+    const off = await asUser.mutation(api.tasks.update, {
+      id: taskId,
+      allowEarlyCompletion: false,
+    })
+    expect(off).toEqual({ changed: true })
+
+    const history = await asUser.query(api.tasks.history, { taskId })
+    const updatedFields = history
+      .filter((e) => e.kind === 'updated')
+      .flatMap((e) => e.changes.map((c) => c.field))
+    expect(updatedFields).toContain('allowEarlyCompletion')
+  })
+})

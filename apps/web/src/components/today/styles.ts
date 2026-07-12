@@ -567,6 +567,20 @@ export const todayStyles = `
   font-size: 12px; color: var(--t-ink-3);
   font-variant-numeric: tabular-nums;
 }
+.t-palette__label--info { display: inline-flex; align-items: center; gap: 5px; }
+.t-palette__unit {
+  flex: 0 0 auto;
+  border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 12px; font-weight: 600; color: var(--t-ink-3);
+  cursor: pointer;
+}
+.t-palette__unit:disabled { cursor: not-allowed; opacity: 0.5; }
+.t-palette__check {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 10px;
+  font-size: 13px; font-weight: 500; color: var(--t-ink-2);
+  cursor: pointer;
+}
 .t-palette__chip {
   padding: 4px 9px;
   border-radius: 7px;

@@ -634,6 +634,60 @@ function StepperButton({
 }
 
 // ---------------------------------------------------------------------------
+// Checkbox
+// ---------------------------------------------------------------------------
+
+/** Single boolean row with a tappable checkbox and optional helper line. */
+export function CheckboxRow({
+  label,
+  value,
+  onChange,
+  hint,
+}: {
+  label: string
+  value: boolean
+  onChange: (value: boolean) => void
+  /** Optional secondary line under the label. */
+  hint?: string
+}) {
+  const { palette } = useTheme()
+  const toggle = () => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    onChange(!value)
+  }
+  return (
+    <Pressable
+      style={styles.row}
+      onPress={toggle}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: value }}
+    >
+      <View style={styles.flex}>
+        <AppText variant="label" color={palette.ink2}>
+          {label}
+        </AppText>
+        {hint ? (
+          <AppText variant="meta" color={palette.ink3}>
+            {hint}
+          </AppText>
+        ) : null}
+      </View>
+      <View
+        style={[
+          styles.checkboxBox,
+          {
+            borderColor: value ? palette.accent : palette.ink4,
+            backgroundColor: value ? palette.accent : 'transparent',
+          },
+        ]}
+      >
+        {value ? <Check size={14} color={palette.surface} /> : null}
+      </View>
+    </Pressable>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Chip group
 // ---------------------------------------------------------------------------
 
@@ -803,6 +857,14 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
+  },
+  checkboxBox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backdrop: {
     flex: 1,

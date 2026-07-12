@@ -170,6 +170,11 @@ export default defineSchema({
     goalPosition: v.optional(v.number()),
     // Effort estimate in days; goal cost totals sum these.
     costDays: v.optional(v.union(v.number(), v.null())),
+    // When a target date (softDeadline) is set: may the task be finished
+    // before it? Unchecked (the default — absent/null/false) means the task is
+    // scheduled *for* the target date; checked means completing it early is
+    // fine. Optional so rows written before this field existed validate.
+    allowEarlyCompletion: v.optional(v.union(v.boolean(), v.null())),
     updatedAt: v.number(),
   })
     .index('by_assignee_status', ['assigneeUserId', 'status'])

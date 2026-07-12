@@ -4,6 +4,7 @@ import * as Haptics from 'expo-haptics'
 import { router, useLocalSearchParams } from 'expo-router'
 import {
   Calendar,
+  Check,
   Clock,
   Flag,
   Gauge,
@@ -328,6 +329,17 @@ function DetailsCard({
         }
       />,
     )
+    if (task.allowEarlyCompletion) {
+      rows.push(
+        <MetaRow
+          key="early"
+          divider={rows.length > 0}
+          icon={<Check size={17} color={iconColor} />}
+          label="Flexibility"
+          value="Can finish early"
+        />,
+      )
+    }
   }
   if (task.hardDeadline !== null) {
     rows.push(

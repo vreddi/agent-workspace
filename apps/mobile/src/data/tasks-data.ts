@@ -64,6 +64,7 @@ export interface CreateTaskInput {
   scheduledStartMinutes?: number | null
   goalId?: Id<'goals'> | null
   costDays?: number | null
+  allowEarlyCompletion?: boolean | null
 }
 
 export interface UpdateTaskPatch {
@@ -80,6 +81,7 @@ export interface UpdateTaskPatch {
   scheduledStartMinutes?: number | null
   goalId?: Id<'goals'> | null
   costDays?: number | null
+  allowEarlyCompletion?: boolean | null
 }
 
 // ── Mutations ──────────────────────────────────────────────────────────────

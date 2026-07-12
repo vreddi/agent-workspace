@@ -2,6 +2,15 @@ import { api } from '@convex/_generated/api'
 import type { Doc, Id } from '@convex/_generated/dataModel'
 import type { TaskDetail, TaskHistoryEvent } from '@convex/tasks'
 import {
+  ESTIMATE_UNIT_LABELS,
+  ESTIMATE_UNITS,
+  type EstimateUnit,
+  estimateToMinutes,
+  fmtEstimate,
+  minutesToEstimateParts,
+} from '@org/app-core'
+import { Checkbox } from '@org/ui/components/checkbox'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -31,6 +40,7 @@ import {
   type TaskPriority,
 } from '~/components/tasks/priority'
 import { taskDetailStyles } from '~/components/tasks/styles'
+import { TargetDateInfo } from '~/components/tasks/target-date-info'
 import { AppShell } from '~/components/today/app-shell'
 import { AppBreadcrumbs, type AppCrumb } from '~/components/today/breadcrumbs'
 import { EmojiGlyphButton } from '~/components/today/emoji-picker'
@@ -92,13 +102,6 @@ function fmtEventTime(ms: number, now = Date.now()): string {
   if (ms >= startOfToday) return `Today, ${time}`
   if (ms >= startOfToday - 24 * 60 * 60 * 1000) return `Yesterday, ${time}`
   return fmtDateTime(ms)
-}
-
-function fmtEstimate(minutes: number): string {
-  if (minutes < 60) return `${minutes} min`
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return m ? `${h}h ${m}m` : `${h}h`
 }
 
 function fmtCost(days: number): string {
@@ -493,7 +496,16 @@ function DetailsSection({ task }: { task: TaskDetail }) {
   if (task.softDeadline !== null) {
     rows.push({
       label: 'Target date',
-      value: fmtDateTime(task.softDeadline),
+      value: (
+        <>
+          {fmtDateTime(task.softDeadline)}{' '}
+          <span className="tdp-details__hint">
+            {task.allowEarlyCompletion
+              ? 'can finish early'
+              : 'scheduled for this date'}
+          </span>
+        </>
+      ),
       overdue: open && task.softDeadline < now,
     })
   }
@@ -615,6 +627,10 @@ function phraseForChange(
       if (after === null) return 'cleared the cost'
       if (typeof after !== 'number') return 'changed the cost'
       return `set the cost to ${fmtCost(after)}`
+    case 'allowEarlyCompletion':
+      return after === true
+        ? 'allowed finishing before the target date'
+        : 'required the task to wait for its target date'
     case 'assignees': {
       // Creation events carry the initial set; the "created this task" lead
       // already covers that.
@@ -741,14 +757,26 @@ function TaskEditForm({
   const [difficulty, setDifficulty] = useState<number | null>(
     task.difficulty ?? null,
   )
-  const [estimateMinutes, setEstimateMinutes] = useState(
-    task.estimateMinutes === null ? '' : String(task.estimateMinutes),
+  // Estimate is stored as minutes but edited in whatever unit the user picked;
+  // reopen it in the largest unit that divides the stored value evenly.
+  const initialEstimate =
+    task.estimateMinutes === null
+      ? null
+      : minutesToEstimateParts(task.estimateMinutes)
+  const [estimateValue, setEstimateValue] = useState(
+    initialEstimate === null ? '' : String(initialEstimate.value),
+  )
+  const [estimateUnit, setEstimateUnit] = useState<EstimateUnit>(
+    initialEstimate?.unit ?? 'minutes',
   )
   const [softDeadline, setSoftDeadline] = useState(
     msToDateTimeLocal(task.softDeadline),
   )
   const [hardDeadline, setHardDeadline] = useState(
     msToDateTimeLocal(task.hardDeadline),
+  )
+  const [allowEarlyCompletion, setAllowEarlyCompletion] = useState(
+    task.allowEarlyCompletion ?? false,
   )
   const [scheduledStart, setScheduledStart] = useState(
     minutesToTimeInput(task.scheduledStartMinutes ?? null),
@@ -792,6 +820,7 @@ function TaskEditForm({
       scheduledStartMinutes?: number | null
       goalId?: Id<'goals'> | null
       costDays?: number | null
+      allowEarlyCompletion?: boolean | null
     } = { id: task._id }
 
     if (trimmedTitle !== task.title) patch.title = trimmedTitle
@@ -807,15 +836,27 @@ function TaskEditForm({
     const nextHard = dateTimeLocalToMs(hardDeadline)
     if (nextHard !== task.hardDeadline) patch.hardDeadline = nextHard
 
-    const trimmedEstimate = estimateMinutes.trim()
-    const nextEstimate = trimmedEstimate === '' ? null : Number(trimmedEstimate)
+    // The flag only means anything with a target date; clearing the date
+    // resets it so a stale "finish early" never lingers.
+    const nextAllowEarly = nextSoft !== null && allowEarlyCompletion
+    if (nextAllowEarly !== (task.allowEarlyCompletion ?? false)) {
+      patch.allowEarlyCompletion = nextAllowEarly
+    }
+
+    const trimmedEstimate = estimateValue.trim()
+    const parsedEstimate =
+      trimmedEstimate === '' ? null : Number(trimmedEstimate)
     if (
-      nextEstimate !== null &&
-      (!Number.isFinite(nextEstimate) || nextEstimate < 0)
+      parsedEstimate !== null &&
+      (!Number.isFinite(parsedEstimate) || parsedEstimate < 0)
     ) {
-      setError('The estimate must be a number of minutes.')
+      setError('The estimate must be a positive number.')
       return
     }
+    const nextEstimate =
+      parsedEstimate === null
+        ? null
+        : estimateToMinutes(parsedEstimate, estimateUnit)
     if (nextEstimate !== task.estimateMinutes)
       patch.estimateMinutes = nextEstimate
 
@@ -878,7 +919,10 @@ function TaskEditForm({
         <div className="tdp-form__section-head">Schedule</div>
         <div className="tdp-form__grid">
           <div className="tdp-field">
-            <span className="tdp-field__label">Target date</span>
+            <span className="tdp-field__label tdp-field__label--info">
+              Target date
+              <TargetDateInfo />
+            </span>
             <input
               type="datetime-local"
               className="tdp-input"
@@ -886,6 +930,18 @@ function TaskEditForm({
               disabled={saving}
               onChange={(e) => setSoftDeadline(e.target.value)}
             />
+            {softDeadline !== '' && (
+              <label className="tdp-check">
+                <Checkbox
+                  checked={allowEarlyCompletion}
+                  disabled={saving}
+                  onCheckedChange={(next) =>
+                    setAllowEarlyCompletion(next === true)
+                  }
+                />
+                <span>OK to finish before the target date</span>
+              </label>
+            )}
           </div>
           <div className="tdp-field">
             <span className="tdp-field__label">Hard deadline</span>
@@ -898,16 +954,35 @@ function TaskEditForm({
             />
           </div>
           <div className="tdp-field">
-            <span className="tdp-field__label">Estimate (minutes)</span>
-            <input
-              type="number"
-              min={0}
-              className="tdp-input"
-              value={estimateMinutes}
-              disabled={saving}
-              onChange={(e) => setEstimateMinutes(e.target.value)}
-              placeholder="30"
-            />
+            <span className="tdp-field__label">Estimate</span>
+            <div className="tdp-estimate">
+              <input
+                type="number"
+                min={0}
+                step="any"
+                className="tdp-input"
+                value={estimateValue}
+                disabled={saving}
+                onChange={(e) => setEstimateValue(e.target.value)}
+                placeholder="30"
+              />
+              <Select
+                value={estimateUnit}
+                disabled={saving}
+                onValueChange={(next) => setEstimateUnit(next as EstimateUnit)}
+              >
+                <SelectTrigger aria-label="Estimate unit">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ESTIMATE_UNITS.map((unit) => (
+                    <SelectItem key={unit} value={unit}>
+                      {ESTIMATE_UNIT_LABELS[unit]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="tdp-field">
             <span className="tdp-field__label">Time slot</span>

@@ -5,12 +5,18 @@
  * unlinked here too.
  */
 import type { Id } from '@convex/_generated/dataModel'
+import {
+  type EstimateUnit,
+  estimateToMinutes,
+  minutesToEstimateParts,
+} from '@org/app-core'
 import { radius, space } from '@org/theme'
 import * as Haptics from 'expo-haptics'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
 import { StyleSheet, TextInput, View } from 'react-native'
 import {
+  CheckboxRow,
   ChipRowGroup,
   DateFieldRow,
   FooterButton,
@@ -21,6 +27,12 @@ import {
   StepperRow,
   type SelectOption,
 } from '@/components/forms'
+import {
+  ESTIMATE_UNIT_CHIPS,
+  estimateInUnit,
+  UNIT_STEP,
+  UNIT_SUFFIX,
+} from '@/components/estimate-units'
 import { ScreenLoading } from '@/components/screen'
 import { AppText, Card } from '@/components/ui'
 import type { TaskPriority, TaskStatus } from '@/data/hooks'
@@ -89,12 +101,20 @@ function EditForm({ task }: { task: TaskDetail }) {
   const [estimateMinutes, setEstimateMinutes] = useState(
     task.estimateMinutes ?? 0,
   )
+  const [estimateUnit, setEstimateUnit] = useState<EstimateUnit>(
+    task.estimateMinutes
+      ? minutesToEstimateParts(task.estimateMinutes).unit
+      : 'minutes',
+  )
   const [costDays, setCostDays] = useState(task.costDays ?? 0)
   const [softDeadline, setSoftDeadline] = useState<Date | null>(
     task.softDeadline === null ? null : new Date(task.softDeadline),
   )
   const [hardDeadline, setHardDeadline] = useState<Date | null>(
     task.hardDeadline === null ? null : new Date(task.hardDeadline),
+  )
+  const [allowEarlyCompletion, setAllowEarlyCompletion] = useState(
+    task.allowEarlyCompletion ?? false,
   )
   const [scheduledStart, setScheduledStart] = useState<Date | null>(
     task.scheduledStartMinutes == null
@@ -155,6 +175,10 @@ function EditForm({ task }: { task: TaskDetail }) {
 
     const nextHard = hardDeadline ? hardDeadline.getTime() : null
     if (nextHard !== task.hardDeadline) patch.hardDeadline = nextHard
+
+    if (allowEarlyCompletion !== (task.allowEarlyCompletion ?? false)) {
+      patch.allowEarlyCompletion = allowEarlyCompletion
+    }
 
     const nextScheduled = scheduledStart ? dateToMinutes(scheduledStart) : null
     if (nextScheduled !== (task.scheduledStartMinutes ?? null)) {
@@ -238,6 +262,14 @@ function EditForm({ task }: { task: TaskDetail }) {
           value={softDeadline}
           onChange={setSoftDeadline}
         />
+        {softDeadline ? (
+          <CheckboxRow
+            label="OK to finish early"
+            hint="Otherwise the task is scheduled for the target date."
+            value={allowEarlyCompletion}
+            onChange={setAllowEarlyCompletion}
+          />
+        ) : null}
         <DateFieldRow
           label="Hard deadline"
           mode="datetime"
@@ -250,13 +282,21 @@ function EditForm({ task }: { task: TaskDetail }) {
           value={scheduledStart}
           onChange={setScheduledStart}
         />
+        <ChipRowGroup
+          label="Estimate unit"
+          value={estimateUnit}
+          options={ESTIMATE_UNIT_CHIPS}
+          onChange={setEstimateUnit}
+        />
         <StepperRow
           label="Estimate"
-          value={estimateMinutes}
-          onChange={setEstimateMinutes}
-          step={15}
+          value={estimateInUnit(estimateMinutes, estimateUnit)}
+          onChange={(v) =>
+            setEstimateMinutes(estimateToMinutes(v, estimateUnit))
+          }
+          step={UNIT_STEP[estimateUnit]}
           min={0}
-          unit="min"
+          unit={UNIT_SUFFIX[estimateUnit]}
         />
       </FormSection>
 

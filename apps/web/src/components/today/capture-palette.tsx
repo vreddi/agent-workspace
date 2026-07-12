@@ -1,5 +1,13 @@
 import type { Id } from '@convex/_generated/dataModel'
+import {
+  ESTIMATE_UNIT_LABELS,
+  ESTIMATE_UNITS,
+  type EstimateUnit,
+  estimateToMinutes,
+  fmtEstimate,
+} from '@org/app-core'
 import { Calendar } from '@org/ui/components/calendar'
+import { Checkbox } from '@org/ui/components/checkbox'
 import {
   Popover,
   PopoverContent,
@@ -16,12 +24,14 @@ import { Slider } from '@org/ui/components/slider'
 import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { GoalTypeSelectionIcon, goalTypeValue } from '../goals/goal-ui'
 import { PRIORITY_LABELS, type TaskPriority } from '../tasks/priority'
+import { TargetDateInfo } from '../tasks/target-date-info'
 import { EmojiGlyphButton } from './emoji-picker'
 
 export type CaptureInput = {
   title: string
   estimateMinutes: number | null
   targetDate: string | null
+  allowEarlyCompletion: boolean
   scheduledStartMinutes: number | null
   priority: TaskPriority | null
   difficulty: number | null
@@ -273,7 +283,9 @@ export function CapturePalette({
 }) {
   const [val, setVal] = useState('')
   const [estimate, setEstimate] = useState('')
+  const [estimateUnit, setEstimateUnit] = useState<EstimateUnit>('minutes')
   const [targetDate, setTargetDate] = useState('')
+  const [allowEarlyCompletion, setAllowEarlyCompletion] = useState(false)
   const [slotStart, setSlotStart] = useState<number | null>(null)
   const [priority, setPriority] = useState<TaskPriority | null>(null)
   const [difficulty, setDifficulty] = useState<number | null>(null)
@@ -287,7 +299,9 @@ export function CapturePalette({
     if (open) {
       setVal('')
       setEstimate('')
+      setEstimateUnit('minutes')
       setTargetDate('')
+      setAllowEarlyCompletion(false)
       setSlotStart(null)
       setPriority(null)
       setDifficulty(null)
@@ -305,7 +319,9 @@ export function CapturePalette({
     const trimmed = estimate.trim()
     if (trimmed === '') return null
     const n = Number(trimmed)
-    return Number.isFinite(n) && n > 0 ? n : null
+    return Number.isFinite(n) && n > 0
+      ? estimateToMinutes(n, estimateUnit)
+      : null
   })()
   // A time slot's end is derived from the estimate, so the slider only makes
   // sense once we know how long the task takes.
@@ -323,10 +339,10 @@ export function CapturePalette({
     if (trimmedEstimate !== '') {
       const n = Number(trimmedEstimate)
       if (!Number.isFinite(n) || n < 0) {
-        setError('Estimate must be a positive number of minutes.')
+        setError('Estimate must be a positive number.')
         return
       }
-      estimateMinutes = n
+      estimateMinutes = estimateToMinutes(n, estimateUnit)
     }
     setError(null)
     setSubmitting(true)
@@ -335,6 +351,8 @@ export function CapturePalette({
         title: trimmed,
         estimateMinutes,
         targetDate: targetDate || null,
+        // The flag only means anything once a target date is set.
+        allowEarlyCompletion: targetDate ? allowEarlyCompletion : false,
         // A slot only means something on a concrete day.
         scheduledStartMinutes: targetDate ? slotStart : null,
         priority,
@@ -363,7 +381,7 @@ export function CapturePalette({
   if (estimateMinutesOrNull !== null) {
     summaryChips.push({
       key: 'estimate',
-      label: `${estimateMinutesOrNull} min`,
+      label: fmtEstimate(estimateMinutesOrNull),
     })
   }
   if (priority !== null) {
@@ -469,7 +487,10 @@ export function CapturePalette({
               <div className="t-palette__section-head">Scheduling</div>
               <div className="t-palette__grid">
                 <div className="t-palette__field">
-                  <span className="t-palette__label">Target date</span>
+                  <span className="t-palette__label t-palette__label--info">
+                    Target date
+                    <TargetDateInfo />
+                  </span>
                   <TargetDatePicker
                     value={targetDate}
                     disabled={submitting}
@@ -485,8 +506,8 @@ export function CapturePalette({
                     <input
                       type="number"
                       min={0}
-                      step={5}
-                      inputMode="numeric"
+                      step="any"
+                      inputMode="decimal"
                       disabled={submitting}
                       value={estimate}
                       onChange={(e) => {
@@ -503,10 +524,36 @@ export function CapturePalette({
                       }}
                       placeholder="—"
                     />
-                    <span className="t-palette__suffix">min</span>
+                    <select
+                      className="t-palette__unit"
+                      aria-label="Estimate unit"
+                      disabled={submitting}
+                      value={estimateUnit}
+                      onChange={(e) =>
+                        setEstimateUnit(e.target.value as EstimateUnit)
+                      }
+                    >
+                      {ESTIMATE_UNITS.map((unit) => (
+                        <option key={unit} value={unit}>
+                          {ESTIMATE_UNIT_LABELS[unit]}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </label>
               </div>
+              {targetDate !== '' && (
+                <label className="t-palette__check">
+                  <Checkbox
+                    checked={allowEarlyCompletion}
+                    disabled={submitting}
+                    onCheckedChange={(next) =>
+                      setAllowEarlyCompletion(next === true)
+                    }
+                  />
+                  <span>OK to finish before the target date</span>
+                </label>
+              )}
               {targetDate !== '' && (
                 <div className="t-palette__slot">
                   <div className="t-palette__slot-head">

@@ -93,6 +93,7 @@ type DiffableField =
   | 'scheduledStartMinutes'
   | 'goalId'
   | 'costDays'
+  | 'allowEarlyCompletion'
 
 const DIFF_FIELDS: readonly DiffableField[] = [
   'title',
@@ -107,6 +108,7 @@ const DIFF_FIELDS: readonly DiffableField[] = [
   'scheduledStartMinutes',
   'goalId',
   'costDays',
+  'allowEarlyCompletion',
 ]
 
 // Fields added after launch may be absent on older rows; treat undefined as
@@ -118,6 +120,7 @@ const OPTIONAL_DIFF_FIELDS = new Set<DiffableField>([
   'scheduledStartMinutes',
   'goalId',
   'costDays',
+  'allowEarlyCompletion',
 ])
 
 type TaskChange = { field: string; before: string | null; after: string | null }
@@ -135,6 +138,7 @@ type UpdateArgs = {
   scheduledStartMinutes?: number | null
   goalId?: Id<'goals'> | null
   costDays?: number | null
+  allowEarlyCompletion?: boolean | null
 }
 
 function diffFields(task: Doc<'tasks'>, args: UpdateArgs) {
@@ -170,6 +174,7 @@ export const create = mutation({
     scheduledStartMinutes: v.optional(v.union(v.number(), v.null())),
     goalId: v.optional(v.union(v.id('goals'), v.null())),
     costDays: v.optional(v.union(v.number(), v.null())),
+    allowEarlyCompletion: v.optional(v.union(v.boolean(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -188,6 +193,7 @@ export const create = mutation({
     const scheduledStartMinutes = args.scheduledStartMinutes ?? null
     const goalId = args.goalId ?? null
     const costDays = args.costDays ?? null
+    const allowEarlyCompletion = args.allowEarlyCompletion ?? null
     if (
       softDeadline !== null &&
       hardDeadline !== null &&
@@ -224,6 +230,7 @@ export const create = mutation({
       goalId,
       goalPosition,
       costDays,
+      allowEarlyCompletion,
       updatedAt: now,
     })
     await ctx.db.insert('taskAssignments', {
@@ -291,6 +298,13 @@ export const create = mutation({
     if (costDays !== null) {
       changes.push({ field: 'costDays', before: null, after: encode(costDays) })
     }
+    if (allowEarlyCompletion !== null) {
+      changes.push({
+        field: 'allowEarlyCompletion',
+        before: null,
+        after: encode(allowEarlyCompletion),
+      })
+    }
     await ctx.db.insert('taskEvents', {
       taskId,
       actorId: userId,
@@ -316,6 +330,7 @@ export const update = mutation({
     scheduledStartMinutes: v.optional(v.union(v.number(), v.null())),
     goalId: v.optional(v.union(v.id('goals'), v.null())),
     costDays: v.optional(v.union(v.number(), v.null())),
+    allowEarlyCompletion: v.optional(v.union(v.boolean(), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx)
@@ -363,6 +378,9 @@ export const update = mutation({
     if (args.costDays !== undefined) {
       validateCostDays(args.costDays)
       normalized.costDays = args.costDays
+    }
+    if (args.allowEarlyCompletion !== undefined) {
+      normalized.allowEarlyCompletion = args.allowEarlyCompletion
     }
 
     const { changes, patch } = diffFields(task, normalized)
