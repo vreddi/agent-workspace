@@ -66,7 +66,7 @@ export function UserMenu() {
             {email && <div className="landing-user__email">{email}</div>}
           </div>
           <Link
-            to="/today"
+            to="/app"
             className="landing-user__item"
             onClick={() => setOpen(false)}
             role="menuitem"

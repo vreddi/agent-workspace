@@ -45,7 +45,7 @@ export function Hero() {
           </SignInButton>
         </SignedOut>
         <SignedIn>
-          <Link to="/today" className="landing-btn landing-btn--primary">
+          <Link to="/app" className="landing-btn landing-btn--primary">
             Open Today
             <ArrowSvg />
           </Link>

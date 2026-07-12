@@ -1,3 +1,4 @@
+import { api } from '@convex/_generated/api'
 import { useClerk, useUser } from '@clerk/tanstack-react-start'
 import {
   Avatar as UIAvatar,
@@ -13,13 +14,15 @@ import {
   DropdownMenuTrigger,
 } from '@org/ui/components/dropdown-menu'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import { useMutation, useQuery } from 'convex/react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { CapturePalette, type CaptureInput } from './capture-palette'
 import { initialsFromName } from './helpers'
 
 export type NavPage = 'today' | 'tasks' | 'day' | 'goals' | 'agents'
 
 const NAV_LINKS = [
-  { page: 'today', to: '/today', label: 'Today' },
+  { page: 'today', to: '/app', label: 'Today' },
   { page: 'tasks', to: '/tasks', label: 'Tasks' },
   { page: 'day', to: '/day', label: 'Day view' },
   { page: 'goals', to: '/goals', label: 'Goals' },
@@ -127,47 +130,71 @@ function UserMenu({ onOpenSettings }: { onOpenSettings?: () => void }) {
  * Shared top nav for logged-in pages: brand mark, the four main links,
  * New task, avatar menu — same order, same place, every page.
  *
- * Renders inside `.today-root`, so it needs `todayStyles` on the page.
- * `onNewTask` lets the Today page open its capture palette in place;
- * everywhere else the button (and the N shortcut) routes to Today with
- * `?capture=1`, which opens the palette on arrival. `onOpenSettings` opens
+ * Renders inside `.today-root`, so it needs `todayStyles` on the page. The
+ * "New task" button and the N shortcut open the quick-capture palette in
+ * place, on whatever page you're on — no navigation. `onOpenSettings` opens
  * the Today tweaks panel in place; without it the Settings menu item routes
  * to the dedicated `/settings` page.
  */
 export function Nav({
   active,
-  onNewTask,
   onOpenSettings,
 }: {
   /** Omit on detail pages (task, goal) — no top-level link is current. */
   active?: NavPage
-  onNewTask?: () => void
   onOpenSettings?: () => void
 }) {
-  const navigate = useNavigate()
-  const handleNewTask =
-    onNewTask ??
-    (() => {
-      void navigate({ to: '/today', search: { capture: true } })
-    })
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  // Subscribe to goals only once the palette has been opened — no need to
+  // pay for the query on every page just to power the "New task" button.
+  const [everOpened, setEverOpened] = useState(false)
+  const goals = useQuery(api.goals.list, everOpened ? {} : 'skip')
+  const createTask = useMutation(api.tasks.create)
 
-  const newTaskRef = useRef(handleNewTask)
-  newTaskRef.current = handleNewTask
+  const openPalette = useCallback(() => {
+    setEverOpened(true)
+    setPaletteOpen(true)
+  }, [])
+
+  const openRef = useRef(openPalette)
+  openRef.current = openPalette
+  // N opens the palette from anywhere; Escape closes it.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setPaletteOpen(false)
+        return
+      }
       if ((e.key === 'n' || e.key === 'N') && !e.metaKey && !e.ctrlKey && !e.altKey) {
         const target = e.target as HTMLElement | null
         const tag = (target?.tagName ?? '').toLowerCase()
         if (tag === 'input' || tag === 'textarea' || target?.isContentEditable) return
         e.preventDefault()
-        newTaskRef.current()
+        openRef.current()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  async function handleCapture(input: CaptureInput) {
+    const softDeadline = input.targetDate
+      ? new Date(`${input.targetDate}T23:59:00`).getTime()
+      : null
+    await createTask({
+      title: input.title,
+      estimateMinutes: input.estimateMinutes,
+      softDeadline,
+      scheduledStartMinutes: input.scheduledStartMinutes,
+      priority: input.priority,
+      difficulty: input.difficulty,
+      emoji: input.emoji,
+      goalId: input.goalId,
+    })
+  }
+
   return (
+    <>
     <header className="t-nav">
       <div className="t-nav__brand" aria-hidden="true">
         <svg
@@ -198,11 +225,18 @@ export function Nav({
         ))}
       </nav>
       <span style={{ flex: 1 }} />
-      <button className="t-btn-create" onClick={handleNewTask} type="button">
+      <button className="t-btn-create" onClick={openPalette} type="button">
         New task
         <span className="t-kbd t-kbd--on-accent">N</span>
       </button>
       <UserMenu onOpenSettings={onOpenSettings} />
     </header>
+    <CapturePalette
+      open={paletteOpen}
+      goals={goals}
+      onClose={() => setPaletteOpen(false)}
+      onSubmit={handleCapture}
+    />
+    </>
   )
 }
