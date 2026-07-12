@@ -16,6 +16,7 @@ import {
   ConvexProviderWithClerk,
   type ConvexReactClient,
 } from 'convex/react-clerk'
+import { useTheme } from '~/lib/use-theme'
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const { userId, getToken } = await auth()
@@ -56,16 +57,23 @@ function RootComponent() {
   return (
     <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
       <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
-        <html lang="en">
-          <head>
-            <HeadContent />
-          </head>
-          <body>
-            <Outlet />
-            <Scripts />
-          </body>
-        </html>
+        <ThemeProvider>
+          <html lang="en">
+            <head>
+              <HeadContent />
+            </head>
+            <body>
+              <Outlet />
+              <Scripts />
+            </body>
+          </html>
+        </ThemeProvider>
       </ConvexProviderWithClerk>
     </ClerkProvider>
   )
+}
+
+function ThemeProvider({ children }: { children: React.ReactNode }) {
+  useTheme()
+  return children
 }
