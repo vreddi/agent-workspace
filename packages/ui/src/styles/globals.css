@@ -85,37 +85,42 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark mode maps onto the GitHub-dark `--gh-*` scale. Those variables are
+     the single source of truth — defined in @org/theme and injected at the
+     document root (see apps/web src/lib/theme-css.ts + __root.tsx), shared
+     with the mobile app. The app's own `--t-*` / `--d-*` tokens reference the
+     same scale, so one edit in @org/theme retints every surface. */
+  --background: var(--gh-canvas);
+  --foreground: var(--gh-fg);
+  --card: var(--gh-surface);
+  --card-foreground: var(--gh-fg);
+  --popover: var(--gh-surface);
+  --popover-foreground: var(--gh-fg);
+  --primary: var(--gh-fg);
+  --primary-foreground: var(--gh-canvas);
+  --secondary: var(--gh-surface-2);
+  --secondary-foreground: var(--gh-fg);
+  --muted: var(--gh-surface-2);
+  --muted-foreground: var(--gh-fg-muted);
+  --accent: var(--gh-surface-2);
+  --accent-foreground: var(--gh-fg);
+  --destructive: var(--gh-danger);
+  --border: var(--gh-border);
+  --input: var(--gh-border);
+  --ring: var(--gh-accent);
+  --chart-1: var(--gh-accent);
+  --chart-2: var(--gh-success);
+  --chart-3: var(--gh-attention);
+  --chart-4: var(--gh-purple);
+  --chart-5: var(--gh-danger);
+  --sidebar: var(--gh-surface);
+  --sidebar-foreground: var(--gh-fg);
+  --sidebar-primary: var(--gh-accent);
+  --sidebar-primary-foreground: var(--gh-fg);
+  --sidebar-accent: var(--gh-surface-2);
+  --sidebar-accent-foreground: var(--gh-fg);
+  --sidebar-border: var(--gh-border);
+  --sidebar-ring: var(--gh-accent);
 }
 
 @layer base {

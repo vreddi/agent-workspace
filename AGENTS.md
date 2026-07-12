@@ -21,15 +21,15 @@ tasks.
 
 ## Repo map
 
-| Path                       | What it is                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web`                 | TanStack Start app (React 19, Clerk auth, Convex data, Tailwind v4) deployed to Cloudflare Workers. Routes are file-based under `src/routes/`.                                                                                                                                                                                                                                                                                                                        |
-| `apps/mobile`              | Expo (SDK 57) React Native app for iOS/Android with full task/goal/metric parity to the web, themed from `@org/theme` and sharing view-model logic via `@org/app-core`. See `docs/mobile-app.md` and `docs/mobile-web-parity.md`.                                                                                                                                                                                                                                     |
-| `apps/storybook`           | Storybook 10; auto-globs stories from `packages/*/src/**/*.stories.tsx`.                                                                                                                                                                                                                                                                                                                                                                                              |
-| `packages/*`               | `@worldkit/*` libraries. Headless: `grid`, `world`, `agents`, `pathfinding`, `tilemap`. React: `sprite-actor`, `world-canvas`. Web-only shadcn/Radix UI kit: `@org/ui`. Cross-platform design tokens: `@org/theme` — the hex mirror of web's tokens that mobile styles from (see the theme note below). Cross-platform view-model helpers (task/goal/metric logic, deadlines, formatting — headless, no React/DOM/Convex): `@org/app-core`, consumed by web + mobile. |
-| `convex/`                  | Convex backend functions and schema. The app's data model — tasks, goals, metrics, reminders, agents.                                                                                                                                                                                                                                                                                                                                                                 |
-| `examples/pixi-playground` | Standalone PixiJS demo of the headless packages.                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| `docs/`                    | Architecture and design notes. Start with `interactive-world-canvas.md`; name new files lowercase-kebab-case.                                                                                                                                                                                                                                                                                                                                                         |
+| Path                       | What it is                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apps/web`                 | TanStack Start app (React 19, Clerk auth, Convex data, Tailwind v4) deployed to Cloudflare Workers. Routes are file-based under `src/routes/`.                                                                                                                                                                                                                                                                                                                                       |
+| `apps/mobile`              | Expo (SDK 57) React Native app for iOS/Android with full task/goal/metric parity to the web, themed from `@org/theme` and sharing view-model logic via `@org/app-core`. See `docs/mobile-app.md` and `docs/mobile-web-parity.md`.                                                                                                                                                                                                                                                    |
+| `apps/storybook`           | Storybook 10; auto-globs stories from `packages/*/src/**/*.stories.tsx`.                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `packages/*`               | `@worldkit/*` libraries. Headless: `grid`, `world`, `agents`, `pathfinding`, `tilemap`. React: `sprite-actor`, `world-canvas`. Web-only shadcn/Radix UI kit: `@org/ui`. Cross-platform design tokens: `@org/theme` — the single source of the app palette, consumed by both web and mobile (see the theme note below). Cross-platform view-model helpers (task/goal/metric logic, deadlines, formatting — headless, no React/DOM/Convex): `@org/app-core`, consumed by web + mobile. |
+| `convex/`                  | Convex backend functions and schema. The app's data model — tasks, goals, metrics, reminders, agents.                                                                                                                                                                                                                                                                                                                                                                                |
+| `examples/pixi-playground` | Standalone PixiJS demo of the headless packages.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `docs/`                    | Architecture and design notes. Start with `interactive-world-canvas.md`; name new files lowercase-kebab-case.                                                                                                                                                                                                                                                                                                                                                                        |
 
 ## Architecture invariants
 
@@ -95,15 +95,22 @@ Gotchas that will bite you:
   point tsconfig `outDir` at `dist/` — `tsdown --clean` wipes it and
   downstream typechecks break with TS6305.
 
-## Theme: web is the source, mobile mirrors it
+## Theme: `@org/theme` is the single source
 
-Despite the name, `@org/theme` is **not** a shared token package the web app
-imports — the web app never imports it. The real design source is
-`apps/web/src/components/today/styles.ts` (CSS custom properties in `oklch()`
-/ `color-mix()`). `@org/theme` is a **mobile-only** hex copy of those values,
-hand-mirrored because React Native can't parse `oklch()`. The two are kept in
-step **manually**: change one, change the other (the theme README says the
-same). Unifying them into one real cross-platform source is future work.
+`@org/theme` is the one place the app palette lives, shared by both platforms.
+Mobile reads the `light` / `dark` palettes directly. The web app imports them
+too: `apps/web/src/components/today/styles.ts` interpolates them into its
+`--t-*` CSS custom properties, and `apps/web/src/lib/theme-css.ts` maps the
+`githubDark` scale onto the `--gh-*` / shadcn dark tokens (injected once at the
+document root in `__root.tsx`). Change a color in `@org/theme` and web +
+mobile update together — no manual mirroring.
+
+Values are plain hex (React Native can't parse `oklch()` / `color-mix()`). The
+only web-only exception is the accent _fills_ (`--t-accent-soft` /
+`--t-accent-ink`), computed live with `color-mix()` from the user's chosen
+accent in the web CSS. Dark mode is applied off a single `.dark` class on
+`<html>` (set from the saved theme preference), which drives both the shadcn
+tokens and the `--t-*` / `--d-*` surfaces.
 
 ## Working here
 

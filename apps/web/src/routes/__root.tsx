@@ -17,6 +17,14 @@ import {
   type ConvexReactClient,
 } from 'convex/react-clerk'
 import { useTheme } from '~/lib/use-theme'
+import { darkTokensCss } from '~/lib/theme-css'
+
+// Runs before first paint (inline in <head>) so a saved dark preference is
+// applied to <html> before the body renders — no light flash on reload. It
+// reads the theme cached in localStorage by useTheme; falls back to the OS
+// setting on a first-ever visit. useTheme reconciles with the server value
+// once Convex loads.
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t==='dark'||((!t||t==='system')&&window.matchMedia('(prefers-color-scheme: dark)').matches);var e=document.documentElement;e.classList.toggle('dark',d);e.style.colorScheme=d?'dark':'light';}catch(e){}})();`
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const { userId, getToken } = await auth()
@@ -58,8 +66,16 @@ function RootComponent() {
     <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
       <ConvexProviderWithClerk client={convexClient} useAuth={useAuth}>
         <ThemeProvider>
-          <html lang="en">
+          {/* suppressHydrationWarning: the pre-hydration script sets the theme
+              class / color-scheme on <html> before React hydrates. */}
+          <html lang="en" suppressHydrationWarning>
             <head>
+              {/* Shared dark-mode tokens (@org/theme), injected once so the
+                  whole document — including portaled menus outside .today-root
+                  — reads the same GitHub-dark scale as the mobile app. */}
+              <style>{darkTokensCss}</style>
+              {/* Applies the theme before first paint to avoid a light flash. */}
+              <script>{themeInitScript}</script>
               <HeadContent />
             </head>
             <body>
