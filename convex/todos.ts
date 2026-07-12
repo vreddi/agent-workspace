@@ -1,14 +1,9 @@
 import { ConvexError, v } from 'convex/values'
-import { mutation, query, QueryCtx } from './_generated/server'
-import { getCurrentUser } from './users'
+import { mutation, query } from './_generated/server'
+import { requireUserId } from './lib/auth'
 
-async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
+// Matches the tasks list bound; keeps the query bounded as the table grows.
+const LIST_LIMIT = 200
 
 export const list = query({
   args: {},
@@ -18,7 +13,7 @@ export const list = query({
       .query('todos')
       .withIndex('by_user', (q) => q.eq('userId', userId))
       .order('desc')
-      .collect()
+      .take(LIST_LIMIT)
   },
 })
 
