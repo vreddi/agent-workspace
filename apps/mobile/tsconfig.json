@@ -8,10 +8,5 @@
       "@convex/*": ["../../convex/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "references": [
-    {
-      "path": "../../packages/app-core"
-    }
-  ]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }

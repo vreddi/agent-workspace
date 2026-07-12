@@ -6,7 +6,7 @@ import {
   type TaskLike,
   sortForToday,
   toDisplayTask,
-} from './tasks.js'
+} from './tasks'
 
 const HOUR = 60 * 60 * 1000
 const NOW = 1_000_000_000_000

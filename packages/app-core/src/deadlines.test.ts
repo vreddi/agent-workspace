@@ -6,7 +6,7 @@ import {
   fmtCountdown,
   formatDue,
   startOfToday,
-} from './deadlines.js'
+} from './deadlines'
 
 const NOON = new Date(2026, 6, 11, 12, 0, 0) // 2026-07-11, local noon
 

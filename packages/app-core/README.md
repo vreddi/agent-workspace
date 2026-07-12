@@ -6,9 +6,13 @@ plain types only — no React, no DOM, no Convex. The apps own rendering; this
 package owns the vocabulary they render.
 
 Consumed straight from source the same way `@org/theme` is: add
-`"@org/app-core": "workspace:*"` and import. Web resolves it through the
-`@org/source` export condition; Metro/tsc resolve it through the default
-condition. Both land on `src/`.
+`"@org/app-core": "workspace:*"` and import. There is no build step — the
+`exports` map points `.` directly at `src/index.ts`, so Vite, Metro, and
+`tsc` (bundler resolution) all resolve straight to source. This is why the
+relative imports are extensionless: Metro does not perform the `.js`→`.ts`
+resolution that `moduleResolution: nodenext` relies on, so this package uses
+`moduleResolution: bundler` like `@org/theme`, not the `@worldkit/*`
+headless convention.
 
 ## Modules
 
@@ -33,5 +37,7 @@ types (including branded ids) on the way out.
 
 ## Scripts
 
-- `pnpm build` — bundle to `dist/` with tsdown (for publishing/CI).
 - `pnpm test` — run the vitest suite.
+- `pnpm lint` — eslint.
+
+No build step: consumers bundle it from source (see above).
