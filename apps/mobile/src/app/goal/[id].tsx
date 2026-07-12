@@ -45,7 +45,9 @@ function errorMessage(err: unknown): string {
     const data = (err as { data?: unknown }).data
     if (typeof data === 'string') return data
   }
-  return err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+  return err instanceof Error
+    ? err.message
+    : 'Something went wrong. Please try again.'
 }
 
 const STAGE_META: { stage: BoardStage; label: string }[] = [
@@ -83,7 +85,9 @@ export default function GoalDetailScreen() {
 
   const changeStatus = (status: 'active' | 'achieved' | 'archived') => {
     setStatus({ id: goal._id, status })
-      .then(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success))
+      .then(() =>
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
+      )
       .catch((err) => {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         Alert.alert('Could not update goal', errorMessage(err))
@@ -97,11 +101,15 @@ export default function GoalDetailScreen() {
       onConfirm: () => {
         removeGoal({ id: goal._id })
           .then(() => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success,
+            )
             router.back()
           })
           .catch((err) => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error,
+            )
             Alert.alert('Could not delete goal', errorMessage(err))
           })
       },
@@ -130,7 +138,9 @@ export default function GoalDetailScreen() {
     setAttachOpen(false)
     if (taskIds.length === 0) return
     addTasks({ goalId: goal._id, taskIds })
-      .then(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success))
+      .then(() =>
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
+      )
       .catch((err) => {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
         Alert.alert('Could not add tasks', errorMessage(err))
@@ -155,14 +165,18 @@ export default function GoalDetailScreen() {
         <AppText variant="hero">{goal.title}</AppText>
         <View style={styles.metaLine}>
           {goal.type && (
-            <View style={[styles.typeChip, { backgroundColor: palette.chipBg }]}>
+            <View
+              style={[styles.typeChip, { backgroundColor: palette.chipBg }]}
+            >
               <AppText variant="meta" color={palette.ink2}>
                 {goal.type.name}
               </AppText>
             </View>
           )}
           {goal.status !== 'active' && (
-            <View style={[styles.typeChip, { backgroundColor: palette.accentSoft }]}>
+            <View
+              style={[styles.typeChip, { backgroundColor: palette.accentSoft }]}
+            >
               <AppText variant="meta" color={palette.accentInk}>
                 {goal.status === 'achieved' ? 'Achieved' : 'Archived'}
               </AppText>
@@ -171,7 +185,11 @@ export default function GoalDetailScreen() {
         </View>
       </View>
 
-      <GoalActions goal={goal} onDelete={handleDelete} onStatus={changeStatus} />
+      <GoalActions
+        goal={goal}
+        onDelete={handleDelete}
+        onStatus={changeStatus}
+      />
 
       <Card style={styles.progressCard}>
         <View style={styles.progressHead}>
@@ -186,12 +204,18 @@ export default function GoalDetailScreen() {
           <View
             style={[
               styles.fill,
-              { backgroundColor: palette.accent, width: `${Math.round(progress * 100)}%` },
+              {
+                backgroundColor: palette.accent,
+                width: `${Math.round(progress * 100)}%`,
+              },
             ]}
           />
         </View>
         <View style={styles.deadlineLine}>
-          <AppText variant="meta" color={deadline.overdue ? palette.overdue : palette.ink3}>
+          <AppText
+            variant="meta"
+            color={deadline.overdue ? palette.overdue : palette.ink3}
+          >
             {deadline.label}
           </AppText>
           <AppText variant="meta" color={palette.ink3}>
@@ -203,7 +227,11 @@ export default function GoalDetailScreen() {
       {goal.description ? (
         <Card style={styles.notes}>
           <AppText variant="caption">About</AppText>
-          <AppText variant="label" color={palette.ink2} style={styles.notesBody}>
+          <AppText
+            variant="label"
+            color={palette.ink2}
+            style={styles.notesBody}
+          >
             {goal.description}
           </AppText>
         </Card>
@@ -213,7 +241,6 @@ export default function GoalDetailScreen() {
           between the description and the board. Keep this the sole insertion
           point so that change stays a one-liner. */}
       <MetricsSection goalId={goal._id} goalDeadline={goal.deadline} />
-
 
       {stages === undefined ? (
         <ScreenLoading />
@@ -270,7 +297,10 @@ export default function GoalDetailScreen() {
           }}
           style={({ pressed }) => [
             styles.secondaryAction,
-            { borderColor: palette.divider, backgroundColor: pressed ? palette.hover : 'transparent' },
+            {
+              borderColor: palette.divider,
+              backgroundColor: pressed ? palette.hover : 'transparent',
+            },
           ]}
         >
           <AppText variant="label" color={palette.ink1}>
@@ -279,7 +309,11 @@ export default function GoalDetailScreen() {
         </Pressable>
       </View>
 
-      <AttachTasksSheet open={attachOpen} onClose={() => setAttachOpen(false)} onConfirm={handleAdd} />
+      <AttachTasksSheet
+        open={attachOpen}
+        onClose={() => setAttachOpen(false)}
+        onConfirm={handleAdd}
+      />
     </ScrollView>
   )
 }
@@ -302,7 +336,9 @@ function GoalActions({
       <ActionPill
         icon={<Pencil size={15} />}
         label="Edit"
-        onPress={() => router.push({ pathname: '/goal/edit', params: { id: goal._id } })}
+        onPress={() =>
+          router.push({ pathname: '/goal/edit', params: { id: goal._id } })
+        }
       />
       {goal.status === 'active' ? (
         <ActionPill
@@ -347,7 +383,11 @@ function ActionPill({
       ]}
     >
       {/* Lucide icons take a `color` prop; inject the pill tint here. */}
-      {icon ? <View style={styles.pillIcon}>{cloneElement(icon, { color: tint })}</View> : null}
+      {icon ? (
+        <View style={styles.pillIcon}>
+          {cloneElement(icon, { color: tint })}
+        </View>
+      ) : null}
       <AppText variant="meta" color={tint}>
         {label}
       </AppText>

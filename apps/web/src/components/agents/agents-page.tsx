@@ -23,7 +23,12 @@ import { useUploadThing } from '~/lib/uploadthing'
 import { Nav } from '../today/nav'
 import { todayStyles } from '../today/styles'
 import { loadTweaks } from '../today/tweaks'
-import { DEFAULT_MODEL_ID, MODEL_OPTIONS, MODEL_PROVIDERS, modelById } from './models'
+import {
+  DEFAULT_MODEL_ID,
+  MODEL_OPTIONS,
+  MODEL_PROVIDERS,
+  modelById,
+} from './models'
 import { ProviderLogo } from './provider-icons'
 import { STUB_SPRITES, customSheet, stubSheet } from './sprites'
 import { agentStyles } from './styles'
@@ -71,7 +76,10 @@ function sheetForChoice(
 
 /** Integer scale that fits a sheet's frame into the given box size. */
 function fitScale(sheet: SpriteSheet, box: number): number {
-  return Math.max(1, Math.floor(box / Math.max(sheet.frameWidth, sheet.frameHeight)))
+  return Math.max(
+    1,
+    Math.floor(box / Math.max(sheet.frameWidth, sheet.frameHeight)),
+  )
 }
 
 function AgentSprite({
@@ -83,7 +91,13 @@ function AgentSprite({
   box: number
   action?: 'idle' | 'walk'
 }) {
-  return <SpriteActor sheet={sheet} action={action ?? 'idle'} scale={fitScale(sheet, box)} />
+  return (
+    <SpriteActor
+      sheet={sheet}
+      action={action ?? 'idle'}
+      scale={fitScale(sheet, box)}
+    />
+  )
 }
 
 function SpritePicker({
@@ -115,7 +129,11 @@ function SpritePicker({
             aria-label={`${stub.label} sprite`}
           >
             <span className="ag-sprite-tile__stage">
-              <AgentSprite sheet={stub.sheet} box={64} action={selected ? 'walk' : 'idle'} />
+              <AgentSprite
+                sheet={stub.sheet}
+                box={64}
+                action={selected ? 'walk' : 'idle'}
+              />
             </span>
             <span className="ag-sprite-tile__name">{stub.label}</span>
           </button>
@@ -141,7 +159,9 @@ function SpritePicker({
               action={choice?.kind === 'custom' ? 'walk' : 'idle'}
             />
           ) : (
-            <span className="ag-sprite-tile__plus">{uploading ? '…' : '＋'}</span>
+            <span className="ag-sprite-tile__plus">
+              {uploading ? '…' : '＋'}
+            </span>
           )}
         </span>
         <span className="ag-sprite-tile__name">
@@ -287,7 +307,11 @@ function Composer({
             <span className="ag-label" id="agent-model-label">
               Model
             </span>
-            <Select value={model} onValueChange={setModel} disabled={submitting}>
+            <Select
+              value={model}
+              onValueChange={setModel}
+              disabled={submitting}
+            >
               <SelectTrigger
                 className="ag-select-trigger"
                 aria-labelledby="agent-model-label"
@@ -298,12 +322,14 @@ function Composer({
                 {MODEL_PROVIDERS.map((provider) => (
                   <SelectGroup key={provider}>
                     <SelectLabel>{provider}</SelectLabel>
-                    {MODEL_OPTIONS.filter((m) => m.provider === provider).map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
-                        <ProviderLogo provider={m.provider} />
-                        {m.label}
-                      </SelectItem>
-                    ))}
+                    {MODEL_OPTIONS.filter((m) => m.provider === provider).map(
+                      (m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          <ProviderLogo provider={m.provider} />
+                          {m.label}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectGroup>
                 ))}
               </SelectContent>
@@ -321,7 +347,9 @@ function Composer({
             <button
               type="submit"
               className="ag-btn-primary"
-              disabled={submitting || isUploading || name.trim() === '' || !previewSheet}
+              disabled={
+                submitting || isUploading || name.trim() === '' || !previewSheet
+              }
             >
               {submitting ? 'Creating…' : 'Create agent'}
             </button>
@@ -340,9 +368,16 @@ function Composer({
 
         <aside className="ag-preview" aria-hidden="true">
           <div className="ag-preview__stage">
-            {previewSheet && <AgentSprite sheet={previewSheet} box={96} action="walk" />}
+            {previewSheet && (
+              <AgentSprite sheet={previewSheet} box={96} action="walk" />
+            )}
           </div>
-          <div className={'ag-preview__name' + (name.trim() ? '' : ' ag-preview__name--empty')}>
+          <div
+            className={
+              'ag-preview__name' +
+              (name.trim() ? '' : ' ag-preview__name--empty')
+            }
+          >
             {name.trim() || 'Unnamed agent'}
           </div>
           <div className="ag-preview__model">
@@ -435,7 +470,8 @@ export function AgentsPage() {
   }, [agents])
 
   const sorted = useMemo(
-    () => (agents ?? []).slice().sort((a, b) => b._creationTime - a._creationTime),
+    () =>
+      (agents ?? []).slice().sort((a, b) => b._creationTime - a._creationTime),
     [agents],
   )
 
@@ -448,7 +484,11 @@ export function AgentsPage() {
       <style>{todayStyles}</style>
       <style>{agentStyles}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap"
@@ -471,7 +511,9 @@ export function AgentsPage() {
               className="t-btn-create"
               onClick={() => setComposerOpen(true)}
             >
-              <span style={{ fontSize: 18, lineHeight: 1, marginTop: -2 }}>＋</span>
+              <span style={{ fontSize: 18, lineHeight: 1, marginTop: -2 }}>
+                ＋
+              </span>
               New agent
             </button>
           )}

@@ -1,44 +1,48 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import { isOneShotAction, type ActionName } from '#lib/actions';
-import { hasAction, type SpriteSheet, type SpriteStrip } from '#lib/sprite-sheet';
-import { useSpriteAnimation } from '#lib/use-sprite-animation';
+import { isOneShotAction, type ActionName } from '#lib/actions'
+import {
+  hasAction,
+  type SpriteSheet,
+  type SpriteStrip,
+} from '#lib/sprite-sheet'
+import { useSpriteAnimation } from '#lib/use-sprite-animation'
 
 export type SpriteActorProps = {
   /** The character's sprite sheet. */
-  sheet: SpriteSheet;
+  sheet: SpriteSheet
   /** Action to play. Falls back to `fallbackAction` if the sheet has no strip for it. */
-  action?: ActionName;
+  action?: ActionName
   /** Facing direction. `'left'` mirrors horizontally. */
-  facing?: 'left' | 'right';
+  facing?: 'left' | 'right'
   /** Integer scale factor (1 = native pixel size). */
-  scale?: number;
+  scale?: number
   /** Override fps for the current action. */
-  fps?: number;
+  fps?: number
   /** Force loop/no-loop for the current action. */
-  loop?: boolean;
+  loop?: boolean
   /** Freeze on the current frame. */
-  paused?: boolean;
+  paused?: boolean
   /** What to play when `action` has no strip in the sheet. Defaults to `'idle'`. */
-  fallbackAction?: ActionName;
+  fallbackAction?: ActionName
   /** Render pixel-perfect (nearest-neighbor) scaling. Defaults to true. */
-  pixelated?: boolean;
+  pixelated?: boolean
   /** Fired when a one-shot animation finishes. */
-  onActionComplete?: (action: ActionName) => void;
+  onActionComplete?: (action: ActionName) => void
   /** Fired on every frame advance. */
-  onFrame?: (frame: number, action: ActionName) => void;
-  className?: string;
-  style?: React.CSSProperties;
+  onFrame?: (frame: number, action: ActionName) => void
+  className?: string
+  style?: React.CSSProperties
   /** Optional ARIA label (defaults to "<sheet.name> <action>"). */
-  'aria-label'?: string;
-};
+  'aria-label'?: string
+}
 
-const DEFAULT_FPS = 8;
+const DEFAULT_FPS = 8
 
 type ResolvedAction = {
-  action: ActionName;
-  strip: SpriteStrip;
-};
+  action: ActionName
+  strip: SpriteStrip
+}
 
 function resolveAction(
   sheet: SpriteSheet,
@@ -46,15 +50,15 @@ function resolveAction(
   fallback: ActionName,
 ): ResolvedAction | null {
   if (desired && hasAction(sheet, desired)) {
-    return { action: desired, strip: sheet.actions[desired]! };
+    return { action: desired, strip: sheet.actions[desired]! }
   }
   if (hasAction(sheet, fallback)) {
-    return { action: fallback, strip: sheet.actions[fallback]! };
+    return { action: fallback, strip: sheet.actions[fallback]! }
   }
   // last-ditch: pick any defined action so we render something
-  const any = Object.keys(sheet.actions)[0] as ActionName | undefined;
-  if (any) return { action: any, strip: sheet.actions[any]! };
-  return null;
+  const any = Object.keys(sheet.actions)[0] as ActionName | undefined
+  if (any) return { action: any, strip: sheet.actions[any]! }
+  return null
 }
 
 export function SpriteActor({
@@ -73,14 +77,14 @@ export function SpriteActor({
   style,
   'aria-label': ariaLabel,
 }: SpriteActorProps) {
-  const resolved = resolveAction(sheet, action, fallbackAction);
+  const resolved = resolveAction(sheet, action, fallbackAction)
 
-  const resolvedAction = resolved?.action ?? fallbackAction;
-  const strip = resolved?.strip;
-  const frameCount = strip?.frames ?? 1;
-  const stripFps = fps ?? strip?.fps ?? sheet.fps ?? DEFAULT_FPS;
+  const resolvedAction = resolved?.action ?? fallbackAction
+  const strip = resolved?.strip
+  const frameCount = strip?.frames ?? 1
+  const stripFps = fps ?? strip?.fps ?? sheet.fps ?? DEFAULT_FPS
   const stripLoop =
-    loop ?? strip?.loop ?? (resolved ? !isOneShotAction(resolved.action) : true);
+    loop ?? strip?.loop ?? (resolved ? !isOneShotAction(resolved.action) : true)
 
   const frame = useSpriteAnimation({
     frames: frameCount,
@@ -96,10 +100,10 @@ export function SpriteActor({
       () => onActionComplete?.(resolvedAction),
       [onActionComplete, resolvedAction],
     ),
-  });
+  })
 
-  const w = sheet.frameWidth * scale;
-  const h = sheet.frameHeight * scale;
+  const w = sheet.frameWidth * scale
+  const h = sheet.frameHeight * scale
 
   const visualStyle: React.CSSProperties = strip
     ? {
@@ -118,7 +122,7 @@ export function SpriteActor({
         height: h,
         outline: '1px dashed currentColor',
         opacity: 0.4,
-      };
+      }
 
   return (
     <div
@@ -129,7 +133,12 @@ export function SpriteActor({
       data-has-action={!!resolved}
       data-facing={facing}
       className={className}
-      style={{ display: 'inline-block', lineHeight: 0, ...visualStyle, ...style }}
+      style={{
+        display: 'inline-block',
+        lineHeight: 0,
+        ...visualStyle,
+        ...style,
+      }}
     />
-  );
+  )
 }

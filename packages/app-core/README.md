@@ -12,13 +12,13 @@ condition. Both land on `src/`.
 
 ## Modules
 
-| Module | Exports |
-| --- | --- |
-| `format` | `hashString`, `pick`, `fmtDateBadge`, `formatDays` |
-| `deadlines` | `DAY_MS`, `startOfToday`, `addDays`, `daysFromToday`, `formatDue`, `formatDateLong`, `fmtCountdown`, `describeDeadline` |
-| `people` | `Tone`, `TONE_LIST`, `TONE_STYLES`, `toneFor`, `AssigneeLike`, `DisplayAssignee`, `toDisplayAssignees`, `initialsFromName`, `firstName`, `greetingFor`, `greetingForHour` |
-| `tasks` | `TaskLike`, `TaskStatus`, `SourceKind`, `TaskSource`, `sourceFor`, `deriveDeadline`, `aiSuggestionFor`, `DisplayTask`, `toDisplayTask`, `sortForToday`, `applyFilter`, `FILTER_IDS`, `FilterId` |
-| `goals` | `GoalTypeInput`, `goalTypeValue`, `TypeSelection`, `parseTypeValue`, `GOAL_TYPE_COLOR_TOKENS`, `GoalTypeColorToken` |
+| Module      | Exports                                                                                                                                                                                         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `format`    | `hashString`, `pick`, `fmtDateBadge`, `formatDays`                                                                                                                                              |
+| `deadlines` | `DAY_MS`, `startOfToday`, `addDays`, `daysFromToday`, `formatDue`, `formatDateLong`, `fmtCountdown`, `describeDeadline`                                                                         |
+| `people`    | `Tone`, `TONE_LIST`, `TONE_STYLES`, `toneFor`, `AssigneeLike`, `DisplayAssignee`, `toDisplayAssignees`, `initialsFromName`, `firstName`, `greetingFor`, `greetingForHour`                       |
+| `tasks`     | `TaskLike`, `TaskStatus`, `SourceKind`, `TaskSource`, `sourceFor`, `deriveDeadline`, `aiSuggestionFor`, `DisplayTask`, `toDisplayTask`, `sortForToday`, `applyFilter`, `FILTER_IDS`, `FilterId` |
+| `goals`     | `GoalTypeInput`, `goalTypeValue`, `TypeSelection`, `parseTypeValue`, `GOAL_TYPE_COLOR_TOKENS`, `GoalTypeColorToken`                                                                             |
 
 Everything is re-exported from the package root (`@org/app-core`).
 

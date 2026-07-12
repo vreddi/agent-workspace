@@ -13,7 +13,16 @@ import { useTheme } from '@/theme/theme-context'
 export function ErrorBoundary() {
   const { palette } = useTheme()
   return (
-    <View style={{ flex: 1, backgroundColor: palette.bg, alignItems: 'center', justifyContent: 'center', gap: 8, padding: 24 }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: palette.bg,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        padding: 24,
+      }}
+    >
       <AppText variant="heading">Goal not found</AppText>
       <AppText variant="label" color={palette.ink3}>
         It may have been deleted.
@@ -34,13 +43,17 @@ export default function EditGoalScreen() {
     const patch: Record<string, unknown> = {}
     if (values.title.trim() !== goal.title) patch.title = values.title
     const nextDescription = values.description.trim() || null
-    if (nextDescription !== goal.description) patch.description = nextDescription
+    if (nextDescription !== goal.description)
+      patch.description = nextDescription
     const nextDeadline = values.deadline!.getTime()
     if (nextDeadline !== goal.deadline) patch.deadline = nextDeadline
     if (values.reminderDaysBefore !== goal.reminderDaysBefore) {
       patch.reminderDaysBefore = values.reminderDaysBefore
     }
-    const currentType = goalTypeValue({ typeSlug: goal.typeSlug, customTypeId: goal.customTypeId })
+    const currentType = goalTypeValue({
+      typeSlug: goal.typeSlug,
+      customTypeId: goal.customTypeId,
+    })
     if (values.typeValue !== currentType) {
       const type = parseTypeValue<Id<'goalTypes'>>(values.typeValue)
       patch.typeSlug = type.kind === 'system' ? type.slug : null
@@ -65,7 +78,10 @@ export default function EditGoalScreen() {
             title: goal.title,
             description: goal.description ?? '',
             deadline: new Date(goal.deadline),
-            typeValue: goalTypeValue({ typeSlug: goal.typeSlug, customTypeId: goal.customTypeId }),
+            typeValue: goalTypeValue({
+              typeSlug: goal.typeSlug,
+              customTypeId: goal.customTypeId,
+            }),
             reminderDaysBefore: goal.reminderDaysBefore,
           }}
           submitLabel="Save changes"

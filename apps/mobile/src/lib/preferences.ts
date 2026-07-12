@@ -14,7 +14,10 @@ import { useCallback, useEffect, useState } from 'react'
 const PREFIX = 'pref:'
 
 /** Read a stored preference, resolving to `fallback` if unset or unreadable. */
-export async function getLocalPreference<T>(key: string, fallback: T): Promise<T> {
+export async function getLocalPreference<T>(
+  key: string,
+  fallback: T,
+): Promise<T> {
   try {
     const raw = await AsyncStorage.getItem(PREFIX + key)
     if (raw == null) return fallback
@@ -25,7 +28,10 @@ export async function getLocalPreference<T>(key: string, fallback: T): Promise<T
 }
 
 /** Persist a preference. Errors are swallowed — persistence is best-effort. */
-export async function setLocalPreference<T>(key: string, value: T): Promise<void> {
+export async function setLocalPreference<T>(
+  key: string,
+  value: T,
+): Promise<void> {
   try {
     await AsyncStorage.setItem(PREFIX + key, JSON.stringify(value))
   } catch {

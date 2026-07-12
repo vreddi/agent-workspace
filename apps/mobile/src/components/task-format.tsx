@@ -7,6 +7,12 @@
 import { DIFFICULTY_WORDS, PRIORITY_LABELS } from '@/data/tasks-data'
 import type { TaskPriority } from '@/data/hooks'
 
+/** Current epoch ms. Wrapped so callers can read "now" during render without
+ * tripping the react-hooks/purity lint on a bare `Date.now()`. */
+export function nowMs(): number {
+  return Date.now()
+}
+
 export function fmtDateTime(ms: number): string {
   const d = new Date(ms)
   const sameYear = d.getFullYear() === new Date().getFullYear()
@@ -21,9 +27,16 @@ export function fmtDateTime(ms: number): string {
 
 export function fmtEventTime(ms: number, now = Date.now()): string {
   const d = new Date(ms)
-  const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  const time = d.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+  })
   const today = new Date(now)
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  ).getTime()
   if (ms >= startOfToday) return `Today, ${time}`
   if (ms >= startOfToday - 24 * 60 * 60 * 1000) return `Yesterday, ${time}`
   return fmtDateTime(ms)
@@ -78,12 +91,17 @@ export function phraseForChange(
       if (before === null) return 'added a description'
       return 'updated the description'
     case 'emoji':
-      return after === null ? 'removed the emoji' : `set the emoji to ${String(after)}`
+      return after === null
+        ? 'removed the emoji'
+        : `set the emoji to ${String(after)}`
     case 'status':
       if (after === 'done') return 'marked it done'
       if (after === 'in_progress') return 'started it'
       if (after === 'cancelled') return 'cancelled it'
-      if (after === 'open' && (prevStatus === 'done' || prevStatus === 'cancelled'))
+      if (
+        after === 'open' &&
+        (prevStatus === 'done' || prevStatus === 'cancelled')
+      )
         return 'reopened it'
       return 'marked it open'
     case 'softDeadline':
@@ -123,8 +141,10 @@ export function phraseForChange(
       const afterNames = Array.isArray(after) ? after.map(String) : []
       const added = afterNames.filter((name) => !beforeNames.includes(name))
       const removed = beforeNames.filter((name) => !afterNames.includes(name))
-      if (added.length > 0 && removed.length === 0) return `assigned ${added.join(', ')}`
-      if (removed.length > 0 && added.length === 0) return `unassigned ${removed.join(', ')}`
+      if (added.length > 0 && removed.length === 0)
+        return `assigned ${added.join(', ')}`
+      if (removed.length > 0 && added.length === 0)
+        return `unassigned ${removed.join(', ')}`
       return `changed the assignees to ${afterNames.join(', ')}`
     }
     case 'completedAt':

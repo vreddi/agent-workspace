@@ -46,7 +46,12 @@ export default function MetricFormScreen() {
       startValue: parseDecimal(values.startValue),
       targetValue: target,
       // Only meaningful with a target value; noon-anchored for stable days.
-      targetDate: target === null ? null : values.targetDate ? toNoon(values.targetDate) : null,
+      targetDate:
+        target === null
+          ? null
+          : values.targetDate
+            ? toNoon(values.targetDate)
+            : null,
     }
   }
 
@@ -76,8 +81,10 @@ export default function MetricFormScreen() {
         name: editing.name,
         unit: editing.unit,
         direction: editing.direction,
-        startValue: editing.startValue != null ? String(editing.startValue) : '',
-        targetValue: editing.targetValue != null ? String(editing.targetValue) : '',
+        startValue:
+          editing.startValue != null ? String(editing.startValue) : '',
+        targetValue:
+          editing.targetValue != null ? String(editing.targetValue) : '',
         targetDate: new Date(editing.targetDate ?? deadlineMs),
       }
     : {

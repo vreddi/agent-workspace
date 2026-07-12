@@ -84,7 +84,9 @@ export interface UpdateTaskPatch {
 
 // ── Mutations ──────────────────────────────────────────────────────────────
 
-export function useCreateTask(): (input: CreateTaskInput) => Promise<Id<'tasks'>> {
+export function useCreateTask(): (
+  input: CreateTaskInput,
+) => Promise<Id<'tasks'>> {
   const create = useMutation(api.tasks.create)
   return (input) => create(input)
 }
@@ -109,7 +111,9 @@ export function useSetAssignees(): (
 
 // ── Queries ────────────────────────────────────────────────────────────────
 
-export function useTaskDetail(id: Id<'tasks'> | undefined): TaskDetail | undefined {
+export function useTaskDetail(
+  id: Id<'tasks'> | undefined,
+): TaskDetail | undefined {
   return useQuery(api.tasks.get, id ? { id } : 'skip')
 }
 
@@ -131,9 +135,7 @@ export function useGoalOptions(): GoalOption[] | undefined {
 }
 
 /** Directory search for the assignee picker; empty query stays idle. */
-export function useUserSearch(
-  query: string,
-): UserSearchResult[] | undefined {
+export function useUserSearch(query: string): UserSearchResult[] | undefined {
   const term = query.trim()
   return useQuery(api.users.search, term === '' ? 'skip' : { query: term })
 }

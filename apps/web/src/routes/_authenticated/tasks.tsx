@@ -83,12 +83,9 @@ const STATUS_PILL: Record<TaskStatus, { label: string; className: string }> = {
 }
 
 function TasksList() {
-  const [status, setStatus] = useState<StatusFilter>('all')
+  const [status, setStatus] = useState<StatusFilter>('open')
   const me = useQuery(api.users.current)
-  const tasks = useQuery(
-    api.tasks.list,
-    status === 'all' ? {} : { status },
-  )
+  const tasks = useQuery(api.tasks.list, status === 'all' ? {} : { status })
 
   const now = Date.now()
   const sorted = useMemo(() => {

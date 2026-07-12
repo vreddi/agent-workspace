@@ -2,10 +2,26 @@ import { describe, expect, it } from 'vitest'
 import { goalTypeValue, parseTypeValue, type TypeSelection } from './goals.js'
 
 describe('goalTypeValue / parseTypeValue round-trip', () => {
-  const cases: Array<{ input: { typeSlug: string | null; customTypeId: string | null }; value: string; selection: TypeSelection }> = [
-    { input: { typeSlug: null, customTypeId: null }, value: '', selection: { kind: 'none' } },
-    { input: { typeSlug: 'fitness', customTypeId: null }, value: 'sys:fitness', selection: { kind: 'system', slug: 'fitness' } },
-    { input: { typeSlug: null, customTypeId: 'gt_9' }, value: 'custom:gt_9', selection: { kind: 'custom', id: 'gt_9' } },
+  const cases: Array<{
+    input: { typeSlug: string | null; customTypeId: string | null }
+    value: string
+    selection: TypeSelection
+  }> = [
+    {
+      input: { typeSlug: null, customTypeId: null },
+      value: '',
+      selection: { kind: 'none' },
+    },
+    {
+      input: { typeSlug: 'fitness', customTypeId: null },
+      value: 'sys:fitness',
+      selection: { kind: 'system', slug: 'fitness' },
+    },
+    {
+      input: { typeSlug: null, customTypeId: 'gt_9' },
+      value: 'custom:gt_9',
+      selection: { kind: 'custom', id: 'gt_9' },
+    },
   ]
 
   it('encodes goal types to select values', () => {

@@ -81,7 +81,6 @@ export default defineConfig(({ mode }) => {
       ],
     },
     resolve: {
-      tsconfigPaths: true,
       // Resolve @worldkit/* packages straight to TS source (see the custom
       // export condition in each package's package.json). Vite 6+ replaces
       // the defaults when conditions are set, so spread them back in.

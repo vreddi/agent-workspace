@@ -6,11 +6,18 @@ import type { Id } from '@convex/_generated/dataModel'
 import { radius, space } from '@org/theme'
 import { StyleSheet, View } from 'react-native'
 import { AppText, Card, SectionLabel } from '@/components/ui'
-import { fmtEventTime, parseValue, phraseForChange } from '@/components/task-format'
+import {
+  fmtEventTime,
+  parseValue,
+  phraseForChange,
+} from '@/components/task-format'
 import { useTaskHistory, type TaskHistoryEvent } from '@/data/tasks-data'
 import { useTheme } from '@/theme/theme-context'
 
-function summarize(event: TaskHistoryEvent): { lead: string; extras: string[] } {
+function summarize(event: TaskHistoryEvent): {
+  lead: string
+  extras: string[]
+} {
   if (event.kind === 'created') return { lead: 'created this task', extras: [] }
   if (event.kind === 'deleted') return { lead: 'deleted this task', extras: [] }
   const statusChange = event.changes.find((c) => c.field === 'status')
@@ -22,7 +29,13 @@ function summarize(event: TaskHistoryEvent): { lead: string; extras: string[] } 
   return { lead: `made ${phrases.length} changes`, extras: phrases }
 }
 
-function ActivityItem({ event, divider }: { event: TaskHistoryEvent; divider: boolean }) {
+function ActivityItem({
+  event,
+  divider,
+}: {
+  event: TaskHistoryEvent
+  divider: boolean
+}) {
   const { palette } = useTheme()
   const actor = event.actorIsYou ? 'You' : event.actorName
   const { lead, extras } = summarize(event)
@@ -32,7 +45,10 @@ function ActivityItem({ event, divider }: { event: TaskHistoryEvent; divider: bo
     <View
       style={[
         styles.item,
-        divider && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: palette.divider },
+        divider && {
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: palette.divider,
+        },
       ]}
     >
       <View
@@ -43,7 +59,9 @@ function ActivityItem({ event, divider }: { event: TaskHistoryEvent; divider: bo
       />
       <View style={styles.body}>
         <AppText variant="label" color={palette.ink1}>
-          <AppText variant="label" color={palette.ink1}>{actor}</AppText>
+          <AppText variant="label" color={palette.ink1}>
+            {actor}
+          </AppText>
           {` ${lead}`}
         </AppText>
         {extras.length > 0 ? (

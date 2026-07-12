@@ -15,7 +15,9 @@ import type {
   TaskNodeData,
 } from './layout'
 
-export function AnchorNode({ data }: NodeProps<DayNode & { data: AnchorNodeData }>) {
+export function AnchorNode({
+  data,
+}: NodeProps<DayNode & { data: AnchorNodeData }>) {
   const isStart = data.variant === 'start'
   return (
     <div className={`d-anchor d-anchor--${data.variant}`}>
@@ -28,7 +30,11 @@ export function AnchorNode({ data }: NodeProps<DayNode & { data: AnchorNodeData 
         </div>
       </div>
       {isStart ? (
-        <Handle type="source" position={Position.Bottom} isConnectable={false} />
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          isConnectable={false}
+        />
       ) : (
         <Handle type="target" position={Position.Top} isConnectable={false} />
       )}
@@ -36,7 +42,9 @@ export function AnchorNode({ data }: NodeProps<DayNode & { data: AnchorNodeData 
   )
 }
 
-export function BucketNode({ data }: NodeProps<DayNode & { data: BucketNodeData }>) {
+export function BucketNode({
+  data,
+}: NodeProps<DayNode & { data: BucketNodeData }>) {
   return (
     <div className="d-bucket">
       <Handle type="target" position={Position.Top} isConnectable={false} />
@@ -54,7 +62,9 @@ export function BucketNode({ data }: NodeProps<DayNode & { data: BucketNodeData 
 function Avatar({ a }: { a: DisplayAssignee }) {
   const style = TONE_STYLES[a.tone]
   if (a.imageUrl) {
-    return <img className="d-avatar" src={a.imageUrl} alt={a.name} title={a.name} />
+    return (
+      <img className="d-avatar" src={a.imageUrl} alt={a.name} title={a.name} />
+    )
   }
   return (
     <div
@@ -67,7 +77,9 @@ function Avatar({ a }: { a: DisplayAssignee }) {
   )
 }
 
-export function TaskNode({ data }: NodeProps<DayNode & { data: TaskNodeData }>) {
+export function TaskNode({
+  data,
+}: NodeProps<DayNode & { data: TaskNodeData }>) {
   const navigate = useNavigate()
   const task: DisplayTask = data.task
   const cd = task.deadline ? fmtCountdown(task.deadline) : null
@@ -79,7 +91,9 @@ export function TaskNode({ data }: NodeProps<DayNode & { data: TaskNodeData }>) 
         (task.overdue ? ' d-task--overdue' : '') +
         (status === 'in_progress' ? ' d-task--active' : '')
       }
-      onClick={() => navigate({ to: '/tasks/$taskId', params: { taskId: task.raw._id } })}
+      onClick={() =>
+        navigate({ to: '/tasks/$taskId', params: { taskId: task.raw._id } })
+      }
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
           navigate({ to: '/tasks/$taskId', params: { taskId: task.raw._id } })
@@ -92,14 +106,20 @@ export function TaskNode({ data }: NodeProps<DayNode & { data: TaskNodeData }>) 
       <div className="d-task__header">
         <div className="d-task__title">{task.title}</div>
         {status === 'in_progress' && (
-          <span className="d-task__pulse" title="In progress" aria-label="In progress" />
+          <span
+            className="d-task__pulse"
+            title="In progress"
+            aria-label="In progress"
+          />
         )}
       </div>
       {task.body && <div className="d-task__body">{task.body}</div>}
       <div className="d-task__meta">
         {task.deadline ? (
           <span
-            className={'d-task__time' + (task.overdue ? ' d-task__time--overdue' : '')}
+            className={
+              'd-task__time' + (task.overdue ? ' d-task__time--overdue' : '')
+            }
           >
             {fmtDateBadge(task.deadline)}
             {cd && (

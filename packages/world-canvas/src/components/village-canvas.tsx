@@ -1,27 +1,27 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import { SpriteActor } from '@worldkit/sprite-actor';
-import type { VillageScene } from '#lib/scene';
+import { SpriteActor } from '@worldkit/sprite-actor'
+import type { VillageScene } from '#lib/scene'
 import {
   useVillageSimulation,
   type UseVillageSimulationOptions,
-} from '#lib/use-village-simulation';
-import { CELL_SIZE, WorldCanvas } from './world-canvas';
-import { DialogueBox } from './dialogue-box';
-import { SpeechBubble } from './speech-bubble';
+} from '#lib/use-village-simulation'
+import { CELL_SIZE, WorldCanvas } from './world-canvas'
+import { DialogueBox } from './dialogue-box'
+import { SpeechBubble } from './speech-bubble'
 
 export type VillageCanvasProps = {
-  scene: VillageScene;
+  scene: VillageScene
   /** Integer stage scale. Default 2. */
-  zoom?: number;
-  simulation?: UseVillageSimulationOptions;
-  className?: string;
-  style?: React.CSSProperties;
-};
+  zoom?: number
+  simulation?: UseVillageSimulationOptions
+  className?: string
+  style?: React.CSSProperties
+}
 
 // Characters are one cell (32px) but read better sitting slightly high on
 // their tile, feet near the bottom edge — the classic GBA offset.
-const ACTOR_Y_OFFSET = -6;
+const ACTOR_Y_OFFSET = -6
 
 /**
  * The full interactive scene: tile map, autonomous residents, emote
@@ -34,8 +34,8 @@ export function VillageCanvas({
   className,
   style,
 }: VillageCanvasProps) {
-  const sim = useVillageSimulation(scene, simulation);
-  const transition = `left ${sim.stepMs}ms linear, top ${sim.stepMs}ms linear`;
+  const sim = useVillageSimulation(scene, simulation)
+  const transition = `left ${sim.stepMs}ms linear, top ${sim.stepMs}ms linear`
 
   return (
     <div
@@ -48,8 +48,8 @@ export function VillageCanvas({
           <div
             key={actor.id}
             onClick={(event) => {
-              event.stopPropagation();
-              sim.talkTo(actor.id);
+              event.stopPropagation()
+              sim.talkTo(actor.id)
             }}
             title={`Talk to ${actor.name}`}
             style={{
@@ -108,5 +108,5 @@ export function VillageCanvas({
         </div>
       ) : null}
     </div>
-  );
+  )
 }

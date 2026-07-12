@@ -3,7 +3,14 @@
 
 import { pick } from './format.js'
 
-export type Tone = 'sand' | 'sage' | 'clay' | 'fog' | 'rose' | 'slate' | 'graphite'
+export type Tone =
+  | 'sand'
+  | 'sage'
+  | 'clay'
+  | 'fog'
+  | 'rose'
+  | 'slate'
+  | 'graphite'
 
 export const TONE_LIST: ReadonlyArray<Exclude<Tone, 'graphite'>> = [
   'sand',
@@ -76,7 +83,10 @@ export function firstName(name: string | null | undefined): string {
 }
 
 /** Web greeting: 'casual' is always "Hey"; 'time-of-day' buckets by hour. */
-export function greetingFor(hour: number, style: 'casual' | 'time-of-day'): string {
+export function greetingFor(
+  hour: number,
+  style: 'casual' | 'time-of-day',
+): string {
   if (style === 'casual') return 'Hey'
   if (hour < 5) return 'Still up'
   if (hour < 12) return 'Good morning'

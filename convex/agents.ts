@@ -1,20 +1,12 @@
 import { ConvexError, v } from 'convex/values'
-import { mutation, query, QueryCtx } from './_generated/server'
+import { mutation, query } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
-import { getCurrentUser } from './users'
+import { requireUserId } from './lib/auth'
 
 const spriteValidator = v.union(
   v.object({ kind: v.literal('stub'), stubId: v.string() }),
   v.object({ kind: v.literal('custom'), sheetUrl: v.string() }),
 )
-
-async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
 
 function assertCanEditAgent(
   agent: Doc<'agents'> | null,

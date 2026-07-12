@@ -10,20 +10,21 @@ lowercase-kebab-case.
 
 ## Index
 
-| Document | What it covers |
-| --- | --- |
-| [interactive-world-canvas.md](./interactive-world-canvas.md) | The agent-village canvas: packages, sizing model, showcase, later milestones. **Start here** for the current feature work. |
-| [goals.md](./goals.md) | The goal construct: model, kanban stages, cost tracking, deadline reminders, and how it supersedes task groups. |
-| [metrics.md](./metrics.md) | Per-goal numerical metrics: the definition + time-series schema, computed progress, bounded reads, and the lazy-loaded shadcn/recharts trend chart. |
-| [mobile-app.md](./mobile-app.md) | The Expo iOS/Android app: setup, env/secrets, screens, theming, and running it against the shared Convex + Clerk backend. |
-| [mobile-web-parity.md](./mobile-web-parity.md) | Keeping web and mobile in step: the shared layers (Convex, `@org/theme`, `@org/app-core`), where logic must live, an end-to-end feature recipe, and the parity checklist. |
-| [architecture.md](./architecture.md) | The layered model (headless core → adapter → React → app), package responsibilities, the 2.5D grid model, dependency rules, data flow. |
-| [design-decisions.md](./design-decisions.md) | Rationale and trade-offs behind the choices the codebase embodies (plain objects, immutability, source-first exports, …). |
-| [getting-started.md](./getting-started.md) | Setup, common commands, workflow, project structure, troubleshooting. |
-| [tech-stack.md](./tech-stack.md) | Technologies in `apps/web` and workspace tooling; the Clerk + Convex auth flow. |
-| [deployment.md](./deployment.md) | Deploying `apps/web` to Cloudflare Workers and Storybook to Chromatic. |
-| [clerk-auth-cost-projection.md](./clerk-auth-cost-projection.md) | Clerk pricing model, growth scenarios, and COGS analysis. |
-| [claude-code-workflow.md](./claude-code-workflow.md) | Opt-in two-model Claude Code workflow: Fable plans, Opus implements. How to trigger it, cost notes, and requirements. |
+| Document                                                         | What it covers                                                                                                                                                            |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [interactive-world-canvas.md](./interactive-world-canvas.md)     | The agent-village canvas: packages, sizing model, showcase, later milestones. **Start here** for the current feature work.                                                |
+| [goals.md](./goals.md)                                           | The goal construct: model, kanban stages, cost tracking, deadline reminders, and how it supersedes task groups.                                                           |
+| [metrics.md](./metrics.md)                                       | Per-goal numerical metrics: the definition + time-series schema, computed progress, bounded reads, and the lazy-loaded shadcn/recharts trend chart.                       |
+| [task-assignments.md](./task-assignments.md)                     | Sharing and assigning tasks across accounts: the `taskAssignments` join table, denormalized status, and the deprecated-field fallback.                                    |
+| [mobile-app.md](./mobile-app.md)                                 | The Expo (SDK 57) iOS/Android app: routes, Clerk auth, live Convex data, full task/goal/metric parity, theming from `@org/theme`, env/secrets, and running it.            |
+| [mobile-web-parity.md](./mobile-web-parity.md)                   | Keeping web and mobile in step: the shared layers (Convex, `@org/theme`, `@org/app-core`), where logic must live, an end-to-end feature recipe, and the parity checklist. |
+| [architecture.md](./architecture.md)                             | The layered model (headless core → adapter → React → app), package responsibilities, the 2.5D grid model, dependency rules, data flow.                                    |
+| [design-decisions.md](./design-decisions.md)                     | Rationale and trade-offs behind the choices the codebase embodies (plain objects, immutability, source-first exports, …).                                                 |
+| [getting-started.md](./getting-started.md)                       | Setup, common commands, workflow, project structure, troubleshooting.                                                                                                     |
+| [tech-stack.md](./tech-stack.md)                                 | Technologies in `apps/web` and workspace tooling; the Clerk + Convex auth flow.                                                                                           |
+| [deployment.md](./deployment.md)                                 | Deploying `apps/web` to Cloudflare Workers and Storybook to Chromatic.                                                                                                    |
+| [clerk-auth-cost-projection.md](./clerk-auth-cost-projection.md) | Clerk pricing model, growth scenarios, and COGS analysis.                                                                                                                 |
+| [claude-code-workflow.md](./claude-code-workflow.md)             | Opt-in two-model Claude Code workflow: Fable plans, Opus implements. How to trigger it, cost notes, and requirements.                                                     |
 
 ## Reading paths
 

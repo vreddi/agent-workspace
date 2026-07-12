@@ -22,36 +22,36 @@ pnpm add @worldkit/world @worldkit/grid
 ## Usage
 
 ```ts
-import { createGrid } from '@worldkit/grid';
+import { createGrid } from '@worldkit/grid'
 import {
   addObject,
   createWorld,
   isCellBlocked,
   setTerrain,
-} from '@worldkit/world';
+} from '@worldkit/world'
 
 let world = createWorld({
   id: 'demo',
   grid: createGrid({ width: 20, height: 20, cellSize: 32 }),
-});
+})
 
 world = setTerrain(world, {
   position: { x: 2, y: 2 },
   terrain: 'water',
   blocksMovement: true,
-});
+})
 
 world = addObject(world, {
   id: 'tree_1',
   type: 'tree',
   position: { x: 5, y: 5 },
   blocksMovement: true,
-});
+})
 
-isCellBlocked(world, { x: 2, y: 2 }); // true (blocking terrain)
-isCellBlocked(world, { x: 5, y: 5 }); // true (blocking object)
-isCellBlocked(world, { x: 1, y: 1 }); // false
-isCellBlocked(world, { x: -1, y: 0 }); // true (out of bounds)
+isCellBlocked(world, { x: 2, y: 2 }) // true (blocking terrain)
+isCellBlocked(world, { x: 5, y: 5 }) // true (blocking object)
+isCellBlocked(world, { x: 1, y: 1 }) // false
+isCellBlocked(world, { x: -1, y: 0 }) // true (out of bounds)
 ```
 
 ## Immutability
@@ -60,7 +60,7 @@ All functions return a new `World` instead of mutating in place. That makes
 undo/redo, replay, sync, and AI validation straightforward.
 
 ```ts
-const nextWorld = addObject(world, tree);
+const nextWorld = addObject(world, tree)
 ```
 
 ## API
@@ -68,33 +68,33 @@ const nextWorld = addObject(world, tree);
 ### Types
 
 ```ts
-type WorldId = string;
-type EntityId = string;
-type TerrainId = string;
-type ObjectType = string;
+type WorldId = string
+type EntityId = string
+type TerrainId = string
+type ObjectType = string
 
 type TerrainCell = {
-  position: GridPosition;
-  terrain: TerrainId;
-  blocksMovement?: boolean;
-};
+  position: GridPosition
+  terrain: TerrainId
+  blocksMovement?: boolean
+}
 
 type WorldObject = {
-  id: EntityId;
-  type: ObjectType;
-  position: GridPosition;
-  blocksMovement?: boolean;
-  tags?: string[];
-  data?: Record<string, unknown>;
-};
+  id: EntityId
+  type: ObjectType
+  position: GridPosition
+  blocksMovement?: boolean
+  tags?: string[]
+  data?: Record<string, unknown>
+}
 
 type World = {
-  id: WorldId;
-  name?: string;
-  grid: GridConfig;
-  terrain: Record<string, TerrainCell>;
-  objects: Record<EntityId, WorldObject>;
-};
+  id: WorldId
+  name?: string
+  grid: GridConfig
+  terrain: Record<string, TerrainCell>
+  objects: Record<EntityId, WorldObject>
+}
 ```
 
 ### `getCellKey(position)`

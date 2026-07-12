@@ -44,7 +44,10 @@ const PRIORITY_CHIPS: { label: string; value: TaskPriority | 'none' }[] = [
   { label: 'Low', value: 'low' },
 ]
 
-const STATUS_CHIPS = STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value }))
+const STATUS_CHIPS = STATUS_OPTIONS.map((o) => ({
+  label: o.label,
+  value: o.value,
+}))
 
 function minutesToDate(minutes: number): Date {
   const d = new Date()
@@ -79,9 +82,13 @@ function EditForm({ task }: { task: TaskDetail }) {
   const [emoji, setEmoji] = useState(task.emoji ?? '')
   const [description, setDescription] = useState(task.description ?? '')
   const [status, setStatus] = useState<TaskStatus>(task.status)
-  const [priority, setPriority] = useState<TaskPriority | 'none'>(task.priority ?? 'none')
+  const [priority, setPriority] = useState<TaskPriority | 'none'>(
+    task.priority ?? 'none',
+  )
   const [difficulty, setDifficulty] = useState(task.difficulty ?? 0)
-  const [estimateMinutes, setEstimateMinutes] = useState(task.estimateMinutes ?? 0)
+  const [estimateMinutes, setEstimateMinutes] = useState(
+    task.estimateMinutes ?? 0,
+  )
   const [costDays, setCostDays] = useState(task.costDays ?? 0)
   const [softDeadline, setSoftDeadline] = useState<Date | null>(
     task.softDeadline === null ? null : new Date(task.softDeadline),
@@ -90,7 +97,9 @@ function EditForm({ task }: { task: TaskDetail }) {
     task.hardDeadline === null ? null : new Date(task.hardDeadline),
   )
   const [scheduledStart, setScheduledStart] = useState<Date | null>(
-    task.scheduledStartMinutes == null ? null : minutesToDate(task.scheduledStartMinutes),
+    task.scheduledStartMinutes == null
+      ? null
+      : minutesToDate(task.scheduledStartMinutes),
   )
   const [goalId, setGoalId] = useState<string>(task.goalId ?? NO_GOAL)
   const [saving, setSaving] = useState(false)
@@ -98,7 +107,10 @@ function EditForm({ task }: { task: TaskDetail }) {
   // Keep the current goal selectable even if it's no longer "active".
   const goalSelectOptions: SelectOption<string>[] = [
     { label: 'No goal', value: NO_GOAL },
-    ...(goalOptions ?? []).map((g) => ({ label: g.title, value: g.id as string })),
+    ...(goalOptions ?? []).map((g) => ({
+      label: g.title,
+      value: g.id as string,
+    })),
   ]
   if (task.goal && !goalSelectOptions.some((o) => o.value === task.goal!._id)) {
     goalSelectOptions.push({ label: task.goal.title, value: task.goal._id })
@@ -114,8 +126,10 @@ function EditForm({ task }: { task: TaskDetail }) {
     const nextTitle = title.trim()
     if (nextTitle !== task.title) patch.title = nextTitle
 
-    const nextDescription = description.trim() === '' ? null : description.trim()
-    if (nextDescription !== (task.description ?? null)) patch.description = nextDescription
+    const nextDescription =
+      description.trim() === '' ? null : description.trim()
+    if (nextDescription !== (task.description ?? null))
+      patch.description = nextDescription
 
     const nextEmoji = emoji.trim() === '' ? null : emoji.trim()
     if (nextEmoji !== (task.emoji ?? null)) patch.emoji = nextEmoji
@@ -126,10 +140,12 @@ function EditForm({ task }: { task: TaskDetail }) {
     if (nextPriority !== (task.priority ?? null)) patch.priority = nextPriority
 
     const nextDifficulty = difficulty === 0 ? null : difficulty
-    if (nextDifficulty !== (task.difficulty ?? null)) patch.difficulty = nextDifficulty
+    if (nextDifficulty !== (task.difficulty ?? null))
+      patch.difficulty = nextDifficulty
 
     const nextEstimate = estimateMinutes === 0 ? null : estimateMinutes
-    if (nextEstimate !== (task.estimateMinutes ?? null)) patch.estimateMinutes = nextEstimate
+    if (nextEstimate !== (task.estimateMinutes ?? null))
+      patch.estimateMinutes = nextEstimate
 
     const nextCost = costDays === 0 ? null : costDays
     if (nextCost !== (task.costDays ?? null)) patch.costDays = nextCost
@@ -163,12 +179,20 @@ function EditForm({ task }: { task: TaskDetail }) {
   return (
     <FormScreen
       footer={
-        <FooterButton label="Save changes" onPress={save} disabled={!canSubmit} loading={saving} />
+        <FooterButton
+          label="Save changes"
+          onPress={save}
+          disabled={!canSubmit}
+          loading={saving}
+        />
       }
     >
       <Card style={styles.titleCard}>
         <TextInput
-          style={[styles.emojiInput, { color: palette.ink1, backgroundColor: palette.chipBg }]}
+          style={[
+            styles.emojiInput,
+            { color: palette.ink1, backgroundColor: palette.chipBg },
+          ]}
           value={emoji}
           onChangeText={(t) => setEmoji(Array.from(t).slice(-1).join(''))}
           placeholder="🎯"
@@ -185,7 +209,12 @@ function EditForm({ task }: { task: TaskDetail }) {
       </Card>
 
       <FormSection label="Status & priority">
-        <ChipRowGroup label="Status" value={status} options={STATUS_CHIPS} onChange={setStatus} />
+        <ChipRowGroup
+          label="Status"
+          value={status}
+          options={STATUS_CHIPS}
+          onChange={setStatus}
+        />
         <ChipRowGroup
           label="Priority"
           value={priority}
@@ -238,7 +267,12 @@ function EditForm({ task }: { task: TaskDetail }) {
           onChangeText={setDescription}
           placeholder="Anything worth remembering (optional)"
         />
-        <SelectRow label="Goal" value={goalId} options={goalSelectOptions} onChange={setGoalId} />
+        <SelectRow
+          label="Goal"
+          value={goalId}
+          options={goalSelectOptions}
+          onChange={setGoalId}
+        />
         <StepperRow
           label="Cost"
           value={costDays}
@@ -250,7 +284,8 @@ function EditForm({ task }: { task: TaskDetail }) {
       </FormSection>
 
       <AppText variant="meta" color={palette.ink3} style={styles.note}>
-        Start time uses only the time of day. Estimate and cost of 0 clear the field.
+        Start time uses only the time of day. Estimate and cost of 0 clear the
+        field.
       </AppText>
     </FormScreen>
   )

@@ -24,12 +24,7 @@ export {
   TONE_STYLES,
   toneFor,
 } from '@org/app-core'
-export type {
-  DisplayAssignee,
-  FilterId,
-  SourceKind,
-  Tone,
-} from '@org/app-core'
+export type { DisplayAssignee, FilterId, SourceKind, Tone } from '@org/app-core'
 
 /** A display task backed by the web app's fully-typed task-list row. */
 export type DisplayTask = CoreDisplayTask<TaskListItem>

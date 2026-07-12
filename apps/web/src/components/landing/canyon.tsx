@@ -13,7 +13,13 @@ const LAYERS: { mouse: number; scroll: number; depth: number }[] = [
 ]
 
 export function Canyon() {
-  const layerRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null, null])
+  const layerRefs = useRef<(HTMLDivElement | null)[]>([
+    null,
+    null,
+    null,
+    null,
+    null,
+  ])
   const birdsRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -76,17 +82,26 @@ export function Canyon() {
   return (
     <div className="canyon" aria-hidden="true">
       {/* sky wash + warm sun glow */}
-      <div className="canyon__sky" ref={(el) => void (layerRefs.current[0] = el)}>
+      <div
+        className="canyon__sky"
+        ref={(el) => void (layerRefs.current[0] = el)}
+      >
         <div className="canyon__sun" />
       </div>
 
       {/* back atmospheric mountains */}
-      <div className="canyon__layer" ref={(el) => void (layerRefs.current[1] = el)}>
+      <div
+        className="canyon__layer"
+        ref={(el) => void (layerRefs.current[1] = el)}
+      >
         <BackMountains />
       </div>
 
       {/* mid peach cliffs */}
-      <div className="canyon__layer" ref={(el) => void (layerRefs.current[2] = el)}>
+      <div
+        className="canyon__layer"
+        ref={(el) => void (layerRefs.current[2] = el)}
+      >
         <MidCliffs />
       </div>
 
@@ -98,12 +113,18 @@ export function Canyon() {
       </div>
 
       {/* front orange cliffs */}
-      <div className="canyon__layer" ref={(el) => void (layerRefs.current[3] = el)}>
+      <div
+        className="canyon__layer"
+        ref={(el) => void (layerRefs.current[3] = el)}
+      >
         <FrontCliffs />
       </div>
 
       {/* foreground grass tufts */}
-      <div className="canyon__layer canyon__layer--front" ref={(el) => void (layerRefs.current[4] = el)}>
+      <div
+        className="canyon__layer canyon__layer--front"
+        ref={(el) => void (layerRefs.current[4] = el)}
+      >
         <ForegroundGrass />
       </div>
 
@@ -130,10 +151,12 @@ function BackMountains() {
           <stop offset="100%" stopColor="#8a78b0" />
         </linearGradient>
         <filter id="back-grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" />
-          <feColorMatrix
-            values="0 0 0 0 0.55  0 0 0 0 0.48  0 0 0 0 0.68  0 0 0 0.18 0"
+          <feTurbulence
+            baseFrequency="0.85"
+            numOctaves="2"
+            stitchTiles="stitch"
           />
+          <feColorMatrix values="0 0 0 0 0.55  0 0 0 0 0.48  0 0 0 0 0.68  0 0 0 0.18 0" />
           <feComposite in2="SourceGraphic" operator="in" />
         </filter>
       </defs>
@@ -194,10 +217,12 @@ function MidCliffs() {
           <stop offset="100%" stopColor="#5d8d5a" />
         </linearGradient>
         <filter id="mid-grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
-          <feColorMatrix
-            values="0 0 0 0 0.32  0 0 0 0 0.18  0 0 0 0 0.10  0 0 0 0.22 0"
+          <feTurbulence
+            baseFrequency="0.9"
+            numOctaves="2"
+            stitchTiles="stitch"
           />
+          <feColorMatrix values="0 0 0 0 0.32  0 0 0 0 0.18  0 0 0 0 0.10  0 0 0 0.22 0" />
           <feComposite in2="SourceGraphic" operator="in" />
         </filter>
       </defs>
@@ -293,10 +318,12 @@ function FrontCliffs() {
           <stop offset="100%" stopColor="#3f6d3d" />
         </linearGradient>
         <filter id="front-grain" x="0" y="0" width="100%" height="100%">
-          <feTurbulence baseFrequency="1.05" numOctaves="2" stitchTiles="stitch" />
-          <feColorMatrix
-            values="0 0 0 0 0.24  0 0 0 0 0.10  0 0 0 0 0.05  0 0 0 0.30 0"
+          <feTurbulence
+            baseFrequency="1.05"
+            numOctaves="2"
+            stitchTiles="stitch"
           />
+          <feColorMatrix values="0 0 0 0 0.24  0 0 0 0 0.10  0 0 0 0 0.05  0 0 0 0.30 0" />
           <feComposite in2="SourceGraphic" operator="in" />
         </filter>
       </defs>
@@ -339,7 +366,13 @@ function FrontCliffs() {
         fill="url(#front-shade-left)"
       />
       {/* striations on cliff faces — thin lighter strokes suggesting rock layers */}
-      <g stroke="#e8b290" strokeWidth="1.4" strokeLinecap="round" opacity="0.32" fill="none">
+      <g
+        stroke="#e8b290"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        opacity="0.32"
+        fill="none"
+      >
         <path d="M 70 280 Q 130 290, 190 320" />
         <path d="M 100 400 Q 170 415, 235 445" />
         <path d="M 140 540 Q 215 560, 285 595" />

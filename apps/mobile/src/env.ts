@@ -22,7 +22,10 @@ function required(name: string, value: string | undefined): string {
   return value
 }
 
-const convexUrl = required('EXPO_PUBLIC_CONVEX_URL', process.env.EXPO_PUBLIC_CONVEX_URL)
+const convexUrl = required(
+  'EXPO_PUBLIC_CONVEX_URL',
+  process.env.EXPO_PUBLIC_CONVEX_URL,
+)
 if (!convexUrl.startsWith('https://')) {
   throw new Error('EXPO_PUBLIC_CONVEX_URL must be an https:// deployment URL')
 }

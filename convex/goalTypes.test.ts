@@ -33,7 +33,9 @@ describe('goalTypes.list', () => {
 
   test('requires authentication', async () => {
     const t = setup()
-    await expect(t.query(api.goalTypes.list, {})).rejects.toThrowError(/Not authenticated/)
+    await expect(t.query(api.goalTypes.list, {})).rejects.toThrowError(
+      /Not authenticated/,
+    )
   })
 })
 
@@ -91,8 +93,13 @@ describe('goalTypes.update', () => {
   test('renames a custom type', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    const id = await asUser.mutation(api.goalTypes.create, { name: 'Side Projects' })
-    const result = await asUser.mutation(api.goalTypes.update, { id, name: 'Hobbies' })
+    const id = await asUser.mutation(api.goalTypes.create, {
+      name: 'Side Projects',
+    })
+    const result = await asUser.mutation(api.goalTypes.update, {
+      id,
+      name: 'Hobbies',
+    })
     expect(result).toEqual({ changed: true })
     const list = await asUser.query(api.goalTypes.list, {})
     expect(list.custom[0]?.name).toBe('Hobbies')
@@ -102,7 +109,9 @@ describe('goalTypes.update', () => {
     const t = setup()
     const asAlice = await signUp(t, 'alice')
     const asBob = await signUp(t, 'bob')
-    const id = await asAlice.mutation(api.goalTypes.create, { name: 'Side Projects' })
+    const id = await asAlice.mutation(api.goalTypes.create, {
+      name: 'Side Projects',
+    })
     await expect(
       asBob.mutation(api.goalTypes.update, { id, name: 'Stolen' }),
     ).rejects.toThrowError(/Forbidden/)
@@ -113,7 +122,9 @@ describe('goalTypes.remove', () => {
   test('removes an unused custom type', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    const id = await asUser.mutation(api.goalTypes.create, { name: 'Side Projects' })
+    const id = await asUser.mutation(api.goalTypes.create, {
+      name: 'Side Projects',
+    })
     await asUser.mutation(api.goalTypes.remove, { id })
     const list = await asUser.query(api.goalTypes.list, {})
     expect(list.custom).toEqual([])
@@ -122,14 +133,16 @@ describe('goalTypes.remove', () => {
   test('blocks removal while a goal references the type', async () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
-    const id = await asUser.mutation(api.goalTypes.create, { name: 'Side Projects' })
+    const id = await asUser.mutation(api.goalTypes.create, {
+      name: 'Side Projects',
+    })
     await asUser.mutation(api.goals.create, {
       title: 'Ship the pixel village',
       deadline: Date.now() + 30 * 24 * 60 * 60 * 1000,
       customTypeId: id,
     })
-    await expect(asUser.mutation(api.goalTypes.remove, { id })).rejects.toThrowError(
-      /used by a goal/,
-    )
+    await expect(
+      asUser.mutation(api.goalTypes.remove, { id }),
+    ).rejects.toThrowError(/used by a goal/)
   })
 })

@@ -28,10 +28,17 @@ const ThemeContext = createContext<ThemeValue | null>(null)
 /** AsyncStorage key for the persisted theme preference. */
 const THEME_PREFERENCE_KEY = 'theme'
 
-const VALID_PREFERENCES: readonly ThemePreference[] = ['system', 'light', 'dark']
+const VALID_PREFERENCES: readonly ThemePreference[] = [
+  'system',
+  'light',
+  'dark',
+]
 
 function isThemePreference(value: unknown): value is ThemePreference {
-  return typeof value === 'string' && VALID_PREFERENCES.includes(value as ThemePreference)
+  return (
+    typeof value === 'string' &&
+    VALID_PREFERENCES.includes(value as ThemePreference)
+  )
 }
 
 export function AppThemeProvider({ children }: { children: ReactNode }) {
@@ -43,7 +50,10 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true
-    void getLocalPreference<ThemePreference>(THEME_PREFERENCE_KEY, 'system').then((stored) => {
+    void getLocalPreference<ThemePreference>(
+      THEME_PREFERENCE_KEY,
+      'system',
+    ).then((stored) => {
       if (!active) return
       if (isThemePreference(stored)) setPreferenceState(stored)
       setHydrated(true)
@@ -59,7 +69,11 @@ export function AppThemeProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const scheme: SchemeName =
-    preference === 'system' ? (system === 'dark' ? 'dark' : 'light') : preference
+    preference === 'system'
+      ? system === 'dark'
+        ? 'dark'
+        : 'light'
+      : preference
   const value = useMemo(
     () => ({ scheme, palette: palettes[scheme], preference, setPreference }),
     [scheme, preference, setPreference],

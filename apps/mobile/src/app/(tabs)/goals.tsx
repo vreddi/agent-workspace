@@ -34,7 +34,9 @@ function GoalCard({ goal }: { goal: GoalListItem }) {
   return (
     <Pressable onPress={() => router.push(`/goal/${goal._id}`)}>
       {({ pressed }) => (
-        <Card style={[styles.card, pressed && { backgroundColor: palette.hover }]}>
+        <Card
+          style={[styles.card, pressed && { backgroundColor: palette.hover }]}
+        >
           <View style={styles.head}>
             <GoalTypeIcon
               name={goal.type?.name ?? goal.title}
@@ -59,7 +61,10 @@ function GoalCard({ goal }: { goal: GoalListItem }) {
             <View
               style={[
                 styles.fill,
-                { backgroundColor: palette.accent, width: `${Math.round(progress * 100)}%` },
+                {
+                  backgroundColor: palette.accent,
+                  width: `${Math.round(progress * 100)}%`,
+                },
               ]}
             />
           </View>

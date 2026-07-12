@@ -12,7 +12,10 @@ import {
 import { ClerkProvider, useAuth } from '@clerk/tanstack-react-start'
 import { auth } from '@clerk/tanstack-react-start/server'
 import { createServerFn } from '@tanstack/react-start'
-import { ConvexProviderWithClerk, type ConvexReactClient } from 'convex/react-clerk'
+import {
+  ConvexProviderWithClerk,
+  type ConvexReactClient,
+} from 'convex/react-clerk'
 const fetchClerkAuth = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const { userId, getToken } = await auth()

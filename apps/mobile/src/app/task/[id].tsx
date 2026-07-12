@@ -2,12 +2,26 @@ import type { Id } from '@convex/_generated/dataModel'
 import { priority as priorityColors, radius, space } from '@org/theme'
 import * as Haptics from 'expo-haptics'
 import { router, useLocalSearchParams } from 'expo-router'
-import { Calendar, Clock, Flag, Gauge, Pencil, Target, Timer } from 'lucide-react-native'
+import {
+  Calendar,
+  Clock,
+  Flag,
+  Gauge,
+  Pencil,
+  Target,
+  Timer,
+} from 'lucide-react-native'
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { ScreenLoading } from '@/components/screen'
 import { TaskActivitySection } from '@/components/task-activity'
 import { TaskAssigneesSection } from '@/components/task-assignees'
-import { fmtCost, fmtDateTime, fmtEstimate, fmtTimeOfDay } from '@/components/task-format'
+import {
+  fmtCost,
+  fmtDateTime,
+  fmtEstimate,
+  fmtTimeOfDay,
+  nowMs,
+} from '@/components/task-format'
 import { AppText, Card } from '@/components/ui'
 import {
   ChipRowGroup,
@@ -42,7 +56,10 @@ export function ErrorBoundary() {
   )
 }
 
-const STATUS_CHIPS = STATUS_OPTIONS.map((o) => ({ label: o.label, value: o.value }))
+const STATUS_CHIPS = STATUS_OPTIONS.map((o) => ({
+  label: o.label,
+  value: o.value,
+}))
 
 function MetaRow({
   icon,
@@ -72,7 +89,12 @@ function MetaRow({
       <AppText variant="label" color={palette.ink2} style={{ flex: 1 }}>
         {label}
       </AppText>
-      <AppText variant="label" color={valueColor ?? palette.ink1} numberOfLines={1} style={styles.metaValue}>
+      <AppText
+        variant="label"
+        color={valueColor ?? palette.ink1}
+        numberOfLines={1}
+        style={styles.metaValue}
+      >
         {value}
       </AppText>
     </View>
@@ -97,7 +119,7 @@ export default function TaskDetailScreen() {
   const done = task.status === 'done'
   const open = task.status === 'open' || task.status === 'in_progress'
   const deadline = task.hardDeadline ?? task.softDeadline
-  const overdue = open && deadline !== null && deadline < Date.now()
+  const overdue = open && deadline !== null && deadline < nowMs()
   const iconColor = palette.ink3
 
   const setStatus = (status: TaskStatus) => {
@@ -115,11 +137,15 @@ export default function TaskDetailScreen() {
       onConfirm: () => {
         removeTask(task._id)
           .then(() => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success,
+            )
             router.back()
           })
           .catch(() => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error,
+            )
           })
       },
     })
@@ -132,22 +158,33 @@ export default function TaskDetailScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.hero}>
-        {task.emoji ? <AppText style={styles.emoji}>{task.emoji}</AppText> : null}
+        {task.emoji ? (
+          <AppText style={styles.emoji}>{task.emoji}</AppText>
+        ) : null}
         <AppText variant="hero">{task.title}</AppText>
         {done && task.completedAt !== null ? (
-          <View style={[styles.statusChip, { backgroundColor: palette.chipBg }]}>
+          <View
+            style={[styles.statusChip, { backgroundColor: palette.chipBg }]}
+          >
             <AppText variant="meta" color={palette.ink2}>
               Finished {fmtDateTime(task.completedAt)}
             </AppText>
           </View>
         ) : overdue && deadline !== null ? (
-          <View style={[styles.statusChip, { backgroundColor: palette.overdueSoft }]}>
+          <View
+            style={[
+              styles.statusChip,
+              { backgroundColor: palette.overdueSoft },
+            ]}
+          >
             <AppText variant="meta" color={palette.overdue}>
               Was due {fmtDateTime(deadline)}
             </AppText>
           </View>
         ) : deadline !== null ? (
-          <View style={[styles.statusChip, { backgroundColor: palette.chipBg }]}>
+          <View
+            style={[styles.statusChip, { backgroundColor: palette.chipBg }]}
+          >
             <AppText variant="meta" color={palette.ink2}>
               Due {fmtDateTime(deadline)}
             </AppText>
@@ -195,7 +232,11 @@ export default function TaskDetailScreen() {
       {task.description ? (
         <Card style={styles.notes}>
           <AppText variant="caption">Notes</AppText>
-          <AppText variant="label" color={palette.ink2} style={styles.notesBody}>
+          <AppText
+            variant="label"
+            color={palette.ink2}
+            style={styles.notesBody}
+          >
             {task.description}
           </AppText>
         </Card>
@@ -227,7 +268,7 @@ function DetailsCard({
   open: boolean
 }) {
   const { palette } = useTheme()
-  const now = Date.now()
+  const now = nowMs()
   const rows: ReactNode[] = []
 
   if (task.priority != null) {
@@ -282,7 +323,9 @@ function DetailsCard({
         icon={<Calendar size={17} color={iconColor} />}
         label="Target date"
         value={fmtDateTime(task.softDeadline)}
-        valueColor={open && task.softDeadline < now ? palette.overdue : undefined}
+        valueColor={
+          open && task.softDeadline < now ? palette.overdue : undefined
+        }
       />,
     )
   }
@@ -294,7 +337,9 @@ function DetailsCard({
         icon={<Calendar size={17} color={iconColor} />}
         label="Hard deadline"
         value={fmtDateTime(task.hardDeadline)}
-        valueColor={open && task.hardDeadline < now ? palette.overdue : undefined}
+        valueColor={
+          open && task.hardDeadline < now ? palette.overdue : undefined
+        }
       />,
     )
   }
@@ -302,7 +347,9 @@ function DetailsCard({
     const start = fmtTimeOfDay(task.scheduledStartMinutes)
     const end =
       task.estimateMinutes !== null
-        ? fmtTimeOfDay((task.scheduledStartMinutes + task.estimateMinutes) % (24 * 60))
+        ? fmtTimeOfDay(
+            (task.scheduledStartMinutes + task.estimateMinutes) % (24 * 60),
+          )
         : null
     rows.push(
       <MetaRow

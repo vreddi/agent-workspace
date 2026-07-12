@@ -1,7 +1,7 @@
 import { ConvexError, v } from 'convex/values'
 import { mutation, query, QueryCtx } from './_generated/server'
 import { Doc, Id } from './_generated/dataModel'
-import { getCurrentUser } from './users'
+import { requireUserId } from './lib/auth'
 import { taskPriority, taskStatus } from './schema'
 import {
   assigneeIdsForTask,
@@ -11,14 +11,6 @@ import {
 } from './taskAssignments'
 
 const POSITION_STEP = 1024
-
-async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
 
 async function assertOwnsGoal(
   ctx: QueryCtx,
@@ -56,14 +48,18 @@ function validateCostDays(costDays: number | null) {
 function validateDifficulty(difficulty: number | null) {
   if (difficulty === null) return
   if (!Number.isInteger(difficulty) || difficulty < 1 || difficulty > 5) {
-    throw new ConvexError('difficulty must be an integer from 1 (easy) to 5 (challenging)')
+    throw new ConvexError(
+      'difficulty must be an integer from 1 (easy) to 5 (challenging)',
+    )
   }
 }
 
 function validateScheduledStartMinutes(minutes: number | null) {
   if (minutes === null) return
   if (!Number.isInteger(minutes) || minutes < 0 || minutes >= 24 * 60) {
-    throw new ConvexError('scheduledStartMinutes must be a whole number of minutes within the day (0–1439)')
+    throw new ConvexError(
+      'scheduledStartMinutes must be a whole number of minutes within the day (0–1439)',
+    )
   }
 }
 
@@ -147,9 +143,15 @@ function diffFields(task: Doc<'tasks'>, args: UpdateArgs) {
   for (const field of DIFF_FIELDS) {
     const next = args[field]
     if (next === undefined) continue
-    const current = OPTIONAL_DIFF_FIELDS.has(field) ? (task[field] ?? null) : task[field]
+    const current = OPTIONAL_DIFF_FIELDS.has(field)
+      ? (task[field] ?? null)
+      : task[field]
     if (current === next) continue
-    changes.push({ field, before: current === null ? null : encode(current), after: next === null ? null : encode(next) })
+    changes.push({
+      field,
+      before: current === null ? null : encode(current),
+      after: next === null ? null : encode(next),
+    })
     patch[field] = next
   }
   return { changes, patch }
@@ -186,7 +188,11 @@ export const create = mutation({
     const scheduledStartMinutes = args.scheduledStartMinutes ?? null
     const goalId = args.goalId ?? null
     const costDays = args.costDays ?? null
-    if (softDeadline !== null && hardDeadline !== null && softDeadline > hardDeadline) {
+    if (
+      softDeadline !== null &&
+      hardDeadline !== null &&
+      softDeadline > hardDeadline
+    ) {
       throw new ConvexError('softDeadline must be on or before hardDeadline')
     }
     validateDifficulty(difficulty)
@@ -196,8 +202,11 @@ export const create = mutation({
     // A new task always starts assigned to whoever captured it; sharing and
     // handoff happen afterwards through taskAssignments.setAssignees.
     const creator = await ctx.db.get(userId)
-    const creatorName = creator ? creator.name.trim() || creator.email : 'Someone'
-    const goalPosition = goalId === null ? undefined : await nextGoalTailPosition(ctx, goalId)
+    const creatorName = creator
+      ? creator.name.trim() || creator.email
+      : 'Someone'
+    const goalPosition =
+      goalId === null ? undefined : await nextGoalTailPosition(ctx, goalId)
     const now = Date.now()
     const taskId = await ctx.db.insert('tasks', {
       title,
@@ -229,28 +238,52 @@ export const create = mutation({
       { field: 'assignees', before: null, after: encode([creatorName]) },
     ]
     if (description !== null) {
-      changes.push({ field: 'description', before: null, after: encode(description) })
+      changes.push({
+        field: 'description',
+        before: null,
+        after: encode(description),
+      })
     }
     if (emoji !== null) {
       changes.push({ field: 'emoji', before: null, after: encode(emoji) })
     }
     if (softDeadline !== null) {
-      changes.push({ field: 'softDeadline', before: null, after: encode(softDeadline) })
+      changes.push({
+        field: 'softDeadline',
+        before: null,
+        after: encode(softDeadline),
+      })
     }
     if (hardDeadline !== null) {
-      changes.push({ field: 'hardDeadline', before: null, after: encode(hardDeadline) })
+      changes.push({
+        field: 'hardDeadline',
+        before: null,
+        after: encode(hardDeadline),
+      })
     }
     if (estimateMinutes !== null) {
-      changes.push({ field: 'estimateMinutes', before: null, after: encode(estimateMinutes) })
+      changes.push({
+        field: 'estimateMinutes',
+        before: null,
+        after: encode(estimateMinutes),
+      })
     }
     if (priority !== null) {
       changes.push({ field: 'priority', before: null, after: encode(priority) })
     }
     if (difficulty !== null) {
-      changes.push({ field: 'difficulty', before: null, after: encode(difficulty) })
+      changes.push({
+        field: 'difficulty',
+        before: null,
+        after: encode(difficulty),
+      })
     }
     if (scheduledStartMinutes !== null) {
-      changes.push({ field: 'scheduledStartMinutes', before: null, after: encode(scheduledStartMinutes) })
+      changes.push({
+        field: 'scheduledStartMinutes',
+        before: null,
+        after: encode(scheduledStartMinutes),
+      })
     }
     if (goalId !== null) {
       changes.push({ field: 'goalId', before: null, after: encode(goalId) })
@@ -308,9 +341,12 @@ export const update = mutation({
       normalized.emoji = args.emoji === null ? null : args.emoji.trim() || null
     }
     if (args.status !== undefined) normalized.status = args.status
-    if (args.softDeadline !== undefined) normalized.softDeadline = args.softDeadline
-    if (args.hardDeadline !== undefined) normalized.hardDeadline = args.hardDeadline
-    if (args.estimateMinutes !== undefined) normalized.estimateMinutes = args.estimateMinutes
+    if (args.softDeadline !== undefined)
+      normalized.softDeadline = args.softDeadline
+    if (args.hardDeadline !== undefined)
+      normalized.hardDeadline = args.hardDeadline
+    if (args.estimateMinutes !== undefined)
+      normalized.estimateMinutes = args.estimateMinutes
     if (args.priority !== undefined) normalized.priority = args.priority
     if (args.difficulty !== undefined) {
       validateDifficulty(args.difficulty)
@@ -331,7 +367,10 @@ export const update = mutation({
 
     const { changes, patch } = diffFields(task, normalized)
 
-    if (normalized.goalId !== undefined && normalized.goalId !== (task.goalId ?? null)) {
+    if (
+      normalized.goalId !== undefined &&
+      normalized.goalId !== (task.goalId ?? null)
+    ) {
       patch.goalPosition =
         normalized.goalId === null
           ? undefined
@@ -354,9 +393,13 @@ export const update = mutation({
     }
 
     const nextSoft =
-      normalized.softDeadline !== undefined ? normalized.softDeadline : task.softDeadline
+      normalized.softDeadline !== undefined
+        ? normalized.softDeadline
+        : task.softDeadline
     const nextHard =
-      normalized.hardDeadline !== undefined ? normalized.hardDeadline : task.hardDeadline
+      normalized.hardDeadline !== undefined
+        ? normalized.hardDeadline
+        : task.hardDeadline
     if (nextSoft !== null && nextHard !== null && nextSoft > nextHard) {
       throw new ConvexError('softDeadline must be on or before hardDeadline')
     }
@@ -368,7 +411,11 @@ export const update = mutation({
     const now = Date.now()
     await ctx.db.patch(args.id, { ...patch, updatedAt: now })
     if (typeof patch.status === 'string') {
-      await syncAssignmentStatus(ctx, args.id, patch.status as Doc<'tasks'>['status'])
+      await syncAssignmentStatus(
+        ctx,
+        args.id,
+        patch.status as Doc<'tasks'>['status'],
+      )
     }
     await ctx.db.insert('taskEvents', {
       taskId: args.id,
@@ -420,7 +467,8 @@ export const remove = mutation({
       },
       {
         field: 'estimateMinutes',
-        before: task.estimateMinutes === null ? null : encode(task.estimateMinutes),
+        before:
+          task.estimateMinutes === null ? null : encode(task.estimateMinutes),
         after: null,
       },
     ]
@@ -497,22 +545,30 @@ export const list = query({
     const assignments = await ctx.db
       .query('taskAssignments')
       .withIndex('by_user_and_status', (q) =>
-        status ? q.eq('userId', userId).eq('status', status) : q.eq('userId', userId),
+        status
+          ? q.eq('userId', userId).eq('status', status)
+          : q.eq('userId', userId),
       )
       .order('desc')
       .take(LIST_LIMIT)
-    const assigned = await Promise.all(assignments.map((row) => ctx.db.get(row.taskId)))
+    const assigned = await Promise.all(
+      assignments.map((row) => ctx.db.get(row.taskId)),
+    )
     const legacyAssigned = await ctx.db
       .query('tasks')
       .withIndex('by_assignee_status', (q) =>
-        status ? q.eq('assigneeUserId', userId).eq('status', status) : q.eq('assigneeUserId', userId),
+        status
+          ? q.eq('assigneeUserId', userId).eq('status', status)
+          : q.eq('assigneeUserId', userId),
       )
       .order('desc')
       .take(LIST_LIMIT)
     const created = await ctx.db
       .query('tasks')
       .withIndex('by_creator_status', (q) =>
-        status ? q.eq('creatorId', userId).eq('status', status) : q.eq('creatorId', userId),
+        status
+          ? q.eq('creatorId', userId).eq('status', status)
+          : q.eq('creatorId', userId),
       )
       .order('desc')
       .take(LIST_LIMIT)

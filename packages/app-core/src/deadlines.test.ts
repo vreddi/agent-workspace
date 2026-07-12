@@ -51,7 +51,9 @@ describe('fmtCountdown', () => {
 
   it('formats minutes, hours, and days', () => {
     expect(fmtCountdown(new Date(5 * 60_000), now)).toBe('5m')
-    expect(fmtCountdown(new Date(2 * 3600_000 + 10 * 60_000), now)).toBe('2h 10m')
+    expect(fmtCountdown(new Date(2 * 3600_000 + 10 * 60_000), now)).toBe(
+      '2h 10m',
+    )
     expect(fmtCountdown(new Date(3 * DAY_MS), now)).toBe('3d')
     expect(fmtCountdown(new Date(3 * DAY_MS + 4 * 3600_000), now)).toBe('3d 4h')
   })

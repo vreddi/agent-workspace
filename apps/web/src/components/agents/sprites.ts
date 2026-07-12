@@ -26,7 +26,11 @@ export function stubSheet(stubId: string): SpriteSheet | null {
  * Wrap an uploaded image as a minimal sprite sheet: square frames sized by
  * the image height, the whole strip treated as the idle loop.
  */
-export function customSheet(sheetUrl: string, frameSize: number, frames: number): SpriteSheet {
+export function customSheet(
+  sheetUrl: string,
+  frameSize: number,
+  frames: number,
+): SpriteSheet {
   return {
     name: 'Custom sprite',
     frameWidth: frameSize,

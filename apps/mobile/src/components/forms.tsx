@@ -122,7 +122,9 @@ export function FormSection({
 
 function RowDivider() {
   const { palette } = useTheme()
-  return <View style={[styles.rowDivider, { backgroundColor: palette.divider }]} />
+  return (
+    <View style={[styles.rowDivider, { backgroundColor: palette.divider }]} />
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -188,7 +190,11 @@ export function MultilineFieldRow({
         {label}
       </AppText>
       <TextInput
-        style={[styles.input, styles.inputMultiline, { color: palette.ink1, minHeight }]}
+        style={[
+          styles.input,
+          styles.inputMultiline,
+          { color: palette.ink1, minHeight },
+        ]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
@@ -248,7 +254,10 @@ export function SelectRow<T extends string | number>({
             <View style={[styles.dot, { backgroundColor: selected.color }]} />
           ) : null}
           {selected?.icon}
-          <AppText variant="label" color={selected ? palette.ink1 : palette.ink3}>
+          <AppText
+            variant="label"
+            color={selected ? palette.ink1 : palette.ink3}
+          >
             {selected?.label ?? placeholder}
           </AppText>
           <ChevronDown size={16} color={palette.ink3} />
@@ -288,7 +297,12 @@ function OptionSheet<T extends string | number>({
   const { palette } = useTheme()
   const insets = useSafeAreaInsets()
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
           style={[
@@ -303,7 +317,9 @@ function OptionSheet<T extends string | number>({
           onPress={() => {}}
         >
           <View style={styles.sheetHandleWrap}>
-            <View style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]} />
+            <View
+              style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]}
+            />
           </View>
           <AppText variant="heading" style={styles.sheetTitle}>
             {title}
@@ -321,11 +337,15 @@ function OptionSheet<T extends string | number>({
                       borderTopWidth: StyleSheet.hairlineWidth,
                       borderTopColor: palette.divider,
                     },
-                    { backgroundColor: pressed ? palette.hover : 'transparent' },
+                    {
+                      backgroundColor: pressed ? palette.hover : 'transparent',
+                    },
                   ]}
                 >
                   {option.color ? (
-                    <View style={[styles.dot, { backgroundColor: option.color }]} />
+                    <View
+                      style={[styles.dot, { backgroundColor: option.color }]}
+                    />
                   ) : null}
                   {option.icon}
                   <AppText
@@ -374,7 +394,13 @@ export function DateFieldRow({
 
   const openPicker = () => {
     if (Platform.OS === 'android') {
-      openAndroidPicker({ value: value ?? new Date(), mode, minimumDate, maximumDate, onChange })
+      openAndroidPicker({
+        value: value ?? new Date(),
+        mode,
+        minimumDate,
+        maximumDate,
+        onChange,
+      })
       return
     }
     setDraft(value ?? new Date())
@@ -409,17 +435,43 @@ export function DateFieldRow({
 
       {/* iOS: inline spinner inside a bottom sheet with Clear / Done. */}
       {Platform.OS === 'ios' ? (
-        <Modal visible={iosOpen} transparent animationType="slide" onRequestClose={() => setIosOpen(false)}>
+        <Modal
+          visible={iosOpen}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setIosOpen(false)}
+        >
           <Pressable style={styles.backdrop} onPress={() => setIosOpen(false)}>
-            <Pressable style={[styles.sheet, { backgroundColor: palette.surface, borderColor: palette.divider }]} onPress={() => {}}>
+            <Pressable
+              style={[
+                styles.sheet,
+                {
+                  backgroundColor: palette.surface,
+                  borderColor: palette.divider,
+                },
+              ]}
+              onPress={() => {}}
+            >
               <View style={styles.sheetActions}>
-                <Pressable hitSlop={8} onPress={() => { onChange(null); setIosOpen(false) }}>
+                <Pressable
+                  hitSlop={8}
+                  onPress={() => {
+                    onChange(null)
+                    setIosOpen(false)
+                  }}
+                >
                   <AppText variant="label" color={palette.ink3}>
                     Clear
                   </AppText>
                 </Pressable>
                 <AppText variant="label">{label}</AppText>
-                <Pressable hitSlop={8} onPress={() => { onChange(draft); setIosOpen(false) }}>
+                <Pressable
+                  hitSlop={8}
+                  onPress={() => {
+                    onChange(draft)
+                    setIosOpen(false)
+                  }}
+                >
                   <AppText variant="label" color={palette.accent}>
                     Done
                   </AppText>
@@ -486,9 +538,16 @@ function openAndroidPicker({
 }
 
 function formatValue(date: Date, mode: 'date' | 'datetime'): string {
-  const day = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+  const day = date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
   if (mode === 'date') return day
-  const time = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+  const time = date.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+  })
   return `${day}, ${time}`
 }
 
@@ -532,17 +591,33 @@ export function StepperRow({
         {label}
       </AppText>
       <View style={styles.stepper}>
-        <StepperButton icon={<Minus size={16} color={atMin ? palette.ink4 : palette.ink1} />} disabled={atMin} onPress={() => bump(-step)} />
+        <StepperButton
+          icon={<Minus size={16} color={atMin ? palette.ink4 : palette.ink1} />}
+          disabled={atMin}
+          onPress={() => bump(-step)}
+        />
         <AppText variant="label" style={styles.stepperValue}>
           {unit ? `${value} ${unit}` : String(value)}
         </AppText>
-        <StepperButton icon={<Plus size={16} color={atMax ? palette.ink4 : palette.ink1} />} disabled={atMax} onPress={() => bump(step)} />
+        <StepperButton
+          icon={<Plus size={16} color={atMax ? palette.ink4 : palette.ink1} />}
+          disabled={atMax}
+          onPress={() => bump(step)}
+        />
       </View>
     </View>
   )
 }
 
-function StepperButton({ icon, disabled, onPress }: { icon: ReactNode; disabled?: boolean; onPress: () => void }) {
+function StepperButton({
+  icon,
+  disabled,
+  onPress,
+}: {
+  icon: ReactNode
+  disabled?: boolean
+  onPress: () => void
+}) {
   const { palette } = useTheme()
   return (
     <Pressable
@@ -648,7 +723,8 @@ export function FooterButton({
   loading?: boolean
 }) {
   const { palette } = useTheme()
-  const background = variant === 'destructive' ? palette.overdue : palette.accent
+  const background =
+    variant === 'destructive' ? palette.overdue : palette.accent
   const blocked = disabled || loading
   return (
     <Pressable
@@ -659,13 +735,18 @@ export function FooterButton({
       }}
       style={({ pressed }) => [
         styles.footerButton,
-        { backgroundColor: background, opacity: blocked ? 0.5 : pressed ? 0.85 : 1 },
+        {
+          backgroundColor: background,
+          opacity: blocked ? 0.5 : pressed ? 0.85 : 1,
+        },
       ]}
     >
       {loading ? (
         <ActivityIndicator color="#ffffff" />
       ) : (
-        <Text style={styles.footerButtonLabel as StyleProp<TextStyle>}>{label}</Text>
+        <Text style={styles.footerButtonLabel as StyleProp<TextStyle>}>
+          {label}
+        </Text>
       )}
     </Pressable>
   )

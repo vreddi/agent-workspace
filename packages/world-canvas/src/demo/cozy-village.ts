@@ -2,10 +2,10 @@ import {
   DudeMonsterSheet,
   OwletMonsterSheet,
   PinkMonsterSheet,
-} from '@worldkit/sprite-actor/examples';
-import { makeCozyTileset, parseMap } from '@worldkit/tilemap';
-import type { Legend, TimeOfDay } from '@worldkit/tilemap';
-import type { VillageScene } from '#lib/scene';
+} from '@worldkit/sprite-actor/examples'
+import { makeCozyTileset, parseMap } from '@worldkit/tilemap'
+import type { Legend, TimeOfDay } from '@worldkit/tilemap'
+import type { VillageScene } from '#lib/scene'
 
 const LEGEND: Legend = {
   '.': { kind: 'tile', tile: 'grass' },
@@ -29,7 +29,7 @@ const LEGEND: Legend = {
   '1': { kind: 'marker', marker: 'home-pink', ground: 'path' },
   '2': { kind: 'marker', marker: 'home-owlet', ground: 'path' },
   '3': { kind: 'marker', marker: 'home-dude', ground: 'path' },
-};
+}
 
 // Each house anchor (P/O/D) is the bottom-left of its 3x2 base; the marker
 // below its door is where that resident spawns and returns to. Pines along
@@ -49,13 +49,13 @@ const ROWS = [
   'Y""",....#..~~~~~f.T',
   'T,"",...*...,..,,..T',
   'TTYTTYTTYTTYTTYTTYTT',
-];
+]
 
 // Tile/prop ids are identical across lighting moods, so one parsed map
 // serves both scenes.
-const map = parseMap(ROWS, LEGEND, makeCozyTileset('night'));
+const map = parseMap(ROWS, LEGEND, makeCozyTileset('night'))
 
-const CACHE = new Map<TimeOfDay, VillageScene>();
+const CACHE = new Map<TimeOfDay, VillageScene>()
 
 /**
  * The showcase scene in the requested lighting mood: three monster agents,
@@ -63,16 +63,16 @@ const CACHE = new Map<TimeOfDay, VillageScene>();
  * are cached so repeated calls return stable identities.
  */
 export function makeCozyVillageScene(time: TimeOfDay = 'night'): VillageScene {
-  const cached = CACHE.get(time);
-  if (cached) return cached;
+  const cached = CACHE.get(time)
+  if (cached) return cached
   const scene: VillageScene = {
     name: `cozy-village-${time}`,
     map,
     tileset: makeCozyTileset(time),
     residents: RESIDENTS,
-  };
-  CACHE.set(time, scene);
-  return scene;
+  }
+  CACHE.set(time, scene)
+  return scene
 }
 
 const RESIDENTS: VillageScene['residents'] = [
@@ -84,7 +84,7 @@ const RESIDENTS: VillageScene['residents'] = [
     lines: [
       "Hi hi! I'm POPPY! I keep every task in tidy little piles...",
       '...then I hop over them! Organizing is basically cardio.',
-      'Oh! Your 3 o\'clock reminder? Already filed it. You\'re welcome!',
+      "Oh! Your 3 o'clock reminder? Already filed it. You're welcome!",
     ],
   },
   {
@@ -104,9 +104,9 @@ const RESIDENTS: VillageScene['residents'] = [
     sheet: DudeMonsterSheet,
     home: map.markers['home-dude']!,
     lines: [
-      "Yaaawn... oh, hey. I was gonna file that task. Eventually.",
+      'Yaaawn... oh, hey. I was gonna file that task. Eventually.',
       "Relax, it's on my list. My list is a rock by the pond.",
       'Poppy says I procrastinate. I prefer "strategic idling".',
     ],
   },
-];
+]

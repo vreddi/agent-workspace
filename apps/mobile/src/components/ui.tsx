@@ -4,7 +4,16 @@
  * real views, not shadcn/webviews.
  */
 import { fontSize, letterSpacingEm, radius, space, tracking } from '@org/theme'
-import { Platform, Pressable, StyleSheet, Text, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native'
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native'
 import type { ReactNode } from 'react'
 import { Font } from '@/theme/fonts'
 import { useTheme } from '@/theme/theme-context'
@@ -12,7 +21,14 @@ import { useTheme } from '@/theme/theme-context'
 /** Extra scroll padding so content clears the floating native tab bar. */
 export const BottomTabInset = Platform.select({ ios: 56, android: 84 }) ?? 0
 
-type TextVariant = 'hero' | 'title' | 'heading' | 'body' | 'label' | 'meta' | 'caption'
+type TextVariant =
+  | 'hero'
+  | 'title'
+  | 'heading'
+  | 'body'
+  | 'label'
+  | 'meta'
+  | 'caption'
 
 const TEXT_VARIANTS: Record<TextVariant, TextStyle> = {
   hero: {
@@ -69,7 +85,11 @@ export function AppText({
 }) {
   const { palette } = useTheme()
   const fallback =
-    variant === 'caption' ? palette.ink3 : variant === 'meta' ? palette.ink2 : palette.ink1
+    variant === 'caption'
+      ? palette.ink3
+      : variant === 'meta'
+        ? palette.ink2
+        : palette.ink1
   return (
     <Text
       numberOfLines={numberOfLines}
@@ -81,7 +101,13 @@ export function AppText({
 }
 
 /** Elevated surface card matching the web `.t-office` chrome. */
-export function Card({ style, children }: { style?: StyleProp<ViewStyle>; children: ReactNode }) {
+export function Card({
+  style,
+  children,
+}: {
+  style?: StyleProp<ViewStyle>
+  children: ReactNode
+}) {
   const { palette, scheme } = useTheme()
   return (
     <View
@@ -104,7 +130,13 @@ export function Card({ style, children }: { style?: StyleProp<ViewStyle>; childr
 }
 
 /** Uppercase overline used above sections, like the web `.t-palette__label`. */
-export function SectionLabel({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+export function SectionLabel({
+  children,
+  style,
+}: {
+  children: ReactNode
+  style?: StyleProp<ViewStyle>
+}) {
   return (
     <View style={[styles.sectionLabel, style]}>
       <AppText variant="caption">{children}</AppText>
@@ -134,7 +166,10 @@ export function Chip({
         },
       ]}
     >
-      <AppText variant="meta" color={selected ? palette.accentInk : palette.ink2}>
+      <AppText
+        variant="meta"
+        color={selected ? palette.accentInk : palette.ink2}
+      >
         {label}
       </AppText>
     </Pressable>
@@ -161,7 +196,12 @@ export function AccentButton({
         style,
       ]}
     >
-      <Text style={[TEXT_VARIANTS.label, { color: '#ffffff', fontFamily: Font.bold }]}>
+      <Text
+        style={[
+          TEXT_VARIANTS.label,
+          { color: '#ffffff', fontFamily: Font.bold },
+        ]}
+      >
         {label}
       </Text>
     </Pressable>
@@ -169,7 +209,15 @@ export function AccentButton({
 }
 
 /** Squared avatar with initial, like the web brand/agent marks. */
-export function AgentAvatar({ color, initial, size = 40 }: { color: string; initial: string; size?: number }) {
+export function AgentAvatar({
+  color,
+  initial,
+  size = 40,
+}: {
+  color: string
+  initial: string
+  size?: number
+}) {
   return (
     <View
       style={{

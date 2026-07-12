@@ -1,0 +1,23 @@
+# Build output & caches
+**/dist/**
+**/out-tsc/**
+**/.output/**
+**/.nx/**
+**/.expo/**
+**/storybook-static/**
+**/node_modules/**
+
+# Generated code
+convex/_generated/**
+apps/web/src/routeTree.gen.ts
+apps/web/worker-configuration.d.ts
+
+# Lockfiles & vendored data
+pnpm-lock.yaml
+
+# Vendored agent/tooling directories (installed skills, editor configs)
+.agents/**
+.claude/**
+.codex/**
+.cursor/**
+.config/**

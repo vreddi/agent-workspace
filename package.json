@@ -5,8 +5,13 @@
   "packageManager": "pnpm@10.17.1",
   "scripts": {
     "test": "vitest run --config vitest.convex.config.mts",
+    "test:packages": "nx run-many -t test",
     "build": "nx run-many --target=build",
     "build:affected": "nx affected --target=build",
+    "typecheck": "nx run-many -t typecheck",
+    "lint": "nx run-many -t lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "dev:web": "convex dev --env-file apps/web/.env.local --start \"pnpm --filter @org/web dev\"",
     "dev:mobile": "pnpm --filter @org/mobile start",
     "mobile:ios": "pnpm --filter @org/mobile ios",
@@ -19,8 +24,12 @@
     "chromatic": "nx run @org/storybook:chromatic"
   },
   "private": true,
+  "engines": {
+    "node": ">=24"
+  },
   "devDependencies": {
     "@edge-runtime/vm": "^5.0.0",
+    "@eslint/js": "^9.19.0",
     "@nx/js": "22.7.0",
     "@storybook/addon-docs": "catalog:",
     "@swc-node/register": "1.11.1",
@@ -29,10 +38,16 @@
     "@types/node": "^22.19.19",
     "convex": "^1.39.1",
     "convex-test": "^0.0.54",
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.14.0",
     "nx": "22.7.0",
     "prettier": "^3.8.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.9.2",
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.22.0",
     "vite": "catalog:",
     "vitest": "catalog:"
   },

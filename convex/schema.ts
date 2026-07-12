@@ -210,7 +210,11 @@ export default defineSchema({
   taskEvents: defineTable({
     taskId: v.id('tasks'),
     actorId: v.id('users'),
-    kind: v.union(v.literal('created'), v.literal('updated'), v.literal('deleted')),
+    kind: v.union(
+      v.literal('created'),
+      v.literal('updated'),
+      v.literal('deleted'),
+    ),
     changes: v.array(
       v.object({
         field: v.string(),

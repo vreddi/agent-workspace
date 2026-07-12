@@ -47,10 +47,16 @@ export function GoalBoardCard({
       <View
         style={[
           styles.row,
-          showDivider && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: palette.divider },
+          showDivider && {
+            borderTopWidth: StyleSheet.hairlineWidth,
+            borderTopColor: palette.divider,
+          },
         ]}
       >
-        <Pressable style={styles.rowMain} onPress={() => router.push(`/task/${task.id}`)}>
+        <Pressable
+          style={styles.rowMain}
+          onPress={() => router.push(`/task/${task.id}`)}
+        >
           <AppText style={styles.emoji}>{task.emoji ?? '•'}</AppText>
           <AppText
             variant="body"
@@ -69,7 +75,10 @@ export function GoalBoardCard({
         <Pressable
           hitSlop={8}
           onPress={() => setMenuOpen(true)}
-          style={({ pressed }) => [styles.menuButton, pressed && { backgroundColor: palette.hover }]}
+          style={({ pressed }) => [
+            styles.menuButton,
+            pressed && { backgroundColor: palette.hover },
+          ]}
         >
           <MoreHorizontal size={18} color={palette.ink3} />
         </Pressable>
@@ -112,7 +121,12 @@ function ActionSheet({
   const { palette } = useTheme()
   const insets = useSafeAreaInsets()
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
           style={[
@@ -128,7 +142,11 @@ function ActionSheet({
           <View style={styles.handleWrap}>
             <View style={[styles.handle, { backgroundColor: palette.ink4 }]} />
           </View>
-          <AppText variant="heading" numberOfLines={1} style={styles.sheetTitle}>
+          <AppText
+            variant="heading"
+            numberOfLines={1}
+            style={styles.sheetTitle}
+          >
             {title}
           </AppText>
           {actions.map((action, index) => (
@@ -141,11 +159,17 @@ function ActionSheet({
               }}
               style={({ pressed }) => [
                 styles.actionRow,
-                index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: palette.divider },
+                index > 0 && {
+                  borderTopWidth: StyleSheet.hairlineWidth,
+                  borderTopColor: palette.divider,
+                },
                 { backgroundColor: pressed ? palette.hover : 'transparent' },
               ]}
             >
-              <AppText variant="body" color={action.destructive ? palette.overdue : palette.ink1}>
+              <AppText
+                variant="body"
+                color={action.destructive ? palette.overdue : palette.ink1}
+              >
                 {action.label}
               </AppText>
             </Pressable>
@@ -187,7 +211,12 @@ export function AttachTasksSheet({
   }
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
           style={[
@@ -215,7 +244,8 @@ export function AttachTasksSheet({
           ) : tasks.length === 0 ? (
             <View style={styles.empty}>
               <AppText variant="label" color={palette.ink3}>
-                No unassigned tasks to add. Every open task is already on a goal.
+                No unassigned tasks to add. Every open task is already on a
+                goal.
               </AppText>
             </View>
           ) : (
@@ -228,22 +258,38 @@ export function AttachTasksSheet({
                     onPress={() => toggle(task.id)}
                     style={({ pressed }) => [
                       styles.pickRow,
-                      index > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: palette.divider },
-                      { backgroundColor: pressed ? palette.hover : 'transparent' },
+                      index > 0 && {
+                        borderTopWidth: StyleSheet.hairlineWidth,
+                        borderTopColor: palette.divider,
+                      },
+                      {
+                        backgroundColor: pressed
+                          ? palette.hover
+                          : 'transparent',
+                      },
                     ]}
                   >
                     <View
                       style={[
                         styles.checkbox,
                         active
-                          ? { backgroundColor: palette.accent, borderColor: palette.accent }
+                          ? {
+                              backgroundColor: palette.accent,
+                              borderColor: palette.accent,
+                            }
                           : { borderColor: palette.ink4 },
                       ]}
                     >
-                      {active ? <Check size={14} color="#ffffff" strokeWidth={3} /> : null}
+                      {active ? (
+                        <Check size={14} color="#ffffff" strokeWidth={3} />
+                      ) : null}
                     </View>
                     <AppText style={styles.emoji}>{task.emoji ?? '•'}</AppText>
-                    <AppText variant="body" numberOfLines={1} style={styles.title}>
+                    <AppText
+                      variant="body"
+                      numberOfLines={1}
+                      style={styles.title}
+                    >
                       {task.title}
                     </AppText>
                   </Pressable>
@@ -253,7 +299,11 @@ export function AttachTasksSheet({
           )}
           <View style={styles.sheetFooter}>
             <FooterButton
-              label={selected.size === 0 ? 'Add tasks' : `Add ${selected.size} task${selected.size === 1 ? '' : 's'}`}
+              label={
+                selected.size === 0
+                  ? 'Add tasks'
+                  : `Add ${selected.size} task${selected.size === 1 ? '' : 's'}`
+              }
               onPress={confirm}
               disabled={selected.size === 0}
             />

@@ -31,12 +31,16 @@ export type Reminder = Doc<'goalReminders'>
 export type GoalTypeRow = Doc<'goalTypes'>
 
 /** Full hydrated goals for a status filter (raw fields, not the list view-model). */
-export function useGoalsByStatus(status: GoalStatus): GoalListItem[] | undefined {
+export function useGoalsByStatus(
+  status: GoalStatus,
+): GoalListItem[] | undefined {
   return useQuery(api.goals.list, { status })
 }
 
 /** One goal with its hydrated type + progress, or undefined while loading. */
-export function useGoalRaw(id: Id<'goals'> | undefined): GoalListItem | undefined {
+export function useGoalRaw(
+  id: Id<'goals'> | undefined,
+): GoalListItem | undefined {
   return useQuery(api.goals.get, id ? { id } : 'skip')
 }
 
@@ -54,7 +58,9 @@ export function useGoalStages(
 }
 
 /** System + custom goal types for the type picker. */
-export function useGoalTypes(): { system: readonly GoalTypeSystem[]; custom: GoalTypeRow[] } | undefined {
+export function useGoalTypes():
+  | { system: readonly GoalTypeSystem[]; custom: GoalTypeRow[] }
+  | undefined {
   return useQuery(api.goalTypes.list, {})
 }
 
@@ -80,8 +86,16 @@ export function useAttachableTasks(): AttachableTask[] | undefined {
   const docs = useQuery(api.tasks.list, {})
   if (!docs) return undefined
   return docs
-    .filter((t) => t.goalId == null && (t.status === 'open' || t.status === 'in_progress'))
-    .map((t) => ({ id: t._id, title: t.title, emoji: t.emoji ?? null, status: t.status }))
+    .filter(
+      (t) =>
+        t.goalId == null && (t.status === 'open' || t.status === 'in_progress'),
+    )
+    .map((t) => ({
+      id: t._id,
+      title: t.title,
+      emoji: t.emoji ?? null,
+      status: t.status,
+    }))
 }
 
 // --- Mutations -------------------------------------------------------------

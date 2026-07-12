@@ -1,5 +1,5 @@
-import * as React from 'react';
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import * as React from 'react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import {
   ACTION_CATEGORY,
@@ -8,18 +8,18 @@ import {
   availableActions,
   type ActionName,
   type SpriteSheet,
-} from '@worldkit/sprite-actor';
+} from '@worldkit/sprite-actor'
 import {
   DudeMonsterSheet,
   OwletMonsterSheet,
   PinkMonsterSheet,
-} from '@worldkit/sprite-actor/examples';
+} from '@worldkit/sprite-actor/examples'
 
 const SHEETS: Record<string, SpriteSheet> = {
   'Pink Monster': PinkMonsterSheet,
   'Owlet Monster': OwletMonsterSheet,
   'Dude Monster': DudeMonsterSheet,
-};
+}
 
 const meta: Meta<typeof SpriteActor> = {
   title: 'World/SpriteActor',
@@ -28,10 +28,10 @@ const meta: Meta<typeof SpriteActor> = {
   parameters: {
     layout: 'centered',
   },
-};
-export default meta;
+}
+export default meta
 
-type Story = StoryObj<typeof SpriteActor>;
+type Story = StoryObj<typeof SpriteActor>
 
 /** Big interactive playground — pick any action from any category. */
 export const Playground: Story = {
@@ -58,36 +58,36 @@ export const Playground: Story = {
     paused: { control: 'boolean' },
     pixelated: { control: 'boolean' },
   },
-};
+}
 
 /** Every action this character actually has, side-by-side. */
 export const AllActions_PinkMonster: Story = {
   name: 'All Actions / Pink Monster',
   render: () => <ActionGrid sheet={PinkMonsterSheet} />,
-};
+}
 
 export const AllActions_OwletMonster: Story = {
   name: 'All Actions / Owlet Monster',
   render: () => <ActionGrid sheet={OwletMonsterSheet} />,
-};
+}
 
 export const AllActions_DudeMonster: Story = {
   name: 'All Actions / Dude Monster',
   render: () => <ActionGrid sheet={DudeMonsterSheet} />,
-};
+}
 
 /** The three example characters playing the same action together. */
 export const CharacterRoster: Story = {
   name: 'Character Roster',
   render: () => {
-    const [action, setAction] = React.useState<ActionName>('idle');
+    const [action, setAction] = React.useState<ActionName>('idle')
     const supported = Array.from(
       new Set([
         ...availableActions(PinkMonsterSheet),
         ...availableActions(OwletMonsterSheet),
         ...availableActions(DudeMonsterSheet),
       ]),
-    );
+    )
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <label style={{ fontFamily: 'system-ui', fontSize: 14 }}>
@@ -109,9 +109,9 @@ export const CharacterRoster: Story = {
           ))}
         </div>
       </div>
-    );
+    )
   },
-};
+}
 
 /**
  * Demonstrates "blank" actions: a sparse sheet has only `idle` and `walk`.
@@ -129,7 +129,7 @@ export const SparseSheet: Story = {
         idle: PinkMonsterSheet.actions.idle,
         walk: PinkMonsterSheet.actions.walk,
       },
-    };
+    }
     const tryActions: ActionName[] = [
       'idle',
       'walk',
@@ -138,14 +138,21 @@ export const SparseSheet: Story = {
       'dance',
       'fish',
       'death',
-    ];
-    const [action, setAction] = React.useState<ActionName>('attack1');
+    ]
+    const [action, setAction] = React.useState<ActionName>('attack1')
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <p style={{ fontFamily: 'system-ui', fontSize: 13, color: '#555', maxWidth: 420 }}>
-          This sheet only defines <code>idle</code> and <code>walk</code>. Asking for
-          any other action falls back to <code>idle</code> — no crash, no missing
-          texture. Watch the badge below the sprite.
+        <p
+          style={{
+            fontFamily: 'system-ui',
+            fontSize: 13,
+            color: '#555',
+            maxWidth: 420,
+          }}
+        >
+          This sheet only defines <code>idle</code> and <code>walk</code>.
+          Asking for any other action falls back to <code>idle</code> — no
+          crash, no missing texture. Watch the badge below the sprite.
         </p>
         <label style={{ fontFamily: 'system-ui', fontSize: 14 }}>
           Requested:&nbsp;
@@ -168,34 +175,54 @@ export const SparseSheet: Story = {
             : `${action} is blank → playing idle`}
         </span>
       </div>
-    );
+    )
   },
-};
+}
 
 /** Catalog view: shows the full action union grouped by category. */
 export const ActionCatalog: Story = {
   name: 'Action Catalog',
   render: () => {
     const grouped = React.useMemo(() => {
-      const buckets: Record<string, ActionName[]> = {};
+      const buckets: Record<string, ActionName[]> = {}
       for (const a of ALL_ACTIONS) {
-        const cat = ACTION_CATEGORY[a];
-        (buckets[cat] ??= []).push(a);
+        const cat = ACTION_CATEGORY[a]
+        ;(buckets[cat] ??= []).push(a)
       }
-      return buckets;
-    }, []);
+      return buckets
+    }, [])
     return (
-      <div style={{ display: 'grid', gap: 16, maxWidth: 520, fontFamily: 'system-ui' }}>
+      <div
+        style={{
+          display: 'grid',
+          gap: 16,
+          maxWidth: 520,
+          fontFamily: 'system-ui',
+        }}
+      >
         <p style={{ fontSize: 13, color: '#555' }}>
-          The component understands {ALL_ACTIONS.length} named actions out of the
-          box. Provide a strip for any subset; the rest are blank.
+          The component understands {ALL_ACTIONS.length} named actions out of
+          the box. Provide a strip for any subset; the rest are blank.
         </p>
         {Object.entries(grouped).map(([cat, items]) => (
           <section key={cat}>
-            <h4 style={{ margin: '0 0 4px', textTransform: 'capitalize', fontSize: 13 }}>
+            <h4
+              style={{
+                margin: '0 0 4px',
+                textTransform: 'capitalize',
+                fontSize: 13,
+              }}
+            >
               {cat} ({items.length})
             </h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, fontSize: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 4,
+                fontSize: 12,
+              }}
+            >
               {items.map((a) => (
                 <code
                   key={a}
@@ -212,12 +239,12 @@ export const ActionCatalog: Story = {
           </section>
         ))}
       </div>
-    );
+    )
   },
-};
+}
 
 function ActionGrid({ sheet }: { sheet: SpriteSheet }) {
-  const actions = availableActions(sheet);
+  const actions = availableActions(sheet)
   return (
     <div
       style={{
@@ -231,17 +258,28 @@ function ActionGrid({ sheet }: { sheet: SpriteSheet }) {
       {actions.map((a) => (
         <div
           key={a}
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 6,
+          }}
         >
           <SpriteActor sheet={sheet} action={a} scale={4} />
           <code>{a}</code>
         </div>
       ))}
     </div>
-  );
+  )
 }
 
-function CharacterCard({ sheet, action }: { sheet: SpriteSheet; action: ActionName }) {
+function CharacterCard({
+  sheet,
+  action,
+}: {
+  sheet: SpriteSheet
+  action: ActionName
+}) {
   return (
     <div
       style={{
@@ -256,5 +294,5 @@ function CharacterCard({ sheet, action }: { sheet: SpriteSheet; action: ActionNa
       <SpriteActor sheet={sheet} action={action} scale={4} />
       <strong>{sheet.name}</strong>
     </div>
-  );
+  )
 }

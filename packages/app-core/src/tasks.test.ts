@@ -23,10 +23,14 @@ function task(over: Partial<TaskLike> & { _id: string }): TaskLike {
 
 describe('deriveDeadline', () => {
   it('prefers the hard deadline over the soft one', () => {
-    expect(deriveDeadline({ hardDeadline: 5, softDeadline: 9 })?.getTime()).toBe(5)
+    expect(
+      deriveDeadline({ hardDeadline: 5, softDeadline: 9 })?.getTime(),
+    ).toBe(5)
     expect(deriveDeadline({ softDeadline: 9 })?.getTime()).toBe(9)
     expect(deriveDeadline({})).toBeNull()
-    expect(deriveDeadline({ hardDeadline: null, softDeadline: null })).toBeNull()
+    expect(
+      deriveDeadline({ hardDeadline: null, softDeadline: null }),
+    ).toBeNull()
   })
 })
 
@@ -80,10 +84,7 @@ describe('toDisplayTask', () => {
 describe('sortForToday', () => {
   it('puts overdue first, then soonest deadline, undated last', () => {
     const mk = (id: string, deadline: number | null, status = 'open') =>
-      toDisplayTask(
-        task({ _id: id, hardDeadline: deadline, status }),
-        NOW,
-      )
+      toDisplayTask(task({ _id: id, hardDeadline: deadline, status }), NOW)
     const undated = mk('undated', null)
     const soon = mk('soon', NOW + HOUR)
     const later = mk('later', NOW + 5 * HOUR)
@@ -113,7 +114,9 @@ describe('applyFilter', () => {
   })
 
   it('overdue keeps only overdue tasks', () => {
-    expect(applyFilter(all, 'overdue', NOW).map((t) => t.id)).toEqual(['overdue'])
+    expect(applyFilter(all, 'overdue', NOW).map((t) => t.id)).toEqual([
+      'overdue',
+    ])
   })
 
   it('soon keeps upcoming within six hours', () => {

@@ -35,7 +35,12 @@ function WeightTrend() {
       <ChartContainer config={config} className="aspect-[16/9]">
         <LineChart data={data} margin={{ left: 8, right: 8, top: 8 }}>
           <CartesianGrid vertical={false} />
-          <XAxis dataKey="at" tickLine={false} axisLine={false} tickMargin={8} />
+          <XAxis
+            dataKey="at"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+          />
           <YAxis
             width={36}
             tickLine={false}
@@ -47,7 +52,11 @@ function WeightTrend() {
             y={175}
             stroke="var(--chart-2)"
             strokeDasharray="4 4"
-            label={{ value: 'Target 175', position: 'insideTopRight', fontSize: 11 }}
+            label={{
+              value: 'Target 175',
+              position: 'insideTopRight',
+              fontSize: 11,
+            }}
           />
           <Line
             dataKey="weight"

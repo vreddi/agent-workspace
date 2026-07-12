@@ -284,7 +284,12 @@ function resolveSelectionIcon(
   if (selection.kind === 'system') {
     const type = types.system.find((t) => t.slug === selection.slug)
     return type
-      ? { name: type.name, color: type.color, icon: type.icon, image: type.image }
+      ? {
+          name: type.name,
+          color: type.color,
+          icon: type.icon,
+          image: type.image,
+        }
       : null
   }
   if (selection.kind === 'custom') {

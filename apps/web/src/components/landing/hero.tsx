@@ -30,9 +30,9 @@ export function Hero() {
       </h1>
 
       <p className="landing-sub">
-        Today is a personal task manager with an AI co-pilot. Capture what&rsquo;s on
-        your mind, then let it shape a focused day around the work that actually
-        matters.
+        Today is a personal task manager with an AI co-pilot. Capture
+        what&rsquo;s on your mind, then let it shape a focused day around the
+        work that actually matters.
       </p>
 
       <div className="landing-cta-row">
@@ -45,7 +45,7 @@ export function Hero() {
           </SignInButton>
         </SignedOut>
         <SignedIn>
-          <Link to="/today" className="landing-btn landing-btn--primary">
+          <Link to="/app" className="landing-btn landing-btn--primary">
             Open Today
             <ArrowSvg />
           </Link>

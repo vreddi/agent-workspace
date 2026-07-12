@@ -59,7 +59,10 @@ export default function NewTaskScreen() {
 
   const goalSelectOptions: SelectOption<string>[] = [
     { label: 'No goal', value: NO_GOAL },
-    ...(goalOptions ?? []).map((g) => ({ label: g.title, value: g.id as string })),
+    ...(goalOptions ?? []).map((g) => ({
+      label: g.title,
+      value: g.id as string,
+    })),
   ]
 
   const canSubmit = title.trim() !== '' && !saving
@@ -91,12 +94,20 @@ export default function NewTaskScreen() {
   return (
     <FormScreen
       footer={
-        <FooterButton label="Add task" onPress={submit} disabled={!canSubmit} loading={saving} />
+        <FooterButton
+          label="Add task"
+          onPress={submit}
+          disabled={!canSubmit}
+          loading={saving}
+        />
       }
     >
       <Card style={styles.titleCard}>
         <TextInput
-          style={[styles.emojiInput, { color: palette.ink1, backgroundColor: palette.chipBg }]}
+          style={[
+            styles.emojiInput,
+            { color: palette.ink1, backgroundColor: palette.chipBg },
+          ]}
           value={emoji}
           onChangeText={(t) => setEmoji(Array.from(t).slice(-1).join(''))}
           placeholder="🎯"
@@ -188,7 +199,9 @@ export default function NewTaskScreen() {
 
       {priority !== 'none' ? (
         <View style={styles.hintRow}>
-          <View style={[styles.dot, { backgroundColor: priorityColors[priority] }]} />
+          <View
+            style={[styles.dot, { backgroundColor: priorityColors[priority] }]}
+          />
           <AppText variant="meta" color={palette.ink3}>
             {PRIORITY_CHIPS.find((p) => p.value === priority)?.label} priority
           </AppText>

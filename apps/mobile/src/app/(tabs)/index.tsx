@@ -38,7 +38,8 @@ export default function TodayScreen() {
   const overdue = open.filter((t) => daysFromToday(t.due!) < 0)
   const today = open.filter((t) => daysFromToday(t.due!) === 0)
   const doneToday = (tasks ?? []).filter(
-    (t) => t.done && t.completedAt != null && daysFromToday(t.completedAt) === 0,
+    (t) =>
+      t.done && t.completedAt != null && daysFromToday(t.completedAt) === 0,
   )
 
   return (
@@ -56,7 +57,9 @@ export default function TodayScreen() {
             </AppText>
             {overdue.length > 0 && (
               <>
-                <View style={[styles.dotTiny, { backgroundColor: palette.ink4 }]} />
+                <View
+                  style={[styles.dotTiny, { backgroundColor: palette.ink4 }]}
+                />
                 <AppText variant="meta" color={palette.overdue}>
                   {overdue.length} overdue
                 </AppText>
@@ -83,7 +86,8 @@ export default function TodayScreen() {
               ) : (
                 <Card style={styles.empty}>
                   <AppText variant="label" color={palette.ink3}>
-                    Nothing due today — enjoy the quiet, or pull something forward.
+                    Nothing due today — enjoy the quiet, or pull something
+                    forward.
                   </AppText>
                 </Card>
               )}

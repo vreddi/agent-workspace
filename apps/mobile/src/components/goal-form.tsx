@@ -11,7 +11,14 @@ import { GOAL_TYPE_COLOR_TOKENS } from '@org/app-core'
 import { radius, space } from '@org/theme'
 import * as Haptics from 'expo-haptics'
 import { useMemo, useState } from 'react'
-import { Alert, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native'
+import {
+  Alert,
+  Modal,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native'
 import {
   DateFieldRow,
   FooterButton,
@@ -69,10 +76,18 @@ export function GoalForm({
     const opts: SelectOption<string>[] = [{ label: 'No type', value: '' }]
     if (types) {
       for (const t of types.system) {
-        opts.push({ label: t.name, value: `sys:${t.slug}`, color: goalTypeColorHex(t.color) })
+        opts.push({
+          label: t.name,
+          value: `sys:${t.slug}`,
+          color: goalTypeColorHex(t.color),
+        })
       }
       for (const t of types.custom) {
-        opts.push({ label: t.name, value: `custom:${t._id}`, color: goalTypeColorHex(t.color) })
+        opts.push({
+          label: t.name,
+          value: `custom:${t._id}`,
+          color: goalTypeColorHex(t.color),
+        })
       }
     }
     opts.push({ label: '+ New type…', value: NEW_TYPE })
@@ -89,7 +104,13 @@ export function GoalForm({
     if (!canSubmit) return
     setSaving(true)
     try {
-      await onSubmit({ title, description, deadline, typeValue, reminderDaysBefore: reminderDays })
+      await onSubmit({
+        title,
+        description,
+        deadline,
+        typeValue,
+        reminderDaysBefore: reminderDays,
+      })
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     } catch (err) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
@@ -207,14 +228,24 @@ function NewTypeSheet({
   }
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
-          style={[styles.sheet, { backgroundColor: palette.surface, borderColor: palette.divider }]}
+          style={[
+            styles.sheet,
+            { backgroundColor: palette.surface, borderColor: palette.divider },
+          ]}
           onPress={() => {}}
         >
           <View style={styles.sheetHandleWrap}>
-            <View style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]} />
+            <View
+              style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]}
+            />
           </View>
           <AppText variant="heading" style={styles.sheetTitle}>
             New goal type
@@ -222,7 +253,11 @@ function NewTypeSheet({
           <TextInput
             style={[
               styles.nameInput,
-              { color: palette.ink1, backgroundColor: palette.chipBg, borderColor: palette.divider },
+              {
+                color: palette.ink1,
+                backgroundColor: palette.chipBg,
+                borderColor: palette.divider,
+              },
             ]}
             value={name}
             onChangeText={setName}
@@ -241,7 +276,10 @@ function NewTypeSheet({
                   onPress={() => setColor(token)}
                   style={[
                     styles.swatch,
-                    { backgroundColor: hex, borderColor: active ? palette.ink1 : 'transparent' },
+                    {
+                      backgroundColor: hex,
+                      borderColor: active ? palette.ink1 : 'transparent',
+                    },
                   ]}
                 />
               )
@@ -264,7 +302,9 @@ function errorMessage(err: unknown): string {
     const data = (err as { data?: unknown }).data
     if (typeof data === 'string') return data
   }
-  return err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+  return err instanceof Error
+    ? err.message
+    : 'Something went wrong. Please try again.'
 }
 
 const styles = StyleSheet.create({

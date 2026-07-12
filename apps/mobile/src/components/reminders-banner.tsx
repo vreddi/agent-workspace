@@ -38,7 +38,12 @@ export function RemindersBanner() {
   const amber = goalTypeColorHex('amber')
 
   return (
-    <View style={[styles.card, { backgroundColor: `${amber}14`, borderColor: `${amber}55` }]}>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: `${amber}14`, borderColor: `${amber}55` },
+      ]}
+    >
       <View style={styles.head}>
         <AppText variant="caption" color={amber}>
           Goal reminders
@@ -67,7 +72,9 @@ export function RemindersBanner() {
               </AppText>
               <AppText
                 variant="meta"
-                color={reminder.kind === 'overdue' ? palette.overdue : palette.ink3}
+                color={
+                  reminder.kind === 'overdue' ? palette.overdue : palette.ink3
+                }
               >
                 {reminderText(reminder)}
               </AppText>

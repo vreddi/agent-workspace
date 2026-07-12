@@ -26,7 +26,11 @@ import {
   View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { confirmDestructive, DateFieldRow, FooterButton } from '@/components/forms'
+import {
+  confirmDestructive,
+  DateFieldRow,
+  FooterButton,
+} from '@/components/forms'
 import { Sparkline } from '@/components/metric-chart'
 import { AppText, Card, SectionLabel } from '@/components/ui'
 import {
@@ -52,7 +56,9 @@ function errorMessage(err: unknown): string {
     const data = (err as { data?: unknown }).data
     if (typeof data === 'string') return data
   }
-  return err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+  return err instanceof Error
+    ? err.message
+    : 'Something went wrong. Please try again.'
 }
 
 // --- Section -----------------------------------------------------------------
@@ -110,7 +116,10 @@ export function MetricsSection({
             onPress={openCreate}
             style={({ pressed }) => [
               styles.emptyButton,
-              { borderColor: palette.divider, backgroundColor: pressed ? palette.hover : 'transparent' },
+              {
+                borderColor: palette.divider,
+                backgroundColor: pressed ? palette.hover : 'transparent',
+              },
             ]}
           >
             <AppText variant="label" color={palette.ink1}>
@@ -121,7 +130,11 @@ export function MetricsSection({
       ) : (
         <View style={styles.cardList}>
           {metrics.map((metric) => (
-            <MetricCard key={metric._id} metric={metric} goalDeadline={goalDeadline} />
+            <MetricCard
+              key={metric._id}
+              metric={metric}
+              goalDeadline={goalDeadline}
+            />
           ))}
         </View>
       )}
@@ -182,7 +195,9 @@ function MetricCard({
         <View style={styles.valueRow}>
           <View style={styles.flex}>
             <AppText variant="hero">
-              {metric.latest ? formatValue(metric.latest.value, metric.unit) : '—'}
+              {metric.latest
+                ? formatValue(metric.latest.value, metric.unit)
+                : '—'}
             </AppText>
             <AppText variant="meta" color={palette.ink3}>
               {metric.latest
@@ -192,7 +207,10 @@ function MetricCard({
           </View>
           {progress.delta !== null ? (
             <View style={styles.deltaCol}>
-              <AppText variant="label" color={reached ? palette.accentInk : palette.ink2}>
+              <AppText
+                variant="label"
+                color={reached ? palette.accentInk : palette.ink2}
+              >
                 {formatSignedDelta(progress.delta, metric.unit)}
               </AppText>
               {pct !== null ? (
@@ -225,7 +243,9 @@ function MetricCard({
         />
       </Pressable>
 
-      <View style={[styles.cardDivider, { backgroundColor: palette.divider }]} />
+      <View
+        style={[styles.cardDivider, { backgroundColor: palette.divider }]}
+      />
       <Pressable
         onPress={() => {
           void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
@@ -243,7 +263,11 @@ function MetricCard({
       </Pressable>
 
       {logOpen ? (
-        <ReadingSheet metric={metric} point={null} onClose={() => setLogOpen(false)} />
+        <ReadingSheet
+          metric={metric}
+          point={null}
+          onClose={() => setLogOpen(false)}
+        />
       ) : null}
       <MetricDetailSheet
         open={detailOpen}
@@ -293,15 +317,20 @@ function MetricDetailSheet({
   const handleDelete = () => {
     confirmDestructive({
       title: `Delete "${metric.name}"?`,
-      message: 'This also deletes every reading logged for it. This cannot be undone.',
+      message:
+        'This also deletes every reading logged for it. This cannot be undone.',
       onConfirm: () => {
         removeMetric({ id: metric._id })
           .then(() => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success,
+            )
             onClose()
           })
           .catch((err) => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error,
+            )
             Alert.alert('Could not delete metric', errorMessage(err))
           })
       },
@@ -309,7 +338,12 @@ function MetricDetailSheet({
   }
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
           style={[
@@ -324,7 +358,9 @@ function MetricDetailSheet({
           onPress={() => {}}
         >
           <View style={styles.sheetHandleWrap}>
-            <View style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]} />
+            <View
+              style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]}
+            />
           </View>
 
           <View style={styles.detailHead}>
@@ -342,7 +378,11 @@ function MetricDetailSheet({
           </View>
 
           <View style={styles.detailActions}>
-            <DetailAction icon={<Pencil size={15} color={palette.ink1} />} label="Edit" onPress={handleEdit} />
+            <DetailAction
+              icon={<Pencil size={15} color={palette.ink1} />}
+              label="Edit"
+              onPress={handleEdit}
+            />
             <DetailAction
               icon={<Plus size={15} color={palette.ink1} strokeWidth={2.5} />}
               label="Log reading"
@@ -358,11 +398,19 @@ function MetricDetailSheet({
 
           <ScrollView style={styles.historyList} bounces={false}>
             {points === undefined ? (
-              <AppText variant="label" color={palette.ink3} style={styles.historyEmpty}>
+              <AppText
+                variant="label"
+                color={palette.ink3}
+                style={styles.historyEmpty}
+              >
                 Loading readings…
               </AppText>
             ) : history.length === 0 ? (
-              <AppText variant="label" color={palette.ink3} style={styles.historyEmpty}>
+              <AppText
+                variant="label"
+                color={palette.ink3}
+                style={styles.historyEmpty}
+              >
                 No readings yet. Log one to start the trend.
               </AppText>
             ) : (
@@ -376,7 +424,9 @@ function MetricDetailSheet({
                       borderTopWidth: StyleSheet.hairlineWidth,
                       borderTopColor: palette.divider,
                     },
-                    { backgroundColor: pressed ? palette.hover : 'transparent' },
+                    {
+                      backgroundColor: pressed ? palette.hover : 'transparent',
+                    },
                   ]}
                 >
                   <View style={styles.flex}>
@@ -384,7 +434,11 @@ function MetricDetailSheet({
                       {formatValue(point.value, metric.unit)}
                     </AppText>
                     {point.note ? (
-                      <AppText variant="meta" color={palette.ink3} numberOfLines={1}>
+                      <AppText
+                        variant="meta"
+                        color={palette.ink3}
+                        numberOfLines={1}
+                      >
                         {point.note}
                       </AppText>
                     ) : null}
@@ -475,9 +529,19 @@ function ReadingSheet({
     const trimmedNote = note.trim() || null
     try {
       if (isEdit) {
-        await updatePoint({ id: point._id, value: parsed, at, note: trimmedNote })
+        await updatePoint({
+          id: point._id,
+          value: parsed,
+          at,
+          note: trimmedNote,
+        })
       } else {
-        await addPoint({ metricId: metric._id, value: parsed, at, note: trimmedNote })
+        await addPoint({
+          metricId: metric._id,
+          value: parsed,
+          at,
+          note: trimmedNote,
+        })
       }
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       onClose()
@@ -497,11 +561,15 @@ function ReadingSheet({
       onConfirm: () => {
         removePoint({ id: point._id })
           .then(() => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Success,
+            )
             onClose()
           })
           .catch((err) => {
-            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+            void Haptics.notificationAsync(
+              Haptics.NotificationFeedbackType.Error,
+            )
             Alert.alert('Could not delete reading', errorMessage(err))
           })
       },
@@ -523,7 +591,9 @@ function ReadingSheet({
           onPress={() => {}}
         >
           <View style={styles.sheetHandleWrap}>
-            <View style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]} />
+            <View
+              style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]}
+            />
           </View>
           <AppText variant="heading" style={styles.sheetTitle}>
             {isEdit ? 'Edit reading' : 'Log reading'}
@@ -544,9 +614,17 @@ function ReadingSheet({
                 autoFocus={!isEdit}
               />
             </View>
-            <View style={[styles.rowDivider, { backgroundColor: palette.divider }]} />
-            <DateFieldRow label="Effective date" value={date} onChange={(d) => d && setDate(d)} />
-            <View style={[styles.rowDivider, { backgroundColor: palette.divider }]} />
+            <View
+              style={[styles.rowDivider, { backgroundColor: palette.divider }]}
+            />
+            <DateFieldRow
+              label="Effective date"
+              value={date}
+              onChange={(d) => d && setDate(d)}
+            />
+            <View
+              style={[styles.rowDivider, { backgroundColor: palette.divider }]}
+            />
             <View style={styles.noteRow}>
               <AppText variant="label" color={palette.ink2}>
                 Note

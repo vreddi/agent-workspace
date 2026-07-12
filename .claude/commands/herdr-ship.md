@@ -44,11 +44,16 @@ If MISSING, stop and tell the user — give them the two options (export the env
 
 4. **Spin up workers as split panes from the orchestrator's current pane** (do NOT create new tabs — the user wants them visible alongside). Find the active workspace with `herdr workspace list` (the one with `"focused": true`). For each scope:
 
+   Derive the repo root once (works from the main checkout or any worktree —
+   never hardcode an absolute path, which breaks when run from a worktree):
+
    ```sh
+   root="$(git rev-parse --show-toplevel)"
+
    herdr agent start <slug> --workspace <ws_id> --split <right|down> --no-focus \
-     --cwd /Users/vishrutreddi/Developer/agent-workspace -- \
-     claude --bare --permission-mode bypassPermissions --model claude-opus-4-7 \
-       --add-dir /Users/vishrutreddi/Developer/agent-workspace \
+     --cwd "$root" -- \
+     claude --bare --permission-mode bypassPermissions --model claude-opus-4-8 \
+       --add-dir "$root" \
        "Read /tmp/herdr-<slug>-prompt.md and execute every step in order. Do not deviate from scope."
    ```
 
@@ -61,8 +66,8 @@ If MISSING, stop and tell the user — give them the two options (export the env
    **Always pass to `claude`:**
    - `--bare` — skips CLAUDE.md auto-load, auto-memory, hooks, plugin sync, keychain reads (token savings). Workers get only the prompt file you wrote for them. **Requires API-key auth (see Prerequisites above).**
    - `--permission-mode bypassPermissions` — workers run hands-off, no approval prompts (user has consented for spawned implementation workers)
-   - `--model claude-opus-4-7` — Opus 4.7 for product-quality implementation work
-   - `--add-dir /Users/vishrutreddi/Developer/agent-workspace` — grants tool access to the repo root (bare mode otherwise restricts to CWD only; this lets workers edit anywhere in the repo)
+   - `--model claude-opus-4-8` — Opus 4.8 for product-quality implementation work
+   - `--add-dir "$root"` — grants tool access to the repo root (bare mode otherwise restricts to CWD only; this lets workers edit anywhere in the repo). `$root` comes from `git rev-parse --show-toplevel` above, so it resolves correctly from a worktree.
 
    **Always pass to `herdr agent start`:** `--no-focus` so the user stays in their orchestrator pane.
 
@@ -72,7 +77,7 @@ If MISSING, stop and tell the user — give them the two options (export the env
 
 ## Token discipline
 
-- Spawned implementation agents: **always Opus 4.7** (`claude-opus-4-7`). This is the product surface.
+- Spawned implementation agents: **always Opus 4.8** (`claude-opus-4-8`). This is the product surface.
 - If YOU (the orchestrator) need to research, look files up, or analyse, use the `Agent` tool with `model: "sonnet"` or `model: "haiku"`. Don't burn Opus tokens on read-only investigation.
 
 ## Anti-patterns

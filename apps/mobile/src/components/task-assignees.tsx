@@ -6,7 +6,12 @@
 import type { Id } from '@convex/_generated/dataModel'
 import type { TaskAssignee } from '@convex/tasks'
 import { radius, space } from '@org/theme'
-import { initialsFromName, TONE_STYLES, toneFor, type Tone } from '@org/app-core'
+import {
+  initialsFromName,
+  TONE_STYLES,
+  toneFor,
+  type Tone,
+} from '@org/app-core'
 import * as Haptics from 'expo-haptics'
 import { Check, Search, UserPlus, X } from 'lucide-react-native'
 import { useState } from 'react'
@@ -191,7 +196,10 @@ function ManageSheet({
   const apply = () => {
     if (saving || selected.length === 0) return
     setSaving(true)
-    setAssignees(taskId, selected.map((s) => s.userId))
+    setAssignees(
+      taskId,
+      selected.map((s) => s.userId),
+    )
       .then(() => {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
         setSaving(false)
@@ -204,7 +212,12 @@ function ManageSheet({
   }
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
           style={[
@@ -218,7 +231,9 @@ function ManageSheet({
           onPress={() => {}}
         >
           <View style={styles.sheetHandleWrap}>
-            <View style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]} />
+            <View
+              style={[styles.sheetHandle, { backgroundColor: palette.ink4 }]}
+            />
           </View>
           <AppText variant="heading" style={styles.sheetTitle}>
             Assignees
@@ -235,7 +250,10 @@ function ManageSheet({
                 <Pressable
                   key={s.userId}
                   onPress={() => toggle(s)}
-                  style={[styles.selChip, { backgroundColor: palette.accentSoft }]}
+                  style={[
+                    styles.selChip,
+                    { backgroundColor: palette.accentSoft },
+                  ]}
                 >
                   <AppText variant="meta" color={palette.accentInk}>
                     {s.name}
@@ -263,7 +281,11 @@ function ManageSheet({
             />
           </View>
 
-          <ScrollView style={styles.results} keyboardShouldPersistTaps="handled" bounces={false}>
+          <ScrollView
+            style={styles.results}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+          >
             {query.trim() === '' ? (
               <AppText variant="meta" color={palette.ink3} style={styles.hint}>
                 Start typing to find people to share this task with.
@@ -292,7 +314,11 @@ function ManageSheet({
                         borderTopWidth: StyleSheet.hairlineWidth,
                         borderTopColor: palette.divider,
                       },
-                      { backgroundColor: pressed ? palette.hover : 'transparent' },
+                      {
+                        backgroundColor: pressed
+                          ? palette.hover
+                          : 'transparent',
+                      },
                     ]}
                   >
                     <Avatar userId={r.userId} name={label} size={30} />
@@ -301,7 +327,11 @@ function ManageSheet({
                         {label}
                         {r.isYou ? ' (You)' : ''}
                       </AppText>
-                      <AppText variant="meta" color={palette.ink3} numberOfLines={1}>
+                      <AppText
+                        variant="meta"
+                        color={palette.ink3}
+                        numberOfLines={1}
+                      >
                         {r.email}
                       </AppText>
                     </View>
@@ -319,11 +349,16 @@ function ManageSheet({
               styles.applyBtn,
               {
                 backgroundColor: palette.accent,
-                opacity: saving || selected.length === 0 ? 0.5 : pressed ? 0.85 : 1,
+                opacity:
+                  saving || selected.length === 0 ? 0.5 : pressed ? 0.85 : 1,
               },
             ]}
           >
-            <AppText variant="label" color="#ffffff" style={{ fontFamily: Font.bold }}>
+            <AppText
+              variant="label"
+              color="#ffffff"
+              style={{ fontFamily: Font.bold }}
+            >
               {saving ? 'Saving…' : 'Save'}
             </AppText>
           </Pressable>

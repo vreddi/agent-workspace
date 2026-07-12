@@ -27,7 +27,10 @@ async function signUp(t: ReturnType<typeof setup>, externalId: string) {
 
 type UserClient = Awaited<ReturnType<typeof signUp>>
 
-function createGoal(asUser: UserClient, overrides: Record<string, unknown> = {}) {
+function createGoal(
+  asUser: UserClient,
+  overrides: Record<string, unknown> = {},
+) {
   return asUser.mutation(api.goals.create, {
     title: 'Lose weight',
     deadline: Date.now() + 90 * DAY_MS,
@@ -170,7 +173,9 @@ describe('metrics.create', () => {
     const owner = await signUp(t, 'owner')
     const intruder = await signUp(t, 'intruder')
     const goalId = await createGoal(owner)
-    await expect(createMetric(intruder, goalId)).rejects.toThrowError(/Forbidden/)
+    await expect(createMetric(intruder, goalId)).rejects.toThrowError(
+      /Forbidden/,
+    )
   })
 })
 

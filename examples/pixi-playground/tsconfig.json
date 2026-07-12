@@ -19,10 +19,7 @@
     "noImplicitReturns": true,
     "types": ["vite/client"]
   },
-  "include": [
-    "src/**/*.ts",
-    "vite.config.ts"
-  ],
+  "include": ["src/**/*.ts", "vite.config.ts"],
   "references": [
     {
       "path": "../../packages/world"

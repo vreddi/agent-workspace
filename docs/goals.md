@@ -30,7 +30,7 @@ Tables live in `convex/schema.ts`; functions in `convex/goals.ts`,
 
 ## Kanban board
 
-The board has three stages that are a *projection* of the existing
+The board has three stages that are a _projection_ of the existing
 `task.status` — tasks carry no separate board state:
 
 | Stage    | task.status   |

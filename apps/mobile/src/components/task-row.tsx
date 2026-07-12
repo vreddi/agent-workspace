@@ -12,7 +12,13 @@ import { useTheme } from '@/theme/theme-context'
  * web `.t-task-row`. Tapping the row pushes the detail screen; tapping the
  * ring toggles completion (live Convex mutation) with a haptic tick.
  */
-export function TaskRow({ task, showDivider }: { task: Task; showDivider: boolean }) {
+export function TaskRow({
+  task,
+  showDivider,
+}: {
+  task: Task
+  showDivider: boolean
+}) {
   const { palette } = useTheme()
   const toggleDone = useToggleDone()
   const overdue = !task.done && task.due != null && daysFromToday(task.due) < 0
@@ -30,7 +36,10 @@ export function TaskRow({ task, showDivider }: { task: Task; showDivider: boolea
       style={({ pressed }) => [
         styles.row,
         { backgroundColor: pressed ? palette.hover : 'transparent' },
-        showDivider && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: palette.divider },
+        showDivider && {
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: palette.divider,
+        },
       ]}
     >
       <Pressable onPress={toggle} hitSlop={10} style={styles.dotHit}>
@@ -40,8 +49,15 @@ export function TaskRow({ task, showDivider }: { task: Task; showDivider: boolea
             task.done
               ? { backgroundColor: palette.ink4, borderColor: palette.ink4 }
               : overdue
-                ? { borderColor: palette.overdue, backgroundColor: palette.overdueSoft }
-                : { borderColor: task.priority ? priorityColors[task.priority] : palette.ink4 },
+                ? {
+                    borderColor: palette.overdue,
+                    backgroundColor: palette.overdueSoft,
+                  }
+                : {
+                    borderColor: task.priority
+                      ? priorityColors[task.priority]
+                      : palette.ink4,
+                  },
           ]}
         />
       </Pressable>
@@ -55,7 +71,10 @@ export function TaskRow({ task, showDivider }: { task: Task; showDivider: boolea
         {task.title}
       </AppText>
       {task.due != null && !task.done ? (
-        <AppText variant="meta" color={overdue ? palette.overdue : palette.ink3}>
+        <AppText
+          variant="meta"
+          color={overdue ? palette.overdue : palette.ink3}
+        >
           {formatDue(task.due)}
         </AppText>
       ) : null}

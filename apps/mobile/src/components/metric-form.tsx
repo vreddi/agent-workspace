@@ -66,7 +66,14 @@ export function MetricForm({
     if (!canSubmit) return
     setSaving(true)
     try {
-      await onSubmit({ name, unit, direction, startValue, targetValue, targetDate })
+      await onSubmit({
+        name,
+        unit,
+        direction,
+        startValue,
+        targetValue,
+        targetDate,
+      })
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     } catch (err) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
@@ -137,7 +144,11 @@ export function MetricForm({
         />
       </FormSection>
 
-      <AppText variant="meta" color={palette.ink3} style={{ paddingHorizontal: space.sm }}>
+      <AppText
+        variant="meta"
+        color={palette.ink3}
+        style={{ paddingHorizontal: space.sm }}
+      >
         Log readings over time to watch the value trend toward your target. The
         target date only applies once a target value is set.
       </AppText>
@@ -150,5 +161,7 @@ export function errorMessage(err: unknown): string {
     const data = (err as { data?: unknown }).data
     if (typeof data === 'string') return data
   }
-  return err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+  return err instanceof Error
+    ? err.message
+    : 'Something went wrong. Please try again.'
 }

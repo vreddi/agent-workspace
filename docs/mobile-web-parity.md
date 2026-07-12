@@ -47,12 +47,12 @@ mobile) and nothing more.
 
 ## Where logic must live
 
-| Kind of code | Home | Notes |
-| --- | --- | --- |
-| Pure product logic (formatting, sorting, filtering, derivations, label text) | `@org/app-core` | Pure functions + plain types. No React/DOM/Convex. Cover with vitest. |
-| Data access, validation, authorization | `convex/` functions | The only place that touches the database. Both clients call the same functions. |
-| Platform UI (components, screens, styling, navigation, gestures) | `apps/web` or `apps/mobile` | Each app owns its own rendering; do not share components across platforms. |
-| Design tokens (color, spacing, radius, type) | `@org/theme` | Web and mobile both read these; change the web source and the hex mirror together. |
+| Kind of code                                                                 | Home                        | Notes                                                                              |
+| ---------------------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------- |
+| Pure product logic (formatting, sorting, filtering, derivations, label text) | `@org/app-core`             | Pure functions + plain types. No React/DOM/Convex. Cover with vitest.              |
+| Data access, validation, authorization                                       | `convex/` functions         | The only place that touches the database. Both clients call the same functions.    |
+| Platform UI (components, screens, styling, navigation, gestures)             | `apps/web` or `apps/mobile` | Each app owns its own rendering; do not share components across platforms.         |
+| Design tokens (color, spacing, radius, type)                                 | `@org/theme`                | Web and mobile both read these; change the web source and the hex mirror together. |
 
 **The rule:** if you find yourself writing the same non-UI function twice —
 once for web, once for mobile — it belongs in `@org/app-core`. A function
@@ -117,22 +117,22 @@ Work outward from the backend so both clients build on settled logic:
 
 Status of each product feature per client. Keep this current when you ship.
 
-| Feature | Web | Mobile |
-| --- | --- | --- |
-| Tasks: view / Today agenda | Yes | Yes |
-| Tasks: create (quick capture) | Yes | Yes (`task/new`, accepts `?goalId=`) |
-| Tasks: edit / status / delete | Yes | Yes (delete is creator-only) |
-| Task assignees (with user search) | Yes | Yes |
-| Task activity history | Yes | Yes |
-| Goals: view + progress | Yes | Yes |
-| Goals: create / edit | Yes | Yes |
-| Goals: achieve / archive / reactivate / delete | Yes | Yes |
-| Goal types (built-in + inline custom creation) | Yes | Yes |
-| Goal board: stage moves + attach/detach tasks | Yes | Yes |
-| Goal reminders banner | Yes | Yes |
-| Per-goal metrics (readings + charts) | Yes | Yes (metric CRUD, log/edit/delete readings, sparkline + progress toward target on goal detail) |
-| Settings (theme, prefs) | Yes | Yes (theme + reminders toggle via AsyncStorage) |
-| Village canvas | Yes | No — web-only for now (roadmap) |
+| Feature                                        | Web | Mobile                                                                                         |
+| ---------------------------------------------- | --- | ---------------------------------------------------------------------------------------------- |
+| Tasks: view / Today agenda                     | Yes | Yes                                                                                            |
+| Tasks: create (quick capture)                  | Yes | Yes (`task/new`, accepts `?goalId=`)                                                           |
+| Tasks: edit / status / delete                  | Yes | Yes (delete is creator-only)                                                                   |
+| Task assignees (with user search)              | Yes | Yes                                                                                            |
+| Task activity history                          | Yes | Yes                                                                                            |
+| Goals: view + progress                         | Yes | Yes                                                                                            |
+| Goals: create / edit                           | Yes | Yes                                                                                            |
+| Goals: achieve / archive / reactivate / delete | Yes | Yes                                                                                            |
+| Goal types (built-in + inline custom creation) | Yes | Yes                                                                                            |
+| Goal board: stage moves + attach/detach tasks  | Yes | Yes                                                                                            |
+| Goal reminders banner                          | Yes | Yes                                                                                            |
+| Per-goal metrics (readings + charts)           | Yes | Yes (metric CRUD, log/edit/delete readings, sparkline + progress toward target on goal detail) |
+| Settings (theme, prefs)                        | Yes | Yes (theme + reminders toggle via AsyncStorage)                                                |
+| Village canvas                                 | Yes | No — web-only for now (roadmap)                                                                |
 
 ## Verification
 
@@ -158,7 +158,7 @@ Status of each product feature per client. Keep this current when you ship.
 
 **Caveat: the mobile app has no vitest suite.** Its screens are exercised
 by hand, not unit tests. That is the whole reason product logic belongs in
-`@org/app-core` — there it *is* tested, once, and both clients inherit the
+`@org/app-core` — there it _is_ tested, once, and both clients inherit the
 coverage. When a mobile change tempts you to write a pure helper inside a
 screen, move it to app-core with a test instead.
 </content>

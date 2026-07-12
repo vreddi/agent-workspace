@@ -36,7 +36,10 @@ const NODE_H = {
   task: 132,
 }
 
-function nodeSize(kind: DayNodeData['kind']): { width: number; height: number } {
+function nodeSize(kind: DayNodeData['kind']): {
+  width: number
+  height: number
+} {
   return { width: NODE_W[kind], height: NODE_H[kind] }
 }
 
@@ -67,7 +70,12 @@ export function buildGraph({
     id: 'start',
     type: 'anchor',
     position: { x: 0, y: 0 },
-    data: { kind: 'anchor', variant: 'start', label: startLabel, sub: startSub },
+    data: {
+      kind: 'anchor',
+      variant: 'start',
+      label: startLabel,
+      sub: startSub,
+    },
   })
   nodes.push({
     id: 'end',
@@ -168,7 +176,10 @@ function layoutGraph(payload: GraphPayload): GraphPayload {
       if (!pos) return node
       return {
         ...node,
-        position: { x: pos.x - size.width / 2 - minX, y: pos.y - size.height / 2 },
+        position: {
+          x: pos.x - size.width / 2 - minX,
+          y: pos.y - size.height / 2,
+        },
         width: size.width,
         height: size.height,
       }

@@ -40,7 +40,10 @@ export default function RootLayout() {
   // expo-secure-store — never in plain AsyncStorage. Only the publishable
   // key (public by design) is baked into the bundle; see src/env.ts.
   return (
-    <ClerkProvider publishableKey={env.clerkPublishableKey} tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={env.clerkPublishableKey}
+      tokenCache={tokenCache}
+    >
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <AppThemeProvider>
           <RootNavigator />
@@ -92,8 +95,14 @@ function RootNavigator() {
         <Stack.Protected guard={isSignedIn === true}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="task/[id]" options={{ title: 'Task' }} />
-          <Stack.Screen name="task/new" options={modalScreenOptions('New task')} />
-          <Stack.Screen name="task/[id]/edit" options={modalScreenOptions('Edit task')} />
+          <Stack.Screen
+            name="task/new"
+            options={modalScreenOptions('New task')}
+          />
+          <Stack.Screen
+            name="task/[id]/edit"
+            options={modalScreenOptions('Edit task')}
+          />
           <Stack.Screen name="goal/[id]" options={{ title: 'Goal' }} />
           {/*
             The goals agent registers its own create/edit modals in-route via

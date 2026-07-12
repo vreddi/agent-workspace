@@ -11,7 +11,11 @@ export function Header() {
     <header className="landing-header">
       <div className="landing-header__left">
         <Logo />
-        <div className="landing-header__pills" role="tablist" aria-label="Audience">
+        <div
+          className="landing-header__pills"
+          role="tablist"
+          aria-label="Audience"
+        >
           <button
             type="button"
             role="tab"
@@ -37,7 +41,11 @@ export function Header() {
 
       <nav className="landing-header__nav" aria-label="Primary">
         {NAV_LINKS.map((label) => (
-          <a key={label} href={`#${label.toLowerCase()}`} className="landing-header__link">
+          <a
+            key={label}
+            href={`#${label.toLowerCase()}`}
+            className="landing-header__link"
+          >
             {label}
           </a>
         ))}
@@ -70,10 +78,7 @@ function Logo() {
           </linearGradient>
         </defs>
         {/* sun arc */}
-        <path
-          d="M4 22 A 12 12 0 0 1 28 22"
-          fill="url(#logo-grad)"
-        />
+        <path d="M4 22 A 12 12 0 0 1 28 22" fill="url(#logo-grad)" />
         {/* horizon line */}
         <rect x="3" y="23.4" width="26" height="1.6" rx="0.8" fill="#1a1410" />
         {/* tiny ground dot */}

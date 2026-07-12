@@ -11,7 +11,10 @@ export default function AgentsScreen() {
 
   return (
     <Screen>
-      <ScreenHeader title="Agents" meta={agents === undefined ? undefined : `${agents.length}`} />
+      <ScreenHeader
+        title="Agents"
+        meta={agents === undefined ? undefined : `${agents.length}`}
+      />
 
       {agents === undefined ? (
         <ScreenLoading />
@@ -32,7 +35,12 @@ export default function AgentsScreen() {
               <View style={{ flex: 1, gap: 2 }}>
                 <View style={styles.nameRow}>
                   <AppText variant="body">{agent.name}</AppText>
-                  <View style={[styles.roleChip, { backgroundColor: palette.chipBg }]}>
+                  <View
+                    style={[
+                      styles.roleChip,
+                      { backgroundColor: palette.chipBg },
+                    ]}
+                  >
                     <AppText variant="meta" color={palette.ink2}>
                       {agent.model}
                     </AppText>
@@ -56,9 +64,13 @@ export default function AgentsScreen() {
       <Card style={styles.teaser}>
         <AppText style={styles.teaserEmoji}>🏘️</AppText>
         <AppText variant="heading">The village lives on the web</AppText>
-        <AppText variant="label" color={palette.ink2} style={{ textAlign: 'center' }}>
-          Your agents wander a pixel village, each with its own house. Watch them
-          work in the web app — the mobile village view is on the roadmap.
+        <AppText
+          variant="label"
+          color={palette.ink2}
+          style={{ textAlign: 'center' }}
+        >
+          Your agents wander a pixel village, each with its own house. Watch
+          them work in the web app — the mobile village view is on the roadmap.
         </AppText>
       </Card>
     </Screen>

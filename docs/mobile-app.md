@@ -43,19 +43,19 @@ them. For how the two clients stay in sync and where new logic belongs, see
 
 ## Screens
 
-| Route | What it does |
-| --- | --- |
-| `(tabs)/index` — Today | Agenda: overdue / due-today / done-today sections and a greeting; FAB opens the capture modal. |
-| `(tabs)/tasks` — Tasks | Full task list with All / Open / Overdue / Done filter chips; `+` opens capture. |
-| `(tabs)/goals` — Goals | Goals by status (Active / Achieved / Archived) with progress, an unread-reminders banner, and create. |
-| `(tabs)/agents` — Agents | Read-only list of your agents (the village view is roadmap). |
-| `(tabs)/settings` — Settings | Account + sign out, theme preference, reminders toggle, version/about. |
-| `task/new` (modal) | Quick-capture: title + emoji, priority, target date, goal link, and an "Add details" disclosure (description, hard deadline, estimate, cost). Accepts `?goalId=` to prefill. |
-| `task/[id]` | Task detail: status chips, metadata, linked goal, notes, assignees (with user search), activity history, and delete (creator only). |
-| `task/[id]/edit` (modal) | Full task editor over the form kit. |
-| `goal/[id]` | Goal detail: progress, deadline, achieve / archive / reactivate / delete, a board of stages (In progress / To do / Done) with per-task stage moves, attach/detach, and add-task, plus a **Metrics** section (per-goal numeric metrics with sparkline, progress toward target, and inline reading capture). |
-| `goal/new`, `goal/edit` (modals) | Create/edit a goal, including inline custom goal-type creation. These register their own `Stack.Screen` options in-route. |
-| `goal/metric` (modal) | Create/edit a numeric metric for a goal (name, unit, direction, target, baseline). Opened from the goal-detail Metrics section; registers its own `Stack.Screen` options in-route. |
+| Route                            | What it does                                                                                                                                                                                                                                                                                               |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `(tabs)/index` — Today           | Agenda: overdue / due-today / done-today sections and a greeting; FAB opens the capture modal.                                                                                                                                                                                                             |
+| `(tabs)/tasks` — Tasks           | Full task list with All / Open / Overdue / Done filter chips; `+` opens capture.                                                                                                                                                                                                                           |
+| `(tabs)/goals` — Goals           | Goals by status (Active / Achieved / Archived) with progress, an unread-reminders banner, and create.                                                                                                                                                                                                      |
+| `(tabs)/agents` — Agents         | Read-only list of your agents (the village view is roadmap).                                                                                                                                                                                                                                               |
+| `(tabs)/settings` — Settings     | Account + sign out, theme preference, reminders toggle, version/about.                                                                                                                                                                                                                                     |
+| `task/new` (modal)               | Quick-capture: title + emoji, priority, target date, goal link, and an "Add details" disclosure (description, hard deadline, estimate, cost). Accepts `?goalId=` to prefill.                                                                                                                               |
+| `task/[id]`                      | Task detail: status chips, metadata, linked goal, notes, assignees (with user search), activity history, and delete (creator only).                                                                                                                                                                        |
+| `task/[id]/edit` (modal)         | Full task editor over the form kit.                                                                                                                                                                                                                                                                        |
+| `goal/[id]`                      | Goal detail: progress, deadline, achieve / archive / reactivate / delete, a board of stages (In progress / To do / Done) with per-task stage moves, attach/detach, and add-task, plus a **Metrics** section (per-goal numeric metrics with sparkline, progress toward target, and inline reading capture). |
+| `goal/new`, `goal/edit` (modals) | Create/edit a goal, including inline custom goal-type creation. These register their own `Stack.Screen` options in-route.                                                                                                                                                                                  |
+| `goal/metric` (modal)            | Create/edit a numeric metric for a goal (name, unit, direction, target, baseline). Opened from the goal-detail Metrics section; registers its own `Stack.Screen` options in-route.                                                                                                                         |
 
 Per-goal **metrics** are at full parity with the web: the goal-detail
 screen renders a Metrics section where you can create, edit, and delete a
@@ -179,5 +179,5 @@ setup:
 1. A mobile **village view** rendered from the `@worldkit/*` headless
    packages (the Agents tab is a plain list today).
 2. **Push notifications** for agent reminders (expo-notifications + Convex).
-</content>
-</invoke>
+   </content>
+   </invoke>
