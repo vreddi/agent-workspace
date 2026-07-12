@@ -15,6 +15,8 @@ lowercase-kebab-case.
 | [interactive-world-canvas.md](./interactive-world-canvas.md) | The agent-village canvas: packages, sizing model, showcase, later milestones. **Start here** for the current feature work. |
 | [goals.md](./goals.md) | The goal construct: model, kanban stages, cost tracking, deadline reminders, and how it supersedes task groups. |
 | [metrics.md](./metrics.md) | Per-goal numerical metrics: the definition + time-series schema, computed progress, bounded reads, and the lazy-loaded shadcn/recharts trend chart. |
+| [task-assignments.md](./task-assignments.md) | Sharing and assigning tasks across accounts: the `taskAssignments` join table, denormalized status, and the deprecated-field fallback. |
+| [mobile-app.md](./mobile-app.md) | The Expo (SDK 57) iOS/Android app: routes, Clerk auth, live Convex data, theming from `@org/theme`, env/secrets, and running it. |
 | [architecture.md](./architecture.md) | The layered model (headless core → adapter → React → app), package responsibilities, the 2.5D grid model, dependency rules, data flow. |
 | [design-decisions.md](./design-decisions.md) | Rationale and trade-offs behind the choices the codebase embodies (plain objects, immutability, source-first exports, …). |
 | [getting-started.md](./getting-started.md) | Setup, common commands, workflow, project structure, troubleshooting. |

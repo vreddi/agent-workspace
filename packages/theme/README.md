@@ -1,13 +1,21 @@
 # @org/theme
 
-Platform-neutral design tokens for Agent Workspace: the "soft white" color
-palettes (light + dark), corner radii, spacing steps, and the Plus Jakarta
-Sans type scale. Both the web app and the Expo mobile app style themselves
-from these values so the two share one look.
+Design tokens for Agent Workspace's "soft white" look: the color palettes
+(light + dark), corner radii, spacing steps, and the Plus Jakarta Sans type
+scale, as plain hex/number values.
+
+**This is the mobile app's token source, not a shared one.** The web app does
+**not** import `@org/theme` — its design source is
+`apps/web/src/components/today/styles.ts` (CSS custom properties in `oklch()`
+/ `color-mix()`). This package is a hand-maintained **hex mirror** of that
+file, because React Native cannot parse `oklch()` / `color-mix()`. The web
+file leads; this package follows, and the two are synced **manually**
+(see below). Unifying them into one real cross-platform source is future
+work.
 
 Source-only package (`exports` points at `src/`) — no build step. It has no
 dependencies and no platform APIs, so it is safe to import from web (Vite),
-mobile (Metro), and Node.
+mobile (Metro), and Node — though today only mobile does.
 
 ## Public API
 

@@ -1,5 +1,12 @@
 # Architecture
 
+> **Scope:** this doc covers the **world-canvas engine** — the headless
+> `@worldkit/*` packages and how they layer up into the pixel village. For
+> the app's data model (tasks, goals, metrics, reminders) see
+> [goals.md](./goals.md), [metrics.md](./metrics.md), and
+> [task-assignments.md](./task-assignments.md); the root
+> [AGENTS.md](../AGENTS.md) has the table-by-table map.
+
 How the pieces fit together: headless `@worldkit/*` simulation packages at
 the bottom, React packages that compose them into the agent-village canvas,
 and the task app (`apps/web` + Convex) on top.

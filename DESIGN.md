@@ -1,8 +1,8 @@
 # Design system
 
-The authenticated app ("Today", Agents, Groups, Day). The landing page and
-the in-canvas pixel world have their own languages; this file governs the
-app chrome around them.
+The authenticated app (Today, Day, Agents, Goals, Tasks, Settings). The
+landing page and the in-canvas pixel world have their own languages; this
+file governs the app chrome around them.
 
 ## Direction: soft white, one focus
 
