@@ -1,13 +1,17 @@
-import * as React from 'react';
+import * as React from 'react'
 
 export type SpeechBubbleProps = {
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-};
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}
 
 /** Tiny emote bubble that floats above a character's head. */
-export function SpeechBubble({ children, className, style }: SpeechBubbleProps) {
+export function SpeechBubble({
+  children,
+  className,
+  style,
+}: SpeechBubbleProps) {
   return (
     <div
       data-slot="speech-bubble"
@@ -55,5 +59,5 @@ export function SpeechBubble({ children, className, style }: SpeechBubbleProps) 
         }
       `}</style>
     </div>
-  );
+  )
 }

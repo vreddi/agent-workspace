@@ -28,20 +28,20 @@ import {
   setAgentFacing,
   setAgentPosition,
   setAgentState,
-} from '@worldkit/agents';
+} from '@worldkit/agents'
 
 const mira = createAgent({
   id: 'agent_1',
   name: 'Mira',
   position: { x: 2, y: 2 },
-});
+})
 
-const moved = setAgentPosition(mira, { x: 3, y: 2 });
-const facing = setAgentFacing(moved, 'east');
-const busy = setAgentState(facing, 'moving');
+const moved = setAgentPosition(mira, { x: 3, y: 2 })
+const facing = setAgentFacing(moved, 'east')
+const busy = setAgentState(facing, 'moving')
 
-isAgentIdle(mira); // true
-isAgentIdle(busy); // false
+isAgentIdle(mira) // true
+isAgentIdle(busy) // false
 ```
 
 ## Immutability
@@ -50,7 +50,7 @@ Every mutator returns a new `Agent` instead of mutating in place. Undo, redo,
 replay, sync, and AI validation all stay easy.
 
 ```ts
-const next = setAgentPosition(agent, { x: 5, y: 5 });
+const next = setAgentPosition(agent, { x: 5, y: 5 })
 ```
 
 ## API
@@ -58,27 +58,22 @@ const next = setAgentPosition(agent, { x: 5, y: 5 });
 ### Types
 
 ```ts
-type AgentId = string;
+type AgentId = string
 
-type AgentState =
-  | 'idle'
-  | 'moving'
-  | 'acting'
-  | 'speaking'
-  | 'waiting';
+type AgentState = 'idle' | 'moving' | 'acting' | 'speaking' | 'waiting'
 
-type Direction = 'north' | 'east' | 'south' | 'west';
+type Direction = 'north' | 'east' | 'south' | 'west'
 
 type Agent = {
-  id: AgentId;
-  name: string;
-  position: GridPosition;
-  facing: Direction;
-  state: AgentState;
-  data?: Record<string, unknown>;
-  traits?: Record<string, unknown>;
-  memory?: Record<string, unknown>;
-};
+  id: AgentId
+  name: string
+  position: GridPosition
+  facing: Direction
+  state: AgentState
+  data?: Record<string, unknown>
+  traits?: Record<string, unknown>
+  memory?: Record<string, unknown>
+}
 ```
 
 `data` is for appearance / UI / customization. `traits` and `memory` are
@@ -113,9 +108,9 @@ break in favor of horizontal motion. Returns `undefined` when the delta is
 zero.
 
 ```ts
-getDirectionFromDelta({ x: 1, y: 0 });  // 'east'
-getDirectionFromDelta({ x: 0, y: -1 }); // 'north'
-getDirectionFromDelta({ x: 0, y: 0 });  // undefined
+getDirectionFromDelta({ x: 1, y: 0 }) // 'east'
+getDirectionFromDelta({ x: 0, y: -1 }) // 'north'
+getDirectionFromDelta({ x: 0, y: 0 }) // undefined
 ```
 
 ## Design notes

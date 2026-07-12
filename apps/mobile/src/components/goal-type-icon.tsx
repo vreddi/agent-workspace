@@ -77,7 +77,9 @@ export function GoalTypeIcon({
       {Icon ? (
         <Icon size={size * 0.5} color={base} strokeWidth={2} />
       ) : icon && /[^\x20-\x7e]/.test(icon) ? (
-        <Text style={{ fontSize: size * 0.42, lineHeight: size * 0.55 }}>{icon}</Text>
+        <Text style={{ fontSize: size * 0.42, lineHeight: size * 0.55 }}>
+          {icon}
+        </Text>
       ) : (
         <AppText variant="heading" color={base}>
           {(name.trim()[0] ?? '?').toUpperCase()}

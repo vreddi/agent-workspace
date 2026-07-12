@@ -1,4 +1,4 @@
-export { SpriteActor, type SpriteActorProps } from './components/sprite-actor';
+export { SpriteActor, type SpriteActorProps } from './components/sprite-actor'
 export {
   ALL_ACTIONS,
   ACTION_CATEGORY,
@@ -17,11 +17,11 @@ export {
   type JobAction,
   type MovementAction,
   type StateAction,
-} from './lib/actions';
+} from './lib/actions'
 export {
   availableActions,
   hasAction,
   type SpriteSheet,
   type SpriteStrip,
-} from './lib/sprite-sheet';
-export { useSpriteAnimation } from './lib/use-sprite-animation';
+} from './lib/sprite-sheet'
+export { useSpriteAnimation } from './lib/use-sprite-animation'

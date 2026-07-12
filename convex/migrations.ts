@@ -29,7 +29,9 @@ export const backfillTaskAssignments = internalMutation({
       for (const userId of new Set(legacyIds)) {
         const existing = await ctx.db
           .query('taskAssignments')
-          .withIndex('by_task_and_user', (q) => q.eq('taskId', task._id).eq('userId', userId))
+          .withIndex('by_task_and_user', (q) =>
+            q.eq('taskId', task._id).eq('userId', userId),
+          )
           .unique()
         if (existing) continue
         if ((await ctx.db.get(userId)) === null) continue
@@ -40,7 +42,10 @@ export const backfillTaskAssignments = internalMutation({
           status: task.status,
         })
       }
-      if (task.assigneeUserId !== undefined || task.assigneeUserIds !== undefined) {
+      if (
+        task.assigneeUserId !== undefined ||
+        task.assigneeUserIds !== undefined
+      ) {
         await ctx.db.patch(task._id, {
           assigneeUserId: undefined,
           assigneeUserIds: undefined,
@@ -49,9 +54,13 @@ export const backfillTaskAssignments = internalMutation({
     }
 
     if (!isDone) {
-      await ctx.scheduler.runAfter(0, internal.migrations.backfillTaskAssignments, {
-        cursor: continueCursor,
-      })
+      await ctx.scheduler.runAfter(
+        0,
+        internal.migrations.backfillTaskAssignments,
+        {
+          cursor: continueCursor,
+        },
+      )
     }
     return { migrated: page.length, isDone }
   },

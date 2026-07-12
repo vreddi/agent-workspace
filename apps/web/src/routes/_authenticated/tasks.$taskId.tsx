@@ -19,13 +19,11 @@ import { Slider } from '@org/ui/components/slider'
 import { cn } from '@org/ui/lib/utils'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { Authenticated, useMutation, useQuery } from 'convex/react'
+import { Component, useState, type FormEvent, type ReactNode } from 'react'
 import {
-  Component,
-  useState,
-  type FormEvent,
-  type ReactNode,
-} from 'react'
-import { goalTypeValue, GoalTypeSelectionIcon } from '~/components/goals/goal-ui'
+  goalTypeValue,
+  GoalTypeSelectionIcon,
+} from '~/components/goals/goal-ui'
 import { TaskPeopleSection } from '~/components/tasks/assignees'
 import {
   PRIORITY_LABELS,
@@ -86,7 +84,11 @@ function fmtEventTime(ms: number, now = Date.now()): string {
     minute: '2-digit',
   })
   const today = new Date(now)
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  ).getTime()
   if (ms >= startOfToday) return `Today, ${time}`
   if (ms >= startOfToday - 24 * 60 * 60 * 1000) return `Yesterday, ${time}`
   return fmtDateTime(ms)
@@ -391,53 +393,57 @@ function TaskView({ task }: { task: TaskDetail }) {
             Edit
           </button>
           {(open || task.viewerIsCreator) && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="tdp-btn tdp-btn--icon"
-                aria-label="More actions"
-              >
-                ⋯
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              {task.status === 'open' && (
-                <DropdownMenuItem
-                  onSelect={() => {
-                    void setStatus('in_progress')
-                  }}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="tdp-btn tdp-btn--icon"
+                  aria-label="More actions"
                 >
-                  Mark in progress
-                </DropdownMenuItem>
-              )}
-              {open && (
-                <DropdownMenuItem
-                  onSelect={() => {
-                    void setStatus('cancelled')
-                  }}
-                >
-                  Cancel task
-                </DropdownMenuItem>
-              )}
-              {open && task.viewerIsCreator && <DropdownMenuSeparator />}
-              {task.viewerIsCreator && (
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={() => {
-                    void handleDelete()
-                  }}
-                >
-                  Delete task
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  ⋯
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                {task.status === 'open' && (
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      void setStatus('in_progress')
+                    }}
+                  >
+                    Mark in progress
+                  </DropdownMenuItem>
+                )}
+                {open && (
+                  <DropdownMenuItem
+                    onSelect={() => {
+                      void setStatus('cancelled')
+                    }}
+                  >
+                    Cancel task
+                  </DropdownMenuItem>
+                )}
+                {open && task.viewerIsCreator && <DropdownMenuSeparator />}
+                {task.viewerIsCreator && (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() => {
+                      void handleDelete()
+                    }}
+                  >
+                    Delete task
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
       </div>
 
-      {error && <p className="tdp-form__error" style={{ margin: '14px 0 0' }}>{error}</p>}
+      {error && (
+        <p className="tdp-form__error" style={{ margin: '14px 0 0' }}>
+          {error}
+        </p>
+      )}
 
       <DetailsSection task={task} />
       <TaskPeopleSection
@@ -519,8 +525,8 @@ function DetailsSection({ task }: { task: TaskDetail }) {
       </div>
       {rows.length === 0 ? (
         <p className="tdp-empty">
-          No planning details yet. Edit the task to add a deadline, estimate,
-          or priority.
+          No planning details yet. Edit the task to add a deadline, estimate, or
+          priority.
         </p>
       ) : (
         <dl className="tdp-details">
@@ -565,12 +571,17 @@ function phraseForChange(
       if (before === null) return 'added a description'
       return 'updated the description'
     case 'emoji':
-      return after === null ? 'removed the emoji' : `set the emoji to ${String(after)}`
+      return after === null
+        ? 'removed the emoji'
+        : `set the emoji to ${String(after)}`
     case 'status':
       if (after === 'done') return 'marked it done'
       if (after === 'in_progress') return 'started it'
       if (after === 'cancelled') return 'cancelled it'
-      if (after === 'open' && (prevStatus === 'done' || prevStatus === 'cancelled'))
+      if (
+        after === 'open' &&
+        (prevStatus === 'done' || prevStatus === 'cancelled')
+      )
         return 'reopened it'
       return 'marked it open'
     case 'softDeadline':
@@ -786,7 +797,8 @@ function TaskEditForm({
     if (trimmedTitle !== task.title) patch.title = trimmedTitle
     const nextDescription =
       description.trim() === '' ? null : description.trim()
-    if (nextDescription !== task.description) patch.description = nextDescription
+    if (nextDescription !== task.description)
+      patch.description = nextDescription
     if (emoji !== (task.emoji ?? null)) patch.emoji = emoji
     if (status !== task.status) patch.status = status
 
@@ -797,11 +809,15 @@ function TaskEditForm({
 
     const trimmedEstimate = estimateMinutes.trim()
     const nextEstimate = trimmedEstimate === '' ? null : Number(trimmedEstimate)
-    if (nextEstimate !== null && (!Number.isFinite(nextEstimate) || nextEstimate < 0)) {
+    if (
+      nextEstimate !== null &&
+      (!Number.isFinite(nextEstimate) || nextEstimate < 0)
+    ) {
       setError('The estimate must be a number of minutes.')
       return
     }
-    if (nextEstimate !== task.estimateMinutes) patch.estimateMinutes = nextEstimate
+    if (nextEstimate !== task.estimateMinutes)
+      patch.estimateMinutes = nextEstimate
 
     if (priority !== (task.priority ?? null)) patch.priority = priority
     if (difficulty !== (task.difficulty ?? null)) patch.difficulty = difficulty

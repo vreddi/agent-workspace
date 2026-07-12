@@ -1,0 +1,58 @@
+name: CI
+
+# Fool-proof merge-validation gate: build, test, typecheck, lint, format, and
+# the Convex backend suite all have to pass. On pull requests only the affected
+# projects are checked (SHAs from nrwl/nx-set-shas); pushes to develop validate
+# every project.
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set Nx SHAs
+        if: github.event_name == 'pull_request'
+        uses: nrwl/nx-set-shas@v4
+
+      # Pull requests: only re-validate what changed.
+      - name: Verify affected projects
+        if: github.event_name == 'pull_request'
+        run: pnpm exec nx affected -t lint typecheck test build
+
+      # Pushes to develop: validate the whole workspace.
+      - name: Verify all projects
+        if: github.event_name != 'pull_request'
+        run: pnpm exec nx run-many -t lint typecheck test build
+
+      # Root-level checks that aren't Nx project targets — always run.
+      - name: Convex backend tests
+        run: pnpm test
+
+      - name: Prettier format check
+        run: pnpm format:check

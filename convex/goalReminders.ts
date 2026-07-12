@@ -1,19 +1,11 @@
 import { ConvexError, v } from 'convex/values'
-import { internalMutation, mutation, query, QueryCtx } from './_generated/server'
-import { getCurrentUser } from './users'
+import { internalMutation, mutation, query } from './_generated/server'
 import { DAY_MS, MAX_REMINDER_DAYS_BEFORE } from './goals'
+import { requireUserId } from './lib/auth'
 
 // A goal is re-reminded at most once per cooldown window. Slightly under a
 // day so an hourly cron lands roughly daily rather than drifting to 25h.
 export const REMINDER_COOLDOWN_MS = 20 * 60 * 60 * 1000
-
-async function requireUserId(ctx: QueryCtx) {
-  const user = await getCurrentUser(ctx)
-  if (!user) {
-    throw new ConvexError('Not authenticated')
-  }
-  return user._id
-}
 
 // Called hourly by the cron in crons.ts. Scans active goals whose deadline is
 // near enough that reminders could apply, and files a reminder for each goal
@@ -35,7 +27,10 @@ export const remindDueGoals = internalMutation({
     for (const goal of candidates) {
       const daysRemaining = Math.ceil((goal.deadline - now) / DAY_MS)
       if (daysRemaining > goal.reminderDaysBefore) continue
-      if (goal.lastRemindedAt !== null && now - goal.lastRemindedAt < REMINDER_COOLDOWN_MS) {
+      if (
+        goal.lastRemindedAt !== null &&
+        now - goal.lastRemindedAt < REMINDER_COOLDOWN_MS
+      ) {
         continue
       }
       await ctx.db.insert('goalReminders', {
@@ -60,7 +55,9 @@ export const listUnread = query({
     const userId = await requireUserId(ctx)
     return await ctx.db
       .query('goalReminders')
-      .withIndex('by_user_read', (q) => q.eq('userId', userId).eq('readAt', null))
+      .withIndex('by_user_read', (q) =>
+        q.eq('userId', userId).eq('readAt', null),
+      )
       .order('desc')
       .take(50)
   },
@@ -89,7 +86,9 @@ export const markAllRead = mutation({
     // Bounded per call; the unread list itself is capped well below this.
     const unread = await ctx.db
       .query('goalReminders')
-      .withIndex('by_user_read', (q) => q.eq('userId', userId).eq('readAt', null))
+      .withIndex('by_user_read', (q) =>
+        q.eq('userId', userId).eq('readAt', null),
+      )
       .take(200)
     for (const reminder of unread) {
       await ctx.db.patch(reminder._id, { readAt: now })

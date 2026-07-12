@@ -275,7 +275,9 @@ function GoalHeader({ goal }: { goal: GoalListItem }) {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {editOpen && <GoalEditor goal={goal} onSaved={() => setEditOpen(false)} />}
+      {editOpen && (
+        <GoalEditor goal={goal} onSaved={() => setEditOpen(false)} />
+      )}
     </section>
   )
 }
@@ -852,7 +854,11 @@ function QuickAddTask({ goalId }: { goalId: Id<'goals'> }) {
           placeholder="Days"
           aria-label="Cost in days"
         />
-        <Button type="submit" size="sm" disabled={submitting || title.trim() === ''}>
+        <Button
+          type="submit"
+          size="sm"
+          disabled={submitting || title.trim() === ''}
+        >
           {submitting ? 'Adding…' : 'Add task'}
         </Button>
       </div>

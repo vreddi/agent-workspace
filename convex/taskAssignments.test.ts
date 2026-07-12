@@ -10,7 +10,11 @@ function setup() {
   return convexTest(schema, modules)
 }
 
-async function signUp(t: ReturnType<typeof setup>, externalId: string, name?: string) {
+async function signUp(
+  t: ReturnType<typeof setup>,
+  externalId: string,
+  name?: string,
+) {
   const userId = await t.run(async (ctx) => {
     return await ctx.db.insert('users', {
       externalId,
@@ -25,7 +29,9 @@ describe('task creation and assignment defaults', () => {
   test('a new task is assigned to its creator via an assignment row', async () => {
     const t = setup()
     const alice = await signUp(t, 'alice')
-    const taskId = await alice.as.mutation(api.tasks.create, { title: 'Solo task' })
+    const taskId = await alice.as.mutation(api.tasks.create, {
+      title: 'Solo task',
+    })
 
     const rows = await t.run((ctx) =>
       ctx.db
@@ -86,10 +92,14 @@ describe('taskAssignments.setAssignees', () => {
     const t = setup()
     const alice = await signUp(t, 'alice', 'Alice A')
     const bob = await signUp(t, 'bob', 'Bob B')
-    const taskId = await alice.as.mutation(api.tasks.create, { title: 'Shared' })
+    const taskId = await alice.as.mutation(api.tasks.create, {
+      title: 'Shared',
+    })
 
     // Before sharing, Bob can't even read the task.
-    await expect(bob.as.query(api.tasks.get, { id: taskId })).rejects.toThrowError(/Forbidden/)
+    await expect(
+      bob.as.query(api.tasks.get, { id: taskId }),
+    ).rejects.toThrowError(/Forbidden/)
 
     await alice.as.mutation(api.taskAssignments.setAssignees, {
       taskId,
@@ -115,7 +125,9 @@ describe('taskAssignments.setAssignees', () => {
     const t = setup()
     const alice = await signUp(t, 'alice')
     const bob = await signUp(t, 'bob')
-    const taskId = await alice.as.mutation(api.tasks.create, { title: 'Handoff' })
+    const taskId = await alice.as.mutation(api.tasks.create, {
+      title: 'Handoff',
+    })
 
     await alice.as.mutation(api.taskAssignments.setAssignees, {
       taskId,
@@ -141,7 +153,9 @@ describe('taskAssignments.setAssignees', () => {
     const t = setup()
     const alice = await signUp(t, 'alice', 'Alice A')
     const bob = await signUp(t, 'bob', 'Bob B')
-    const taskId = await alice.as.mutation(api.tasks.create, { title: 'Audited' })
+    const taskId = await alice.as.mutation(api.tasks.create, {
+      title: 'Audited',
+    })
     await alice.as.mutation(api.taskAssignments.setAssignees, {
       taskId,
       assigneeIds: [alice.userId, bob.userId],
@@ -160,7 +174,9 @@ describe('taskAssignments.setAssignees', () => {
     const alice = await signUp(t, 'alice')
     const bob = await signUp(t, 'bob')
     const eve = await signUp(t, 'eve')
-    const taskId = await alice.as.mutation(api.tasks.create, { title: 'Guarded' })
+    const taskId = await alice.as.mutation(api.tasks.create, {
+      title: 'Guarded',
+    })
 
     await expect(
       eve.as.mutation(api.taskAssignments.setAssignees, {
@@ -184,9 +200,14 @@ describe('taskAssignments.setAssignees', () => {
   test('rejects an empty assignee set and unknown accounts', async () => {
     const t = setup()
     const alice = await signUp(t, 'alice')
-    const taskId = await alice.as.mutation(api.tasks.create, { title: 'Keep one' })
+    const taskId = await alice.as.mutation(api.tasks.create, {
+      title: 'Keep one',
+    })
     await expect(
-      alice.as.mutation(api.taskAssignments.setAssignees, { taskId, assigneeIds: [] }),
+      alice.as.mutation(api.taskAssignments.setAssignees, {
+        taskId,
+        assigneeIds: [],
+      }),
     ).rejects.toThrowError(/at least one assignee/)
 
     const ghost = await t.run(async (ctx) => {
@@ -212,15 +233,17 @@ describe('tasks.remove with shared tasks', () => {
     const t = setup()
     const alice = await signUp(t, 'alice')
     const bob = await signUp(t, 'bob')
-    const taskId = await alice.as.mutation(api.tasks.create, { title: 'Doomed' })
+    const taskId = await alice.as.mutation(api.tasks.create, {
+      title: 'Doomed',
+    })
     await alice.as.mutation(api.taskAssignments.setAssignees, {
       taskId,
       assigneeIds: [alice.userId, bob.userId],
     })
 
-    await expect(bob.as.mutation(api.tasks.remove, { id: taskId })).rejects.toThrowError(
-      /creator/,
-    )
+    await expect(
+      bob.as.mutation(api.tasks.remove, { id: taskId }),
+    ).rejects.toThrowError(/creator/)
     await alice.as.mutation(api.tasks.remove, { id: taskId })
     const rows = await t.run((ctx) =>
       ctx.db
@@ -291,7 +314,9 @@ describe('migrations.backfillTaskAssignments', () => {
         .withIndex('by_task', (q) => q.eq('taskId', legacyTaskId))
         .collect(),
     )
-    expect(rows.map((row) => row.userId).sort()).toEqual([alice.userId, bob.userId].sort())
+    expect(rows.map((row) => row.userId).sort()).toEqual(
+      [alice.userId, bob.userId].sort(),
+    )
     expect(rows.every((row) => row.status === 'in_progress')).toBe(true)
 
     const task = await t.run((ctx) => ctx.db.get(legacyTaskId))

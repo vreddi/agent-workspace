@@ -15,7 +15,9 @@ function GoalCard({ goal }: { goal: Goal }) {
   return (
     <Pressable onPress={() => router.push(`/goal/${goal.id}`)}>
       {({ pressed }) => (
-        <Card style={[styles.card, pressed && { backgroundColor: palette.hover }]}>
+        <Card
+          style={[styles.card, pressed && { backgroundColor: palette.hover }]}
+        >
           <View style={styles.head}>
             <GoalTypeIcon
               name={goal.type?.name ?? goal.title}
@@ -40,7 +42,10 @@ function GoalCard({ goal }: { goal: Goal }) {
             <View
               style={[
                 styles.fill,
-                { backgroundColor: palette.accent, width: `${Math.round(progress * 100)}%` },
+                {
+                  backgroundColor: palette.accent,
+                  width: `${Math.round(progress * 100)}%`,
+                },
               ]}
             />
           </View>
@@ -56,7 +61,10 @@ export default function GoalsScreen() {
 
   return (
     <Screen>
-      <ScreenHeader title="Goals" meta={goals === undefined ? undefined : `${goals.length}`} />
+      <ScreenHeader
+        title="Goals"
+        meta={goals === undefined ? undefined : `${goals.length}`}
+      />
       {goals === undefined ? (
         <ScreenLoading />
       ) : goals.length > 0 ? (

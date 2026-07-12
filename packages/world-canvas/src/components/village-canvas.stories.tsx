@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { makeCozyVillageScene } from '../demo/cozy-village';
-import { VillageCanvas } from './village-canvas';
+import { makeCozyVillageScene } from '../demo/cozy-village'
+import { VillageCanvas } from './village-canvas'
 
 const meta: Meta<typeof VillageCanvas> = {
   title: 'World/VillageCanvas',
@@ -12,10 +12,10 @@ const meta: Meta<typeof VillageCanvas> = {
     // The residents wander randomly; snapshots would always differ.
     chromatic: { disableSnapshot: true },
   },
-};
-export default meta;
+}
+export default meta
 
-type Story = StoryObj<typeof VillageCanvas>;
+type Story = StoryObj<typeof VillageCanvas>
 
 /**
  * The full showcase: three agents living in their pods, wandering the
@@ -30,7 +30,7 @@ export const CozyVillageNight: Story = {
   argTypes: {
     zoom: { control: { type: 'range', min: 1, max: 3, step: 1 } },
   },
-};
+}
 
 /** The sunlit variant: lights off, cool glass, butterflies by the pond. */
 export const CozyVillageDay: Story = {
@@ -38,7 +38,7 @@ export const CozyVillageDay: Story = {
     scene: makeCozyVillageScene('day'),
     zoom: 2,
   },
-};
+}
 
 /** Compact view, handy for embedding in dashboards or docs. */
 export const CozyVillageZoom1: Story = {
@@ -46,4 +46,4 @@ export const CozyVillageZoom1: Story = {
     scene: makeCozyVillageScene('night'),
     zoom: 1,
   },
-};
+}

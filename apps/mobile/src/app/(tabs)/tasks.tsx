@@ -20,10 +20,16 @@ export default function TasksScreen() {
     const all = tasks ?? []
     switch (filter) {
       case 'Open':
-        return all.filter((t) => t.status === 'open' || t.status === 'in_progress')
+        return all.filter(
+          (t) => t.status === 'open' || t.status === 'in_progress',
+        )
       case 'Overdue':
         return all.filter(
-          (t) => !t.done && t.status !== 'cancelled' && t.due != null && daysFromToday(t.due) < 0,
+          (t) =>
+            !t.done &&
+            t.status !== 'cancelled' &&
+            t.due != null &&
+            daysFromToday(t.due) < 0,
         )
       case 'Done':
         return all.filter((t) => t.done)
@@ -34,7 +40,10 @@ export default function TasksScreen() {
 
   return (
     <Screen>
-      <ScreenHeader title="Tasks" meta={tasks === undefined ? undefined : `${visible.length}`} />
+      <ScreenHeader
+        title="Tasks"
+        meta={tasks === undefined ? undefined : `${visible.length}`}
+      />
 
       <ScrollView
         horizontal
@@ -42,7 +51,12 @@ export default function TasksScreen() {
         contentContainerStyle={{ gap: space.sm, paddingHorizontal: space.sm }}
       >
         {FILTERS.map((f) => (
-          <Chip key={f} label={f} selected={filter === f} onPress={() => setFilter(f)} />
+          <Chip
+            key={f}
+            label={f}
+            selected={filter === f}
+            onPress={() => setFilter(f)}
+          />
         ))}
       </ScrollView>
 

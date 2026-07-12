@@ -58,7 +58,10 @@ function TypesManager() {
     return (
       <div className="space-y-2.5">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-[76px] animate-pulse rounded-xl bg-muted/40" />
+          <div
+            key={i}
+            className="h-[76px] animate-pulse rounded-xl bg-muted/40"
+          />
         ))}
       </div>
     )
@@ -178,7 +181,9 @@ function SectionHeading({
     <div className="mb-3 flex items-baseline justify-between gap-3">
       <h2 className="text-sm font-semibold tracking-tight">
         {title}
-        <span className="ml-1.5 font-normal text-muted-foreground">{count}</span>
+        <span className="ml-1.5 font-normal text-muted-foreground">
+          {count}
+        </span>
       </h2>
       <p className="text-xs text-muted-foreground">{hint}</p>
     </div>

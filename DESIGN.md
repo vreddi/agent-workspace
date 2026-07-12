@@ -1,8 +1,8 @@
 # Design system
 
-The authenticated app ("Today", Agents, Groups, Day). The landing page and
-the in-canvas pixel world have their own languages; this file governs the
-app chrome around them.
+The authenticated app (Today, Day, Agents, Goals, Tasks, Settings). The
+landing page and the in-canvas pixel world have their own languages; this
+file governs the app chrome around them.
 
 ## Direction: soft white, one focus
 
@@ -12,17 +12,17 @@ the chrome around it stays nearly silent.
 
 ## Color (OKLCH, warm hue 85–95, chroma ≤ 0.008 on neutrals)
 
-| Token | Light | Role |
-| --- | --- | --- |
-| `--t-bg` | `oklch(0.986 0.002 95)` | page — soft white, never blue-tinted |
-| `--t-surface` | `oklch(0.998 0.001 95)` | cards, panels |
-| `--t-ink-1` | `oklch(0.24 0.006 85)` | primary text |
-| `--t-ink-2` | `oklch(0.5 0.008 85)` | secondary text |
-| `--t-ink-3` | `oklch(0.65 0.007 85)` | placeholders, meta |
-| `--t-divider` | `oklch(0.938 0.003 90)` | hairlines |
-| `--t-chip-bg` | `oklch(0.962 0.003 90)` | quiet fills |
-| `--t-accent` | `#2b6ef5` (user-tunable) | primary action, selection ONLY |
-| `--t-overdue` | `#e25151` | overdue time text; used sparingly |
+| Token         | Light                    | Role                                 |
+| ------------- | ------------------------ | ------------------------------------ |
+| `--t-bg`      | `oklch(0.986 0.002 95)`  | page — soft white, never blue-tinted |
+| `--t-surface` | `oklch(0.998 0.001 95)`  | cards, panels                        |
+| `--t-ink-1`   | `oklch(0.24 0.006 85)`   | primary text                         |
+| `--t-ink-2`   | `oklch(0.5 0.008 85)`    | secondary text                       |
+| `--t-ink-3`   | `oklch(0.65 0.007 85)`   | placeholders, meta                   |
+| `--t-divider` | `oklch(0.938 0.003 90)`  | hairlines                            |
+| `--t-chip-bg` | `oklch(0.962 0.003 90)`  | quiet fills                          |
+| `--t-accent`  | `#2b6ef5` (user-tunable) | primary action, selection ONLY       |
+| `--t-overdue` | `#e25151`                | overdue time text; used sparingly    |
 
 Dark theme mirrors the same roles. Never `#000`/`#fff`; never blue-gray
 neutrals.

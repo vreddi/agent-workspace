@@ -6,7 +6,9 @@ import { z } from 'zod'
  * current evaluation context: `import.meta.env` in the browser bundle,
  * `process.env` in Node/SSR (Vite injects loaded `.env.local` here).
  */
-function viteClient(name: 'VITE_CLERK_PUBLISHABLE_KEY' | 'VITE_CONVEX_URL'): string | undefined {
+function viteClient(
+  name: 'VITE_CLERK_PUBLISHABLE_KEY' | 'VITE_CONVEX_URL',
+): string | undefined {
   if (typeof import.meta !== 'undefined' && import.meta.env?.[name]) {
     return import.meta.env[name]
   }

@@ -80,7 +80,9 @@ describe('tasks.update with goal fields', () => {
     const t = setup()
     const asUser = await signUp(t, 'user_1')
     const goalId = await createGoal(asUser)
-    const taskId = await asUser.mutation(api.tasks.create, { title: 'Train weekly' })
+    const taskId = await asUser.mutation(api.tasks.create, {
+      title: 'Train weekly',
+    })
 
     await asUser.mutation(api.tasks.update, { id: taskId, goalId })
     let task = await asUser.query(api.tasks.get, { id: taskId })
@@ -99,11 +101,17 @@ describe('tasks.update with goal fields', () => {
       title: 'Train weekly',
       costDays: 2,
     })
-    const result = await asUser.mutation(api.tasks.update, { id: taskId, costDays: 4 })
+    const result = await asUser.mutation(api.tasks.update, {
+      id: taskId,
+      costDays: 4,
+    })
     expect(result).toEqual({ changed: true })
 
     // No-op update reports unchanged.
-    const noop = await asUser.mutation(api.tasks.update, { id: taskId, costDays: 4 })
+    const noop = await asUser.mutation(api.tasks.update, {
+      id: taskId,
+      costDays: 4,
+    })
     expect(noop).toEqual({ changed: false })
 
     const history = await asUser.query(api.tasks.history, { taskId })

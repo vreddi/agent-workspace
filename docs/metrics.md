@@ -12,12 +12,12 @@ without a migration.
 Tables live in `convex/schema.ts`; functions in `convex/metrics.ts`. Two tables
 — a definition and its time series — kept separate on purpose.
 
-- **`metrics`** — the *definition*, one row per metric per goal: `goalId`,
+- **`metrics`** — the _definition_, one row per metric per goal: `goalId`,
   denormalized `creatorId`, `name`, `unit` (`''` = unitless), a `kind`
   discriminator (`'numeric'` only, for now), a `direction` (`increase` |
   `decrease`), optional `startValue` / `targetValue` / `targetDate`, an
   `archivedAt` soft-archive flag, and `updatedAt`. Indexed `by_goal`.
-- **`metricPoints`** — append-only *readings*, one row each: `metricId`,
+- **`metricPoints`** — append-only _readings_, one row each: `metricId`,
   `creatorId`, `value`, `at`, and an optional `note`. Indexed
   `by_metric_at = [metricId, at]`.
 
@@ -26,7 +26,7 @@ metric (weight, resting heart rate) lower is better; for `increase` (exam
 scores, distance) higher is better. It decides the target math and which way
 the trend line should be heading.
 
-`at` is the reading's *effective* time and is deliberately distinct from
+`at` is the reading's _effective_ time and is deliberately distinct from
 `_creationTime`, so a reading can be back-dated ("I weighed 180 last Monday").
 It is both the chart's x-axis and the sort key — the `by_metric_at` index keeps
 readings in chronological order regardless of the order they were entered.
@@ -80,7 +80,7 @@ Nothing uses `.filter()` or `.collect()`; every query is an index scan with a
 
 If a single metric ever outgrows the 500-point chart window, the fix is
 server-side **downsampling** (bucket readings by day/week and return one point
-per bucket), *not* lifting the cap — the same "reach for it only when scale
+per bucket), _not_ lifting the cap — the same "reach for it only when scale
 demands" posture the goal cost totals take. The `by_metric_at` range index is
 already the right shape to scan a bucket window.
 

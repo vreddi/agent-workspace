@@ -7,7 +7,12 @@
     <style>
       :root {
         color-scheme: dark;
-        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-family:
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
       }
 
       body {
@@ -87,20 +92,24 @@
     <header>
       <h1>WorldKit — Pixi Pathfinding Playground</h1>
       <p class="subtitle">
-        Left-click a cell to set the <strong>goal</strong>. <kbd>Shift</kbd>+click to set the
-        <strong>start</strong>. Right-click to toggle a wall. A* runs every change.
+        Left-click a cell to set the <strong>goal</strong>.
+        <kbd>Shift</kbd>+click to set the <strong>start</strong>. Right-click to
+        toggle a wall. A* runs every change.
       </p>
     </header>
 
     <div id="stage"></div>
 
     <div class="legend">
-      <span><span class="swatch" style="background:#3b4357"></span>grass</span>
-      <span><span class="swatch" style="background:#2c5872"></span>water (impassable)</span>
-      <span><span class="swatch" style="background:#1a1d24"></span>wall</span>
-      <span><span class="swatch" style="background:#3ddc84"></span>start</span>
-      <span><span class="swatch" style="background:#ffb347"></span>goal</span>
-      <span><span class="swatch" style="background:#7aa2ff"></span>path</span>
+      <span><span class="swatch" style="background: #3b4357"></span>grass</span>
+      <span
+        ><span class="swatch" style="background: #2c5872"></span>water
+        (impassable)</span
+      >
+      <span><span class="swatch" style="background: #1a1d24"></span>wall</span>
+      <span><span class="swatch" style="background: #3ddc84"></span>start</span>
+      <span><span class="swatch" style="background: #ffb347"></span>goal</span>
+      <span><span class="swatch" style="background: #7aa2ff"></span>path</span>
     </div>
 
     <div class="status" id="status">…</div>

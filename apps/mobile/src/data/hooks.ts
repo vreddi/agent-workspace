@@ -44,7 +44,9 @@ export function useTaskList(): Task[] | undefined {
 }
 
 /** Flip a task between done and open, like the web row checkbox. */
-export function useToggleDone(): (task: Pick<Task, 'id' | 'done'>) => Promise<unknown> {
+export function useToggleDone(): (
+  task: Pick<Task, 'id' | 'done'>,
+) => Promise<unknown> {
   const update = useMutation(api.tasks.update)
   return (task) => update({ id: task.id, status: task.done ? 'open' : 'done' })
 }

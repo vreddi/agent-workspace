@@ -1,24 +1,24 @@
-import * as React from 'react';
+import * as React from 'react'
 
 export type DialogueBoxProps = {
   /** The line of dialogue. Changing it restarts the typewriter. */
-  text: string;
-  speaker?: string;
+  text: string
+  speaker?: string
   /** Portrait image URL (rendered pixelated at 56px). */
-  portrait?: string;
+  portrait?: string
   /** Characters revealed per second. Default 45. */
-  speed?: number;
+  speed?: number
   /**
    * Advance requested: first click/keypress completes the typewriter, the
    * next one fires this (show the next line, or close the box).
    */
-  onAdvance?: () => void;
-  className?: string;
-  style?: React.CSSProperties;
-};
+  onAdvance?: () => void
+  className?: string
+  style?: React.CSSProperties
+}
 
 const FONT_STACK =
-  "'Press Start 2P', 'Courier New', ui-monospace, Menlo, monospace";
+  "'Press Start 2P', 'Courier New', ui-monospace, Menlo, monospace"
 
 /**
  * Classic GBA dialogue box: navy double border, white panel, typewriter
@@ -34,41 +34,41 @@ export function DialogueBox({
   className,
   style,
 }: DialogueBoxProps) {
-  const [visible, setVisible] = React.useState(0);
-  const complete = visible >= text.length;
+  const [visible, setVisible] = React.useState(0)
+  const complete = visible >= text.length
 
   React.useEffect(() => {
-    setVisible(0);
+    setVisible(0)
     const interval = window.setInterval(() => {
       setVisible((count) => {
         if (count >= text.length) {
-          window.clearInterval(interval);
-          return count;
+          window.clearInterval(interval)
+          return count
         }
-        return count + 1;
-      });
-    }, 1000 / speed);
-    return () => window.clearInterval(interval);
-  }, [text, speed]);
+        return count + 1
+      })
+    }, 1000 / speed)
+    return () => window.clearInterval(interval)
+  }, [text, speed])
 
   const advance = React.useCallback(() => {
     if (!complete) {
-      setVisible(text.length);
-      return;
+      setVisible(text.length)
+      return
     }
-    onAdvance?.();
-  }, [complete, text, onAdvance]);
+    onAdvance?.()
+  }, [complete, text, onAdvance])
 
   React.useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
       if (event.key === 'Enter' || event.key === ' ' || event.key === 'z') {
-        event.preventDefault();
-        advance();
+        event.preventDefault()
+        advance()
       }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [advance]);
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [advance])
 
   return (
     <div
@@ -115,8 +115,7 @@ export function DialogueBox({
           background: '#f8f8f0',
           border: '4px solid #38487c',
           borderRadius: 10,
-          boxShadow:
-            'inset 0 0 0 2px #98a8d8, 0 3px 0 rgba(0, 0, 0, 0.25)',
+          boxShadow: 'inset 0 0 0 2px #98a8d8, 0 3px 0 rgba(0, 0, 0, 0.25)',
         }}
       >
         {portrait ? (
@@ -170,5 +169,5 @@ export function DialogueBox({
         }
       `}</style>
     </div>
-  );
+  )
 }

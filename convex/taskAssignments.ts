@@ -36,7 +36,9 @@ export async function canUserEditTask(
   if (task.creatorId === userId) return true
   const row = await ctx.db
     .query('taskAssignments')
-    .withIndex('by_task_and_user', (q) => q.eq('taskId', task._id).eq('userId', userId))
+    .withIndex('by_task_and_user', (q) =>
+      q.eq('taskId', task._id).eq('userId', userId),
+    )
     .unique()
   if (row) return true
   return legacyAssigneeIds(task).includes(userId)
@@ -54,11 +56,16 @@ export async function syncAssignmentStatus(
     .withIndex('by_task', (q) => q.eq('taskId', taskId))
     .take(MAX_ASSIGNEES)
   await Promise.all(
-    rows.filter((row) => row.status !== status).map((row) => ctx.db.patch(row._id, { status })),
+    rows
+      .filter((row) => row.status !== status)
+      .map((row) => ctx.db.patch(row._id, { status })),
   )
 }
 
-export async function deleteAssignmentsForTask(ctx: MutationCtx, taskId: Id<'tasks'>) {
+export async function deleteAssignmentsForTask(
+  ctx: MutationCtx,
+  taskId: Id<'tasks'>,
+) {
   const rows = await ctx.db
     .query('taskAssignments')
     .withIndex('by_task', (q) => q.eq('taskId', taskId))
@@ -77,7 +84,10 @@ export function normalizeAssigneeIds(ids: Id<'users'>[]): Id<'users'>[] {
   return unique
 }
 
-async function displayName(ctx: QueryCtx, userId: Id<'users'>): Promise<string> {
+async function displayName(
+  ctx: QueryCtx,
+  userId: Id<'users'>,
+): Promise<string> {
   const user = await ctx.db.get(userId)
   return user?.name.trim() || user?.email || 'Someone'
 }
@@ -100,7 +110,9 @@ export async function replaceAssignees(
     .withIndex('by_task', (q) => q.eq('taskId', task._id))
     .take(MAX_ASSIGNEES)
   const current =
-    existing.length > 0 ? existing.map((row) => row.userId) : legacyAssigneeIds(task)
+    existing.length > 0
+      ? existing.map((row) => row.userId)
+      : legacyAssigneeIds(task)
 
   const nextSet = new Set(next)
   for (const row of existing) {
@@ -140,7 +152,12 @@ export const setAssignees = mutation({
       throw new ConvexError('Forbidden')
     }
 
-    const { current, next } = await replaceAssignees(ctx, task, args.assigneeIds, user._id)
+    const { current, next } = await replaceAssignees(
+      ctx,
+      task,
+      args.assigneeIds,
+      user._id,
+    )
     const changed =
       current.length !== next.length || current.some((id) => !next.includes(id))
     if (!changed) return { changed: false }
@@ -149,7 +166,9 @@ export const setAssignees = mutation({
     // The event stores display names, not ids: activity entries are historical
     // statements ("assigned it to Bob"), so a later rename shouldn't rewrite
     // them, and the client can render without extra lookups.
-    const currentNames = await Promise.all(current.map((id) => displayName(ctx, id)))
+    const currentNames = await Promise.all(
+      current.map((id) => displayName(ctx, id)),
+    )
     const nextNames = await Promise.all(next.map((id) => displayName(ctx, id)))
     await ctx.db.insert('taskEvents', {
       taskId: task._id,

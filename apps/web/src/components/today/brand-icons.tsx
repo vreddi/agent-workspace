@@ -15,7 +15,12 @@ function GitHubBrand({ size = 16 }: Props) {
 
 function GmailBrand({ size = 16 }: Props) {
   return (
-    <svg viewBox="0 0 16 12" width={size} height={(size * 12) / 16} aria-hidden="true">
+    <svg
+      viewBox="0 0 16 12"
+      width={size}
+      height={(size * 12) / 16}
+      aria-hidden="true"
+    >
       <path fill="#4285F4" d="M.5 11h2.7V4.4L.5 2.4z" />
       <path fill="#34A853" d="M12.8 11h2.7V2.4L12.8 4.4z" />
       <path
@@ -53,7 +58,12 @@ function SlackBrand({ size = 16 }: Props) {
 
 function DiscordBrand({ size = 16 }: Props) {
   return (
-    <svg viewBox="0 0 16 12" width={size} height={(size * 12) / 16} aria-hidden="true">
+    <svg
+      viewBox="0 0 16 12"
+      width={size}
+      height={(size * 12) / 16}
+      aria-hidden="true"
+    >
       <path
         fill="#5865F2"
         d="M13.5 1.1c-1-.5-2.1-.8-3.2-1l-.2.3a8 8 0 0 0-3-.1c-.1 0-.2-.2-.3-.3-1.2.2-2.3.5-3.3 1A11.4 11.4 0 0 0 .2 8.7a8.2 8.2 0 0 0 2.5 1.3l.5-.8a4.8 4.8 0 0 1-.8-.4l.2-.1a5.7 5.7 0 0 0 5 0l.2.1c-.2.2-.5.3-.8.4l.6.8c.9-.3 1.7-.7 2.5-1.3a11.5 11.5 0 0 0-1.6-7.6Zm-8 6.1a1.4 1.4 0 0 1-1.3-1.4c0-.8.6-1.4 1.3-1.4.7 0 1.3.6 1.3 1.4 0 .8-.6 1.4-1.3 1.4Zm5 0a1.4 1.4 0 0 1-1.3-1.4c0-.8.6-1.4 1.3-1.4.7 0 1.3.6 1.3 1.4 0 .8-.6 1.4-1.3 1.4Z"
@@ -83,7 +93,12 @@ function MessengerBrand({ size = 16 }: Props) {
 
 function TeamsBrand({ size = 16 }: Props) {
   return (
-    <svg viewBox="0 0 16 14" width={size} height={(size * 14) / 16} aria-hidden="true">
+    <svg
+      viewBox="0 0 16 14"
+      width={size}
+      height={(size * 14) / 16}
+      aria-hidden="true"
+    >
       <path
         fill="#5059C9"
         d="M9.5 5c.8 0 1.5-.7 1.5-1.5S10.3 2 9.5 2 8 2.7 8 3.5 8.7 5 9.5 5Zm2 .5h-3l-.7.5h-1c-.4 0-.8.4-.8.9v3.7c0 1.4 1 2.6 2.4 2.9.7 0 1.4-.2 1.9-.5 1-.5 1.5-1.4 1.5-2.4V6.2c0-.3-.2-.7-.6-.7Z"

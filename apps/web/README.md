@@ -10,12 +10,12 @@ All local secrets live in **`apps/web/.env.local`**.
 cp apps/web/.env.local.example apps/web/.env.local
 ```
 
-| Variable | Where |
-| --- | --- |
+| Variable                     | Where                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------- |
 | `VITE_CLERK_PUBLISHABLE_KEY` | [Clerk Dashboard → API keys](https://dashboard.clerk.com/last-active?path=api-keys) |
-| `CLERK_SECRET_KEY` | Same page (secret key) |
-| `CLERK_JWT_ISSUER_DOMAIN` | Clerk → **JWT templates** → template named **`convex`** → Issuer URL |
-| `VITE_CONVEX_URL` | Same as `CONVEX_URL` after `pnpm dev:web` writes Convex vars |
+| `CLERK_SECRET_KEY`           | Same page (secret key)                                                              |
+| `CLERK_JWT_ISSUER_DOMAIN`    | Clerk → **JWT templates** → template named **`convex`** → Issuer URL                |
+| `VITE_CONVEX_URL`            | Same as `CONVEX_URL` after `pnpm dev:web` writes Convex vars                        |
 
 Never commit `apps/web/.env.local`.
 
@@ -54,9 +54,9 @@ Open [http://localhost:3000](http://localhost:3000) → **Sign in** (Clerk modal
 
 ## Routes
 
-| Path | Description |
-| --- | --- |
-| `/` | Home, sign-in / sign-up |
+| Path     | Description             |
+| -------- | ----------------------- |
+| `/`      | Home, sign-in / sign-up |
 | `/todos` | Authenticated todo list |
 
 Sign-out is via the **User** menu on `/todos` (Clerk `UserButton`).

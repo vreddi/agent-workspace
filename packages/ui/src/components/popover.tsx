@@ -1,7 +1,7 @@
-import * as React from "react"
-import { Popover as PopoverPrimitive } from "radix-ui"
+import * as React from 'react'
+import { Popover as PopoverPrimitive } from 'radix-ui'
 
-import { cn } from "#lib/utils"
+import { cn } from '#lib/utils'
 
 function Popover({
   ...props
@@ -17,7 +17,7 @@ function PopoverTrigger({
 
 function PopoverContent({
   className,
-  align = "center",
+  align = 'center',
   sideOffset = 4,
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
@@ -28,7 +28,7 @@ function PopoverContent({
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          "bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-lg p-4 shadow-md ring-1 ring-foreground/10 outline-hidden",
+          'bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-lg p-4 shadow-md ring-1 ring-foreground/10 outline-hidden',
           className,
         )}
         {...props}

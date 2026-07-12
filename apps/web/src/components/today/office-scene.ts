@@ -67,10 +67,7 @@ export function buildOfficeScene(
       home: officeMap.markers[DESK_MARKERS[i]!]!,
       lines: agent.personality
         ? [`Hi, I'm ${agent.name}.`, agent.personality]
-        : [
-            `Hi, I'm ${agent.name}.`,
-            "I'll start picking up your tasks soon.",
-          ],
+        : [`Hi, I'm ${agent.name}.`, "I'll start picking up your tasks soon."],
     }))
   return {
     name: `office-${time}`,

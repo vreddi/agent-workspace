@@ -81,7 +81,9 @@ function fmtSlotTime(minutes: number): string {
   const m = minutes % 60
   const ampm = h < 12 ? 'AM' : 'PM'
   const hh = h % 12 === 0 ? 12 : h % 12
-  return m === 0 ? `${hh} ${ampm}` : `${hh}:${String(m).padStart(2, '0')} ${ampm}`
+  return m === 0
+    ? `${hh} ${ampm}`
+    : `${hh}:${String(m).padStart(2, '0')} ${ampm}`
 }
 
 export type GoalOption = {
@@ -359,7 +361,10 @@ export function CapturePalette({
     })
   }
   if (estimateMinutesOrNull !== null) {
-    summaryChips.push({ key: 'estimate', label: `${estimateMinutesOrNull} min` })
+    summaryChips.push({
+      key: 'estimate',
+      label: `${estimateMinutesOrNull} min`,
+    })
   }
   if (priority !== null) {
     summaryChips.push({
@@ -369,7 +374,10 @@ export function CapturePalette({
     })
   }
   if (difficulty !== null) {
-    summaryChips.push({ key: 'difficulty', label: `Difficulty ${difficulty}/5` })
+    summaryChips.push({
+      key: 'difficulty',
+      label: `Difficulty ${difficulty}/5`,
+    })
   }
   const selectedGoal = goals?.find((g) => g._id === goalId)
   if (selectedGoal) {
@@ -487,7 +495,9 @@ export function CapturePalette({
                         // Without a valid estimate the slot length is unknown,
                         // so drop any chosen start time.
                         const n = Number(next.trim())
-                        if (!(next.trim() !== '' && Number.isFinite(n) && n > 0)) {
+                        if (
+                          !(next.trim() !== '' && Number.isFinite(n) && n > 0)
+                        ) {
                           setSlotStart(null)
                         }
                       }}
@@ -550,14 +560,20 @@ export function CapturePalette({
               <div className="t-palette__grid">
                 <div className="t-palette__field t-palette__field--narrow">
                   <span className="t-palette__label">Priority</span>
-                  <div className="t-seg" role="radiogroup" aria-label="Priority">
+                  <div
+                    className="t-seg"
+                    role="radiogroup"
+                    aria-label="Priority"
+                  >
                     {PRIORITY_CHOICES.map((choice) => (
                       <button
                         key={choice.label}
                         type="button"
                         role="radio"
                         aria-checked={priority === choice.value}
-                        data-active={priority === choice.value ? true : undefined}
+                        data-active={
+                          priority === choice.value ? true : undefined
+                        }
                         disabled={submitting}
                         onClick={() => setPriority(choice.value)}
                       >

@@ -17,6 +17,9 @@
     "./lib/*": "./src/lib/*.ts",
     "./hooks/*": "./src/hooks/*.ts"
   },
+  "scripts": {
+    "lint": "eslint ."
+  },
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -34,11 +37,11 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
-    "@types/react": "^19.0.0",
+    "@types/react": "catalog:",
     "@types/react-dom": "^19.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^4.1.8",
-    "typescript": "~5.9.2"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
   }
 }

@@ -143,7 +143,9 @@ export function TaskPeopleSection({
     try {
       await setAssignees({ taskId, assigneeIds: nextIds })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update assignees')
+      setError(
+        err instanceof Error ? err.message : 'Failed to update assignees',
+      )
     } finally {
       setBusy(false)
     }
@@ -240,7 +242,11 @@ function AddPersonButton({
       }}
     >
       <PopoverTrigger asChild>
-        <button type="button" className="tdp-btn tdp-people__add" disabled={busy}>
+        <button
+          type="button"
+          className="tdp-btn tdp-people__add"
+          disabled={busy}
+        >
           + Add person
         </button>
       </PopoverTrigger>

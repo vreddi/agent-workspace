@@ -39,7 +39,10 @@ export default function RootLayout() {
   // expo-secure-store — never in plain AsyncStorage. Only the publishable
   // key (public by design) is baked into the bundle; see src/env.ts.
   return (
-    <ClerkProvider publishableKey={env.clerkPublishableKey} tokenCache={tokenCache}>
+    <ClerkProvider
+      publishableKey={env.clerkPublishableKey}
+      tokenCache={tokenCache}
+    >
       <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
         <AppThemeProvider>
           <RootNavigator />

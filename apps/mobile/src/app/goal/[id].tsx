@@ -70,7 +70,9 @@ export default function GoalDetailScreen() {
         <AppText variant="hero">{goal.title}</AppText>
         <View style={styles.metaLine}>
           {goal.type && (
-            <View style={[styles.typeChip, { backgroundColor: palette.chipBg }]}>
+            <View
+              style={[styles.typeChip, { backgroundColor: palette.chipBg }]}
+            >
               <AppText variant="meta" color={palette.ink2}>
                 {goal.type.name}
               </AppText>
@@ -97,7 +99,10 @@ export default function GoalDetailScreen() {
           <View
             style={[
               styles.fill,
-              { backgroundColor: palette.accent, width: `${Math.round(progress * 100)}%` },
+              {
+                backgroundColor: palette.accent,
+                width: `${Math.round(progress * 100)}%`,
+              },
             ]}
           />
         </View>
@@ -106,7 +111,11 @@ export default function GoalDetailScreen() {
       {goal.description ? (
         <Card style={styles.notes}>
           <AppText variant="caption">About</AppText>
-          <AppText variant="label" color={palette.ink2} style={styles.notesBody}>
+          <AppText
+            variant="label"
+            color={palette.ink2}
+            style={styles.notesBody}
+          >
             {goal.description}
           </AppText>
         </Card>

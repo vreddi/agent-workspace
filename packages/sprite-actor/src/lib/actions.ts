@@ -29,7 +29,7 @@ export const MOVEMENT_ACTIONS = [
   'sit',
   'sleep',
   'wake',
-] as const;
+] as const
 
 export const COMBAT_ACTIONS = [
   'attack1',
@@ -49,7 +49,7 @@ export const COMBAT_ACTIONS = [
   'channel',
   'summon',
   'heal',
-] as const;
+] as const
 
 export const STATE_ACTIONS = [
   'hurt',
@@ -60,7 +60,7 @@ export const STATE_ACTIONS = [
   'revive',
   'victory',
   'defeat',
-] as const;
+] as const
 
 export const EMOTE_ACTIONS = [
   'wave',
@@ -79,7 +79,7 @@ export const EMOTE_ACTIONS = [
   'sneeze',
   'kiss',
   'hug',
-] as const;
+] as const
 
 export const INTERACT_ACTIONS = [
   'push',
@@ -99,7 +99,7 @@ export const INTERACT_ACTIONS = [
   'drink',
   'talk',
   'listen',
-] as const;
+] as const
 
 export const JOB_ACTIONS = [
   'fish',
@@ -114,7 +114,7 @@ export const JOB_ACTIONS = [
   'cook',
   'sew',
   'paint',
-] as const;
+] as const
 
 export const ALL_ACTIONS = [
   ...MOVEMENT_ACTIONS,
@@ -123,14 +123,14 @@ export const ALL_ACTIONS = [
   ...EMOTE_ACTIONS,
   ...INTERACT_ACTIONS,
   ...JOB_ACTIONS,
-] as const;
+] as const
 
-export type MovementAction = (typeof MOVEMENT_ACTIONS)[number];
-export type CombatAction = (typeof COMBAT_ACTIONS)[number];
-export type StateAction = (typeof STATE_ACTIONS)[number];
-export type EmoteAction = (typeof EMOTE_ACTIONS)[number];
-export type InteractAction = (typeof INTERACT_ACTIONS)[number];
-export type JobAction = (typeof JOB_ACTIONS)[number];
+export type MovementAction = (typeof MOVEMENT_ACTIONS)[number]
+export type CombatAction = (typeof COMBAT_ACTIONS)[number]
+export type StateAction = (typeof STATE_ACTIONS)[number]
+export type EmoteAction = (typeof EMOTE_ACTIONS)[number]
+export type InteractAction = (typeof INTERACT_ACTIONS)[number]
+export type JobAction = (typeof JOB_ACTIONS)[number]
 
 export type ActionName =
   | MovementAction
@@ -138,7 +138,7 @@ export type ActionName =
   | StateAction
   | EmoteAction
   | InteractAction
-  | JobAction;
+  | JobAction
 
 export type ActionCategory =
   | 'movement'
@@ -146,18 +146,18 @@ export type ActionCategory =
   | 'state'
   | 'emote'
   | 'interact'
-  | 'job';
+  | 'job'
 
 export const ACTION_CATEGORY: Record<ActionName, ActionCategory> = (() => {
-  const m: Partial<Record<ActionName, ActionCategory>> = {};
-  for (const a of MOVEMENT_ACTIONS) m[a] = 'movement';
-  for (const a of COMBAT_ACTIONS) m[a] = 'combat';
-  for (const a of STATE_ACTIONS) m[a] = 'state';
-  for (const a of EMOTE_ACTIONS) m[a] = 'emote';
-  for (const a of INTERACT_ACTIONS) m[a] = 'interact';
-  for (const a of JOB_ACTIONS) m[a] = 'job';
-  return m as Record<ActionName, ActionCategory>;
-})();
+  const m: Partial<Record<ActionName, ActionCategory>> = {}
+  for (const a of MOVEMENT_ACTIONS) m[a] = 'movement'
+  for (const a of COMBAT_ACTIONS) m[a] = 'combat'
+  for (const a of STATE_ACTIONS) m[a] = 'state'
+  for (const a of EMOTE_ACTIONS) m[a] = 'emote'
+  for (const a of INTERACT_ACTIONS) m[a] = 'interact'
+  for (const a of JOB_ACTIONS) m[a] = 'job'
+  return m as Record<ActionName, ActionCategory>
+})()
 
 const ONE_SHOT_SET = new Set<ActionName>([
   'jump',
@@ -214,8 +214,8 @@ const ONE_SHOT_SET = new Set<ActionName>([
   'knock',
   'eat',
   'drink',
-]);
+])
 
 export function isOneShotAction(action: ActionName): boolean {
-  return ONE_SHOT_SET.has(action);
+  return ONE_SHOT_SET.has(action)
 }

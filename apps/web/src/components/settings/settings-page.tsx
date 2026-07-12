@@ -19,7 +19,12 @@ import {
 import { Separator } from '@org/ui/components/separator'
 import { Slider } from '@org/ui/components/slider'
 import { Switch } from '@org/ui/components/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@org/ui/components/tabs'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@org/ui/components/tabs'
 import { cn } from '@org/ui/lib/utils'
 import { useId, useState } from 'react'
 import { AppShell } from '~/components/today/app-shell'
@@ -99,7 +104,10 @@ function SettingRow({
       )}
     >
       <div className="space-y-0.5 pr-4">
-        <Label htmlFor={htmlFor} className="text-sm font-medium text-foreground">
+        <Label
+          htmlFor={htmlFor}
+          className="text-sm font-medium text-foreground"
+        >
           {title}
         </Label>
         {description && (
@@ -148,10 +156,7 @@ function AppearanceSettings() {
                   theme === opt.value && 'border-ring bg-muted/50',
                 )}
               >
-                <RadioGroupItem
-                  id={`theme-${opt.value}`}
-                  value={opt.value}
-                />
+                <RadioGroupItem id={`theme-${opt.value}`} value={opt.value} />
                 <span className="text-sm font-medium">{opt.label}</span>
               </Label>
             ))}
@@ -352,7 +357,10 @@ function NotificationSettings() {
         >
           <div className="flex items-center gap-2">
             <Select defaultValue="22">
-              <SelectTrigger className="w-[88px]" aria-label="Quiet hours start">
+              <SelectTrigger
+                className="w-[88px]"
+                aria-label="Quiet hours start"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -402,7 +410,10 @@ function TaskSettings() {
           description="Where you start each time you open the app."
         >
           <Select defaultValue="today">
-            <SelectTrigger className="w-[160px]" aria-label="Default landing view">
+            <SelectTrigger
+              className="w-[160px]"
+              aria-label="Default landing view"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

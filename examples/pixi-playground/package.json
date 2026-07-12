@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@worldkit/agents": "workspace:*",
@@ -17,7 +18,7 @@
     "pixi.js": "catalog:"
   },
   "devDependencies": {
-    "typescript": "~5.9.2",
+    "typescript": "catalog:",
     "vite": "catalog:"
   }
 }

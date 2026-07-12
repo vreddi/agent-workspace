@@ -1,5 +1,13 @@
 import { space } from '@org/theme'
-import { ActivityIndicator, Platform, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native'
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import type { ReactNode } from 'react'
 import { AppText, BottomTabInset } from '@/components/ui'
@@ -26,7 +34,8 @@ export function Screen({
           {
             // On web NativeTabs renders as a top bar with no safe-area
             // inset, so give content room to clear it.
-            paddingTop: insets.top + (Platform.OS === 'web' ? 72 : 0) + space.md,
+            paddingTop:
+              insets.top + (Platform.OS === 'web' ? 72 : 0) + space.md,
             paddingBottom: BottomTabInset + space.xxxl,
           },
           style,
@@ -50,7 +59,13 @@ export function ScreenLoading() {
 }
 
 /** Screen title row: big heading + optional count, like the web `.t-page-head`. */
-export function ScreenHeader({ title, meta }: { title: string; meta?: string }) {
+export function ScreenHeader({
+  title,
+  meta,
+}: {
+  title: string
+  meta?: string
+}) {
   const { palette } = useTheme()
   return (
     <View style={styles.header}>

@@ -35,7 +35,8 @@ function UserMenu({ onOpenSettings }: { onOpenSettings?: () => void }) {
   const navigate = useNavigate()
   // Today renders its own in-place tweaks panel; everywhere else the menu
   // item routes to the dedicated settings page.
-  const openSettings = onOpenSettings ?? (() => void navigate({ to: '/settings' }))
+  const openSettings =
+    onOpenSettings ?? (() => void navigate({ to: '/settings' }))
   const fullName =
     user?.fullName ??
     [user?.firstName, user?.lastName].filter(Boolean).join(' ') ??
@@ -165,10 +166,16 @@ export function Nav({
         setPaletteOpen(false)
         return
       }
-      if ((e.key === 'n' || e.key === 'N') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      if (
+        (e.key === 'n' || e.key === 'N') &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !e.altKey
+      ) {
         const target = e.target as HTMLElement | null
         const tag = (target?.tagName ?? '').toLowerCase()
-        if (tag === 'input' || tag === 'textarea' || target?.isContentEditable) return
+        if (tag === 'input' || tag === 'textarea' || target?.isContentEditable)
+          return
         e.preventDefault()
         openRef.current()
       }
@@ -195,48 +202,48 @@ export function Nav({
 
   return (
     <>
-    <header className="t-nav">
-      <div className="t-nav__brand" aria-hidden="true">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M4 11l8-7 8 7" />
-          <path d="M6 9.5V20h12V9.5" />
-          <path d="M10 20v-6h4v6" />
-        </svg>
-      </div>
-      <nav className="t-nav__links" aria-label="Main">
-        {NAV_LINKS.map((link) => (
-          <Link
-            key={link.page}
-            to={link.to}
-            className="t-nav__link"
-            data-active={active === link.page || undefined}
+      <header className="t-nav">
+        <div className="t-nav__brand" aria-hidden="true">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
-      <span style={{ flex: 1 }} />
-      <button className="t-btn-create" onClick={openPalette} type="button">
-        New task
-        <span className="t-kbd t-kbd--on-accent">N</span>
-      </button>
-      <UserMenu onOpenSettings={onOpenSettings} />
-    </header>
-    <CapturePalette
-      open={paletteOpen}
-      goals={goals}
-      onClose={() => setPaletteOpen(false)}
-      onSubmit={handleCapture}
-    />
+            <path d="M4 11l8-7 8 7" />
+            <path d="M6 9.5V20h12V9.5" />
+            <path d="M10 20v-6h4v6" />
+          </svg>
+        </div>
+        <nav className="t-nav__links" aria-label="Main">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.page}
+              to={link.to}
+              className="t-nav__link"
+              data-active={active === link.page || undefined}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <span style={{ flex: 1 }} />
+        <button className="t-btn-create" onClick={openPalette} type="button">
+          New task
+          <span className="t-kbd t-kbd--on-accent">N</span>
+        </button>
+        <UserMenu onOpenSettings={onOpenSettings} />
+      </header>
+      <CapturePalette
+        open={paletteOpen}
+        goals={goals}
+        onClose={() => setPaletteOpen(false)}
+        onSubmit={handleCapture}
+      />
     </>
   )
 }

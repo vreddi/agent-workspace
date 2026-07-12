@@ -6,9 +6,9 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
   "vars": {
-    "VITE_CONVEX_URL": "https://hidden-donkey-398.convex.cloud"
+    "VITE_CONVEX_URL": "https://hidden-donkey-398.convex.cloud",
   },
   "observability": {
-    "enabled": true
-  }
+    "enabled": true,
+  },
 }

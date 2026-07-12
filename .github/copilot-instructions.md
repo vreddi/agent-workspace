@@ -1,0 +1,31 @@
+# GitHub Copilot instructions
+
+All project context and conventions for this repo live in **`AGENTS.md`** at
+the repo root — read it first. GitHub Copilot does not auto-read root
+`AGENTS.md`, so the essentials are summarized here; `AGENTS.md` is the source
+of truth.
+
+## What this is
+
+An AI-native, accountability-focused personal TODO app (tasks, goals,
+metrics, deadline reminders, settings), built neurodivergent-first, plus a
+Pokémon-GBA-style pixel village where AI agents live. Nx + pnpm monorepo,
+TypeScript strict everywhere. Backend is Convex (`convex/`); web is TanStack
+Start on Cloudflare Workers (`apps/web`); there's an Expo mobile app
+(`apps/mobile`).
+
+## Conventions
+
+- **Conventional commits** (`feat(scope): ...`, `docs: ...`); PRs target
+  `develop`.
+- Run tasks through Nx (`pnpm nx run ...` / `run-many` / `affected`), not the
+  underlying tools directly.
+- Full check: `pnpm nx run-many -t test,build,typecheck`.
+- Write `vitest` tests for logic-heavy code; cover visual components with
+  Storybook stories.
+- Keep the headless core → adapter → React layering; simulation packages
+  hold no React and no rendering.
+- Before writing Convex code, read `convex/_generated/ai/guidelines.md`.
+
+See `AGENTS.md` (architecture invariants, package archetypes, backend data
+model), `PRODUCT.md`, `DESIGN.md`, and `docs/README.md` for the rest.

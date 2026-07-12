@@ -1,7 +1,7 @@
-import { CharGrid, parsePixelArt } from '../pixel-art.js';
-import { TILE_SIZE, defineTile } from '../tileset.js';
-import type { TileDef } from '../tileset.js';
-import type { TimeOfDay } from '../time.js';
+import { CharGrid, parsePixelArt } from '../pixel-art.js'
+import { TILE_SIZE, defineTile } from '../tileset.js'
+import type { TileDef } from '../tileset.js'
+import type { TimeOfDay } from '../time.js'
 
 /**
  * Ground palettes per lighting mood. Night is desaturated twilight moss
@@ -21,22 +21,22 @@ const GRASS = {
     c: '#7d905e',
     d: '#566744',
   },
-} satisfies Record<TimeOfDay, Record<string, string>>;
+} satisfies Record<TimeOfDay, Record<string, string>>
 
 // Meadow sits a half-step darker than grass so broad fields read as a
 // patchwork instead of a flat wash.
 const MEADOW = {
   night: { ...GRASS.night, a: '#4b5940', b: '#3f4d35' },
   day: { ...GRASS.day, a: '#687a4e', b: '#596b42' },
-} satisfies Record<TimeOfDay, Record<string, string>>;
+} satisfies Record<TimeOfDay, Record<string, string>>
 
 /** A tiny two-blade grass tuft, the classic GBA ground motif. */
 function blade(g: CharGrid, x: number, y: number, char: string): void {
-  g.px(x, y, char);
-  g.px(x, y - 1, char);
-  g.px(x + 2, y, char);
-  g.px(x + 2, y - 1, char);
-  g.px(x + 1, y, char);
+  g.px(x, y, char)
+  g.px(x, y - 1, char)
+  g.px(x + 2, y, char)
+  g.px(x + 2, y - 1, char)
+  g.px(x + 1, y, char)
 }
 
 function makeGrass(time: TimeOfDay): TileDef {
@@ -45,7 +45,7 @@ function makeGrass(time: TimeOfDay): TileDef {
     walkable: true,
     frames: [
       (() => {
-        const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a');
+        const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a')
         for (const [x, y] of [
           [4, 5],
           [16, 3],
@@ -59,7 +59,7 @@ function makeGrass(time: TimeOfDay): TileDef {
           [3, 29],
           [17, 29],
         ] as const) {
-          blade(g, x, y, 'b');
+          blade(g, x, y, 'b')
         }
         for (const [x, y] of [
           [11, 6],
@@ -71,7 +71,7 @@ function makeGrass(time: TimeOfDay): TileDef {
           [22, 30],
           [2, 11],
         ] as const) {
-          g.px(x, y, 'c');
+          g.px(x, y, 'c')
         }
         // Sparse deep-shade specks give the moss a soft, uneven nap.
         for (const [x, y] of [
@@ -81,13 +81,13 @@ function makeGrass(time: TimeOfDay): TileDef {
           [20, 27],
           [12, 2],
         ] as const) {
-          g.px(x, y, 'd');
-          g.px(x + 1, y, 'd');
+          g.px(x, y, 'd')
+          g.px(x + 1, y, 'd')
         }
-        return parsePixelArt(g.rows(), GRASS[time]);
+        return parsePixelArt(g.rows(), GRASS[time])
       })(),
     ],
-  });
+  })
 }
 
 function makeMeadow(time: TimeOfDay): TileDef {
@@ -97,7 +97,7 @@ function makeMeadow(time: TimeOfDay): TileDef {
     walkable: true,
     frames: [
       (() => {
-        const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a');
+        const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a')
         for (const [x, y] of [
           [3, 4],
           [12, 7],
@@ -113,7 +113,7 @@ function makeMeadow(time: TimeOfDay): TileDef {
           [9, 30],
           [19, 22],
         ] as const) {
-          blade(g, x, y, 'b');
+          blade(g, x, y, 'b')
         }
         for (const [x, y] of [
           [8, 3],
@@ -124,7 +124,7 @@ function makeMeadow(time: TimeOfDay): TileDef {
           [28, 30],
           [15, 30],
         ] as const) {
-          g.px(x, y, 'c');
+          g.px(x, y, 'c')
         }
         for (const [x, y] of [
           [21, 8],
@@ -133,46 +133,46 @@ function makeMeadow(time: TimeOfDay): TileDef {
           [25, 24],
           [10, 24],
         ] as const) {
-          g.px(x, y, 'd');
-          g.px(x + 1, y, 'd');
+          g.px(x, y, 'd')
+          g.px(x + 1, y, 'd')
         }
-        return parsePixelArt(g.rows(), MEADOW[time]);
+        return parsePixelArt(g.rows(), MEADOW[time])
       })(),
     ],
-  });
+  })
 }
 
 const TALL_GRASS = {
   night: { ...GRASS.night, e: '#31402a', f: '#6a7a4f' },
   day: { ...GRASS.day, e: '#4d5f3a', f: '#8a9c63' },
-} satisfies Record<TimeOfDay, Record<string, string>>;
+} satisfies Record<TimeOfDay, Record<string, string>>
 
 /** A tall-grass tuft: three blades with lighter tips. `lean` sways the tips. */
 function tuft(g: CharGrid, x: number, y: number, lean: number): void {
   // Blade stems (bottom-anchored).
-  g.fill(x, y - 3, 1, 4, 'e');
-  g.fill(x + 3, y - 5, 1, 6, 'e');
-  g.fill(x + 6, y - 4, 1, 5, 'e');
+  g.fill(x, y - 3, 1, 4, 'e')
+  g.fill(x + 3, y - 5, 1, 6, 'e')
+  g.fill(x + 6, y - 4, 1, 5, 'e')
   // Tips lean with the breeze.
-  g.px(x + lean, y - 4, 'f');
-  g.px(x + 3 + lean, y - 6, 'f');
-  g.px(x + 6 + lean, y - 5, 'f');
+  g.px(x + lean, y - 4, 'f')
+  g.px(x + 3 + lean, y - 6, 'f')
+  g.px(x + 6 + lean, y - 5, 'f')
   // Base shadow.
-  g.fill(x, y + 1, 7, 1, 'e');
+  g.fill(x, y + 1, 7, 1, 'e')
 }
 
 function tallGrassFrame(time: TimeOfDay, lean: number) {
-  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a');
-  tuft(g, 3, 9, lean);
-  tuft(g, 15, 7, -lean);
-  tuft(g, 23, 12, lean);
-  tuft(g, 6, 21, -lean);
-  tuft(g, 17, 25, lean);
-  tuft(g, 26, 22, -lean);
-  g.px(11, 14, 'c');
-  g.px(29, 5, 'c');
-  g.px(2, 28, 'c');
-  return parsePixelArt(g.rows(), TALL_GRASS[time]);
+  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a')
+  tuft(g, 3, 9, lean)
+  tuft(g, 15, 7, -lean)
+  tuft(g, 23, 12, lean)
+  tuft(g, 6, 21, -lean)
+  tuft(g, 17, 25, lean)
+  tuft(g, 26, 22, -lean)
+  g.px(11, 14, 'c')
+  g.px(29, 5, 'c')
+  g.px(2, 28, 'c')
+  return parsePixelArt(g.rows(), TALL_GRASS[time])
 }
 
 function makeTallGrass(time: TimeOfDay): TileDef {
@@ -181,7 +181,7 @@ function makeTallGrass(time: TimeOfDay): TileDef {
     terrain: 'grass',
     walkable: true,
     frames: [tallGrassFrame(time, 0), tallGrassFrame(time, 1)],
-  });
+  })
 }
 
 const FLOWERS = {
@@ -201,7 +201,7 @@ const FLOWERS = {
     o: '#d4a15c',
     e: '#5f7347',
   },
-} satisfies Record<TimeOfDay, Record<string, string>>;
+} satisfies Record<TimeOfDay, Record<string, string>>
 
 /**
  * A six-pixel bloom on a short stem. `spin` alternates the petals between
@@ -215,31 +215,31 @@ function bloom(
   center: string,
   spin: boolean,
 ): void {
-  g.fill(x + 2, y + 2, 2, 2, center);
+  g.fill(x + 2, y + 2, 2, 2, center)
   if (spin) {
-    g.fill(x + 2, y - 1, 2, 2, petal);
-    g.fill(x + 2, y + 5, 2, 2, petal);
-    g.fill(x - 1, y + 2, 2, 2, petal);
-    g.fill(x + 5, y + 2, 2, 2, petal);
+    g.fill(x + 2, y - 1, 2, 2, petal)
+    g.fill(x + 2, y + 5, 2, 2, petal)
+    g.fill(x - 1, y + 2, 2, 2, petal)
+    g.fill(x + 5, y + 2, 2, 2, petal)
   } else {
-    g.fill(x, y, 2, 2, petal);
-    g.fill(x + 4, y, 2, 2, petal);
-    g.fill(x, y + 4, 2, 2, petal);
-    g.fill(x + 4, y + 4, 2, 2, petal);
+    g.fill(x, y, 2, 2, petal)
+    g.fill(x + 4, y, 2, 2, petal)
+    g.fill(x, y + 4, 2, 2, petal)
+    g.fill(x + 4, y + 4, 2, 2, petal)
   }
-  g.fill(x + 2, y + 6, 1, 2, 'e'); // stem
+  g.fill(x + 2, y + 6, 1, 2, 'e') // stem
 }
 
 function flowersFrame(time: TimeOfDay, spin: boolean) {
-  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a');
-  bloom(g, 6, 5, 'r', 'y', spin);
-  bloom(g, 20, 18, 'w', 'o', !spin);
-  blade(g, 16, 9, 'b');
-  blade(g, 5, 25, 'b');
-  blade(g, 26, 7, 'b');
-  g.px(12, 29, 'c');
-  g.px(28, 27, 'c');
-  return parsePixelArt(g.rows(), FLOWERS[time]);
+  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a')
+  bloom(g, 6, 5, 'r', 'y', spin)
+  bloom(g, 20, 18, 'w', 'o', !spin)
+  blade(g, 16, 9, 'b')
+  blade(g, 5, 25, 'b')
+  blade(g, 26, 7, 'b')
+  g.px(12, 29, 'c')
+  g.px(28, 27, 'c')
+  return parsePixelArt(g.rows(), FLOWERS[time])
 }
 
 function makeFlowers(time: TimeOfDay): TileDef {
@@ -248,7 +248,7 @@ function makeFlowers(time: TimeOfDay): TileDef {
     terrain: 'grass',
     walkable: true,
     frames: [flowersFrame(time, false), flowersFrame(time, true)],
-  });
+  })
 }
 
 const FIREFLIES = {
@@ -264,59 +264,59 @@ const FIREFLIES = {
     i: '#8a7358', // butterfly body
     j: '#d8cfa8', // wing shade
   },
-} satisfies Record<TimeOfDay, Record<string, string>>;
+} satisfies Record<TimeOfDay, Record<string, string>>
 
 /** A firefly: a bright core pixel wrapped in a soft warm halo. */
 function fly(g: CharGrid, x: number, y: number): void {
-  g.px(x, y - 1, 'i');
-  g.px(x, y + 1, 'i');
-  g.px(x - 1, y, 'i');
-  g.px(x + 1, y, 'i');
-  g.px(x, y, 'h');
+  g.px(x, y - 1, 'i')
+  g.px(x, y + 1, 'i')
+  g.px(x - 1, y, 'i')
+  g.px(x + 1, y, 'i')
+  g.px(x, y, 'h')
 }
 
 /** A butterfly: cream wings flapping around a tiny dark body. */
 function butterfly(g: CharGrid, x: number, y: number, open: boolean): void {
-  g.px(x, y, 'i');
-  g.px(x, y + 1, 'i');
+  g.px(x, y, 'i')
+  g.px(x, y + 1, 'i')
   if (open) {
-    g.px(x - 1, y, 'h');
-    g.px(x + 1, y, 'h');
-    g.px(x - 1, y + 1, 'j');
-    g.px(x + 1, y + 1, 'j');
+    g.px(x - 1, y, 'h')
+    g.px(x + 1, y, 'h')
+    g.px(x - 1, y + 1, 'j')
+    g.px(x + 1, y + 1, 'j')
   } else {
-    g.px(x - 1, y - 1, 'h');
-    g.px(x + 1, y - 1, 'h');
+    g.px(x - 1, y - 1, 'h')
+    g.px(x + 1, y - 1, 'h')
   }
 }
 
 function firefliesFrame(time: TimeOfDay, shift: boolean) {
-  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a');
+  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'a')
   for (const [x, y] of [
     [9, 12],
     [22, 6],
     [17, 24],
   ] as const) {
-    blade(g, x, y, 'b');
+    blade(g, x, y, 'b')
   }
-  g.px(27, 17, 'c');
-  g.px(4, 26, 'c');
+  g.px(27, 17, 'c')
+  g.px(4, 26, 'c')
   if (time === 'night') {
     if (shift) {
-      fly(g, 8, 7);
-      fly(g, 24, 21);
-      g.px(17, 15, 'j');
+      fly(g, 8, 7)
+      fly(g, 24, 21)
+      g.px(17, 15, 'j')
     } else {
-      fly(g, 10, 9);
-      fly(g, 22, 19);
-      g.px(15, 14, 'j');
+      fly(g, 10, 9)
+      fly(g, 22, 19)
+      g.px(15, 14, 'j')
     }
   } else {
     // By day the same tile hosts butterflies instead.
-    butterfly(g, 9, 8, shift);
-    butterfly(g, 23, 20, !shift);
+    butterfly(g, 9, 8, shift)
+    butterfly(g, 23, 20, !shift)
   }
-  return parsePixelArt(g.rows(), FIREFLIES[time]);
+  return parsePixelArt(g.rows(), FIREFLIES[time])
 }
 
 /** Grass with drifting fireflies at night; butterflies by day. */
@@ -326,7 +326,7 @@ function makeFireflies(time: TimeOfDay): TileDef {
     terrain: 'grass',
     walkable: true,
     frames: [firefliesFrame(time, false), firefliesFrame(time, true)],
-  });
+  })
 }
 
 const PATH = {
@@ -340,12 +340,12 @@ const PATH = {
     t: '#75604a',
     u: '#9c856a',
   },
-} satisfies Record<TimeOfDay, Record<string, string>>;
+} satisfies Record<TimeOfDay, Record<string, string>>
 
 const PATH_RIM: Record<TimeOfDay, string> = {
   night: '#453729',
   day: '#5d4d3a',
-};
+}
 
 function makePath(time: TimeOfDay): TileDef {
   return defineTile({
@@ -354,7 +354,7 @@ function makePath(time: TimeOfDay): TileDef {
     rim: PATH_RIM[time],
     frames: [
       (() => {
-        const g = new CharGrid(TILE_SIZE, TILE_SIZE, 's');
+        const g = new CharGrid(TILE_SIZE, TILE_SIZE, 's')
         // Small pebbles: a dark dash with a light kiss on top.
         for (const [x, y] of [
           [5, 6],
@@ -367,8 +367,8 @@ function makePath(time: TimeOfDay): TileDef {
           [26, 27],
           [8, 30],
         ] as const) {
-          g.fill(x, y, 3, 2, 't');
-          g.px(x, y, 'u');
+          g.fill(x, y, 3, 2, 't')
+          g.px(x, y, 'u')
         }
         for (const [x, y] of [
           [13, 8],
@@ -380,12 +380,12 @@ function makePath(time: TimeOfDay): TileDef {
           [30, 20],
           [6, 27],
         ] as const) {
-          g.px(x, y, 'u');
+          g.px(x, y, 'u')
         }
-        return parsePixelArt(g.rows(), PATH[time]);
+        return parsePixelArt(g.rows(), PATH[time])
       })(),
     ],
-  });
+  })
 }
 
 const WATER = {
@@ -401,14 +401,14 @@ const WATER = {
     x: '#c9d8c2',
     z: '#5b7d80',
   },
-} satisfies Record<TimeOfDay, Record<string, string>>;
+} satisfies Record<TimeOfDay, Record<string, string>>
 
 const WATER_RIM: Record<TimeOfDay, string> = {
   night: '#49594e',
   day: '#6b8a7a',
-};
+}
 
-type Dash = readonly [x: number, y: number, w: number];
+type Dash = readonly [x: number, y: number, w: number]
 
 function waterFrame(
   time: TimeOfDay,
@@ -416,19 +416,19 @@ function waterFrame(
   mid: readonly Dash[],
   dark: readonly Dash[],
 ) {
-  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'w');
+  const g = new CharGrid(TILE_SIZE, TILE_SIZE, 'w')
   for (const [x, y, w] of mid) {
-    g.fill(x, y, w, 1, 'z');
+    g.fill(x, y, w, 1, 'z')
   }
   for (const [x, y, w] of light) {
-    g.fill(x, y, w, 1, 'x');
+    g.fill(x, y, w, 1, 'x')
     // A hooked tip gives the classic wave glyph.
-    g.px(x + w, y + 1, 'x');
+    g.px(x + w, y + 1, 'x')
   }
   for (const [x, y, w] of dark) {
-    g.fill(x, y, w, 1, 'v');
+    g.fill(x, y, w, 1, 'v')
   }
-  return parsePixelArt(g.rows(), WATER[time]);
+  return parsePixelArt(g.rows(), WATER[time])
 }
 
 function makeWater(time: TimeOfDay): TileDef {
@@ -478,7 +478,7 @@ function makeWater(time: TimeOfDay): TileDef {
         ],
       ),
     ],
-  });
+  })
 }
 
 /** All ground tiles for one lighting mood, keyed by tile id. */
@@ -491,6 +491,6 @@ export function groundTiles(time: TimeOfDay): Record<string, TileDef> {
     makeFireflies(time),
     makePath(time),
     makeWater(time),
-  ];
-  return Object.fromEntries(tiles.map((tile) => [tile.id, tile]));
+  ]
+  return Object.fromEntries(tiles.map((tile) => [tile.id, tile]))
 }

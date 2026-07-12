@@ -23,7 +23,8 @@
   "scripts": {
     "build": "tsdown",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@worldkit/grid": "workspace:*"

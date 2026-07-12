@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/addon-docs/blocks';
+import { Meta } from '@storybook/addon-docs/blocks'
 
 <Meta title="Packages/@worldkit/agents" />
 
@@ -45,20 +45,20 @@ import {
   setAgentFacing,
   setAgentPosition,
   setAgentState,
-} from '@worldkit/agents';
+} from '@worldkit/agents'
 
 const mira = createAgent({
   id: 'agent_1',
   name: 'Mira',
   position: { x: 2, y: 2 },
-});
+})
 
-const moved = setAgentPosition(mira, { x: 3, y: 2 });
-const turned = setAgentFacing(moved, 'east');
-const busy = setAgentState(turned, 'moving');
+const moved = setAgentPosition(mira, { x: 3, y: 2 })
+const turned = setAgentFacing(moved, 'east')
+const busy = setAgentState(turned, 'moving')
 
-isAgentIdle(mira); // true
-isAgentIdle(busy); // false
+isAgentIdle(mira) // true
+isAgentIdle(busy) // false
 ```
 
 Every function returns a **new** `Agent`. Nothing mutates in place.
@@ -66,27 +66,22 @@ Every function returns a **new** `Agent`. Nothing mutates in place.
 ## Types
 
 ```ts
-type AgentId = string;
+type AgentId = string
 
-type AgentState =
-  | 'idle'
-  | 'moving'
-  | 'acting'
-  | 'speaking'
-  | 'waiting';
+type AgentState = 'idle' | 'moving' | 'acting' | 'speaking' | 'waiting'
 
-type Direction = 'north' | 'east' | 'south' | 'west';
+type Direction = 'north' | 'east' | 'south' | 'west'
 
 type Agent = {
-  id: AgentId;
-  name: string;
-  position: GridPosition;
-  facing: Direction;
-  state: AgentState;
-  data?: Record<string, unknown>;
-  traits?: Record<string, unknown>;
-  memory?: Record<string, unknown>;
-};
+  id: AgentId
+  name: string
+  position: GridPosition
+  facing: Direction
+  state: AgentState
+  data?: Record<string, unknown>
+  traits?: Record<string, unknown>
+  memory?: Record<string, unknown>
+}
 ```
 
 `data` is for appearance, UI state, and customization. `traits` and `memory`
@@ -125,14 +120,14 @@ break in favor of horizontal motion. Returns `undefined` when the delta is
 zero.
 
 ```ts
-getDirectionFromDelta({ x: 1, y: 0 });  // 'east'
-getDirectionFromDelta({ x: 0, y: -1 }); // 'north'
-getDirectionFromDelta({ x: 0, y: 0 });  // undefined
+getDirectionFromDelta({ x: 1, y: 0 }) // 'east'
+getDirectionFromDelta({ x: 0, y: -1 }) // 'north'
+getDirectionFromDelta({ x: 0, y: 0 }) // undefined
 ```
 
 ## Design notes
 
-- **Tiny body first. Soul later.** This package describes the *shape* of a
+- **Tiny body first. Soul later.** This package describes the _shape_ of a
   character. Smart agents — AI, behavior trees, memory consolidation — come
   later, on top.
 - **Plain data.** `Agent` is a serializable object. `JSON.stringify` /
