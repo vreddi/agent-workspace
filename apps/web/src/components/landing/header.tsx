@@ -17,11 +17,7 @@ export function Header() {
 
       <nav className="landing-header__nav" aria-label="Primary">
         {NAV_LINKS.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            className="landing-header__link"
-          >
+          <a key={link.href} href={link.href} className="landing-header__link">
             {link.label}
           </a>
         ))}

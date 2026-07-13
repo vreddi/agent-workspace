@@ -18,9 +18,9 @@ export function Hero() {
         </h1>
 
         <p className="lp-hero-sub">
-          Today is a calm task manager where your AI helpers are characters in
-          a tiny pixel village. Capture what&rsquo;s on your mind, shape one
-          clear day, and let the villagers keep you gently on track.
+          Today is a calm task manager where your AI helpers are characters in a
+          tiny pixel village. Capture what&rsquo;s on your mind, shape one clear
+          day, and let the villagers keep you gently on track.
         </p>
 
         <div className="lp-cta-row">

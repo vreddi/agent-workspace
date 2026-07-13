@@ -100,9 +100,9 @@ export function Features() {
           <Reveal className="lp-story__text">
             <h3 className="lp-h3">Goals on a gentle board</h3>
             <p>
-              Group tasks under goals and move them across a quiet kanban.
-              Each goal wears a coin for its category, tracks its cost, and
-              nudges you before a deadline slips.
+              Group tasks under goals and move them across a quiet kanban. Each
+              goal wears a coin for its category, tracks its cost, and nudges
+              you before a deadline slips.
             </p>
           </Reveal>
           <Reveal className="lp-story__art" delay={80}>
@@ -129,10 +129,31 @@ export function Features() {
 
 function CaptureVignette() {
   return (
-    <svg className="lp-vignette" viewBox="0 0 360 240" role="img" aria-label="A task list with a quick-capture field">
-      <rect x="10" y="10" width="340" height="220" rx="20" fill="#fffdf7" stroke="#eadfcb" />
+    <svg
+      className="lp-vignette"
+      viewBox="0 0 360 240"
+      role="img"
+      aria-label="A task list with a quick-capture field"
+    >
+      <rect
+        x="10"
+        y="10"
+        width="340"
+        height="220"
+        rx="20"
+        fill="#fffdf7"
+        stroke="#eadfcb"
+      />
       {/* capture field */}
-      <rect x="32" y="32" width="296" height="44" rx="13" fill="#faf4e7" stroke="#e8dcc4" />
+      <rect
+        x="32"
+        y="32"
+        width="296"
+        height="44"
+        rx="13"
+        fill="#faf4e7"
+        stroke="#e8dcc4"
+      />
       <text x="50" y="59" fontSize="15" fontWeight="600" fill="#3d3a33">
         renew passport
       </text>
@@ -142,14 +163,28 @@ function CaptureVignette() {
       </text>
       {/* rows */}
       <g>
-        <circle cx="48" cy="108" r="10" fill="none" stroke="#cfc4ac" strokeWidth="2" />
+        <circle
+          cx="48"
+          cy="108"
+          r="10"
+          fill="none"
+          stroke="#cfc4ac"
+          strokeWidth="2"
+        />
         <text x="70" y="113" fontSize="14" fontWeight="600" fill="#3d3a33">
           buy bird seed
         </text>
       </g>
       <line x1="32" y1="132" x2="328" y2="132" stroke="#f0e9d8" />
       <g>
-        <circle cx="48" cy="156" r="10" fill="none" stroke="#cfc4ac" strokeWidth="2" />
+        <circle
+          cx="48"
+          cy="156"
+          r="10"
+          fill="none"
+          stroke="#cfc4ac"
+          strokeWidth="2"
+        />
         <text x="70" y="161" fontSize="14" fontWeight="600" fill="#3d3a33">
           call the bank
         </text>
@@ -159,9 +194,29 @@ function CaptureVignette() {
       </g>
       <line x1="32" y1="180" x2="328" y2="180" stroke="#f0e9d8" />
       <g opacity="0.62">
-        <circle cx="48" cy="204" r="10" fill="#a8c98b" stroke="#8bb26e" strokeWidth="2" />
-        <path d="M43.5 204 l3.4 3.4 l6-6.8" stroke="#fffdf7" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-        <text x="70" y="209" fontSize="14" fontWeight="600" fill="#8a8064" textDecoration="line-through">
+        <circle
+          cx="48"
+          cy="204"
+          r="10"
+          fill="#a8c98b"
+          stroke="#8bb26e"
+          strokeWidth="2"
+        />
+        <path
+          d="M43.5 204 l3.4 3.4 l6-6.8"
+          stroke="#fffdf7"
+          strokeWidth="2.2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <text
+          x="70"
+          y="209"
+          fontSize="14"
+          fontWeight="600"
+          fill="#8a8064"
+          textDecoration="line-through"
+        >
           water the ferns
         </text>
       </g>
@@ -171,8 +226,21 @@ function CaptureVignette() {
 
 function BoardVignette() {
   return (
-    <svg className="lp-vignette" viewBox="0 0 360 240" role="img" aria-label="A three-column goal board with coin crests">
-      <rect x="10" y="10" width="340" height="220" rx="20" fill="#fffdf7" stroke="#eadfcb" />
+    <svg
+      className="lp-vignette"
+      viewBox="0 0 360 240"
+      role="img"
+      aria-label="A three-column goal board with coin crests"
+    >
+      <rect
+        x="10"
+        y="10"
+        width="340"
+        height="220"
+        rx="20"
+        fill="#fffdf7"
+        stroke="#eadfcb"
+      />
       {(
         [
           { x: 28, label: 'Not started' },
@@ -181,36 +249,113 @@ function BoardVignette() {
         ] as const
       ).map((col) => (
         <g key={col.x}>
-          <text x={col.x + 6} y="42" fontSize="11.5" fontWeight="700" fill="#8a8064" letterSpacing="0.4">
+          <text
+            x={col.x + 6}
+            y="42"
+            fontSize="11.5"
+            fontWeight="700"
+            fill="#8a8064"
+            letterSpacing="0.4"
+          >
             {col.label}
           </text>
-          <rect x={col.x} y="52" width="84" height="164" rx="12" fill="#faf5e9" />
+          <rect
+            x={col.x}
+            y="52"
+            width="84"
+            height="164"
+            rx="12"
+            fill="#faf5e9"
+          />
         </g>
       ))}
       {/* cards */}
       <g>
-        <rect x="34" y="62" width="72" height="52" rx="9" fill="#fffdf7" stroke="#eadfcb" />
-        <image href="/goal-types/travel.png" x="40" y="68" width="20" height="20" />
+        <rect
+          x="34"
+          y="62"
+          width="72"
+          height="52"
+          rx="9"
+          fill="#fffdf7"
+          stroke="#eadfcb"
+        />
+        <image
+          href="/goal-types/travel.png"
+          x="40"
+          y="68"
+          width="20"
+          height="20"
+        />
         <rect x="40" y="94" width="52" height="5" rx="2.5" fill="#ded2b8" />
         <rect x="40" y="103" width="36" height="5" rx="2.5" fill="#ece2cc" />
       </g>
       <g>
-        <rect x="144" y="62" width="72" height="52" rx="9" fill="#fffdf7" stroke="#e4b352" strokeWidth="1.6" />
-        <image href="/goal-types/finance.png" x="150" y="68" width="20" height="20" />
+        <rect
+          x="144"
+          y="62"
+          width="72"
+          height="52"
+          rx="9"
+          fill="#fffdf7"
+          stroke="#e4b352"
+          strokeWidth="1.6"
+        />
+        <image
+          href="/goal-types/finance.png"
+          x="150"
+          y="68"
+          width="20"
+          height="20"
+        />
         <rect x="150" y="94" width="52" height="5" rx="2.5" fill="#ded2b8" />
         <rect x="150" y="103" width="42" height="5" rx="2.5" fill="#ece2cc" />
       </g>
       <g>
-        <rect x="144" y="122" width="72" height="52" rx="9" fill="#fffdf7" stroke="#eadfcb" />
-        <image href="/goal-types/learning.png" x="150" y="128" width="20" height="20" />
+        <rect
+          x="144"
+          y="122"
+          width="72"
+          height="52"
+          rx="9"
+          fill="#fffdf7"
+          stroke="#eadfcb"
+        />
+        <image
+          href="/goal-types/learning.png"
+          x="150"
+          y="128"
+          width="20"
+          height="20"
+        />
         <rect x="150" y="154" width="46" height="5" rx="2.5" fill="#ded2b8" />
         <rect x="150" y="163" width="30" height="5" rx="2.5" fill="#ece2cc" />
       </g>
       <g opacity="0.72">
-        <rect x="254" y="62" width="72" height="52" rx="9" fill="#fffdf7" stroke="#eadfcb" />
-        <image href="/goal-types/health-wellness.png" x="260" y="68" width="20" height="20" />
+        <rect
+          x="254"
+          y="62"
+          width="72"
+          height="52"
+          rx="9"
+          fill="#fffdf7"
+          stroke="#eadfcb"
+        />
+        <image
+          href="/goal-types/health-wellness.png"
+          x="260"
+          y="68"
+          width="20"
+          height="20"
+        />
         <rect x="260" y="94" width="48" height="5" rx="2.5" fill="#ded2b8" />
-        <path d="M310 74 l4 4 l7-8" stroke="#8bb26e" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+        <path
+          d="M310 74 l4 4 l7-8"
+          stroke="#8bb26e"
+          strokeWidth="2.4"
+          fill="none"
+          strokeLinecap="round"
+        />
       </g>
     </svg>
   )
@@ -218,8 +363,21 @@ function BoardVignette() {
 
 function MetricVignette() {
   return (
-    <svg className="lp-vignette" viewBox="0 0 360 240" role="img" aria-label="A rising metric trend line">
-      <rect x="10" y="10" width="340" height="220" rx="20" fill="#fffdf7" stroke="#eadfcb" />
+    <svg
+      className="lp-vignette"
+      viewBox="0 0 360 240"
+      role="img"
+      aria-label="A rising metric trend line"
+    >
+      <rect
+        x="10"
+        y="10"
+        width="340"
+        height="220"
+        rx="20"
+        fill="#fffdf7"
+        stroke="#eadfcb"
+      />
       <text x="32" y="46" fontSize="14" fontWeight="700" fill="#3d3a33">
         morning pages
       </text>
@@ -279,10 +437,10 @@ export function Village() {
         <Reveal className="lp-section-head">
           <h2 className="lp-h2">Your helpers live in a tiny village.</h2>
           <p className="lp-lede">
-            Every agent in Today is a character with a name, a personality and
-            a house on the map. They wander by day, sleep by night, and
-            they&rsquo;re growing into real helpers that file, remind and
-            follow up on the work you give them.
+            Every agent in Today is a character with a name, a personality and a
+            house on the map. They wander by day, sleep by night, and
+            they&rsquo;re growing into real helpers that file, remind and follow
+            up on the work you give them.
           </p>
         </Reveal>
 
@@ -306,7 +464,13 @@ export function Village() {
         <div className="lp-crests">
           {CRESTS.map((c, i) => (
             <Reveal key={c.src} className="lp-crest" delay={i * 55}>
-              <img src={c.src} alt={`${c.label} goal coin`} width={84} height={84} loading="lazy" />
+              <img
+                src={c.src}
+                alt={`${c.label} goal coin`}
+                width={84}
+                height={84}
+                loading="lazy"
+              />
               <span>{c.label}</span>
             </Reveal>
           ))}
@@ -326,8 +490,8 @@ export function Accountability() {
           <h2 className="lp-h2">Accountability without the guilt.</h2>
           <p className="lp-lede">
             Built neurodivergent-first: for ADHD, autism and anxious brains,
-            which makes it calmer for everyone. No streaks, no confetti, no
-            red badges.
+            which makes it calmer for everyone. No streaks, no confetti, no red
+            badges.
           </p>
         </Reveal>
 
@@ -348,8 +512,8 @@ export function Accountability() {
             <div>
               <h3 className="lp-h3">Share the load</h3>
               <p>
-                Hand a task to a partner or a friend. You both see it, either
-                of you can finish it, and the history stays honest.
+                Hand a task to a partner or a friend. You both see it, either of
+                you can finish it, and the history stays honest.
               </p>
             </div>
           </Reveal>
@@ -373,7 +537,14 @@ export function Accountability() {
 function BellIcon() {
   return (
     <span className="lp-account__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
         <path d="M13.7 21a2 2 0 0 1-3.4 0" />
       </svg>
@@ -384,7 +555,14 @@ function BellIcon() {
 function PeopleIcon() {
   return (
     <span className="lp-account__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
@@ -396,7 +574,14 @@ function PeopleIcon() {
 function FocusIcon() {
   return (
     <span className="lp-account__icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="3" />
         <path d="M12 3v3M12 18v3M3 12h3M18 12h3" />
       </svg>
@@ -412,7 +597,9 @@ export function Pricing() {
       <div className="lp-container">
         <Reveal className="lp-section-head">
           <h2 className="lp-h2">Simple pricing.</h2>
-          <p className="lp-lede">Start free. Upgrade when your village earns it.</p>
+          <p className="lp-lede">
+            Start free. Upgrade when your village earns it.
+          </p>
         </Reveal>
 
         <div className="lp-plans">
@@ -447,8 +634,8 @@ export function Pricing() {
         </div>
         <Reveal delay={140}>
           <p className="lp-pricing__note">
-            Plus rolls out gradually while Today is in beta. Everyone starts
-            on Free.
+            Plus rolls out gradually while Today is in beta. Everyone starts on
+            Free.
           </p>
         </Reveal>
       </div>
@@ -508,8 +695,19 @@ export function Faq() {
 
 function PlusGlyph() {
   return (
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" className="lp-faq__glyph">
-      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      aria-hidden="true"
+      className="lp-faq__glyph"
+    >
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
@@ -537,7 +735,12 @@ export function Night() {
           <svg
             key={i}
             className="lp-night__star"
-            style={{ left: s.left, top: s.top, width: s.size, animationDelay: `${s.delay}s` }}
+            style={{
+              left: s.left,
+              top: s.top,
+              width: s.size,
+              animationDelay: `${s.delay}s`,
+            }}
             viewBox="0 0 24 24"
           >
             <path
@@ -625,9 +828,26 @@ function SleepHouse({ x, y, lit }: { x: number; y: number; lit?: boolean }) {
   return (
     <g transform={`translate(${x} ${y})`}>
       <rect x="-18" y="6" width="36" height="26" rx="3" fill="#161733" />
-      <path d="M-23 10 L0 -12 L23 10 Q 23 14 18 14 L-18 14 Q -23 14 -23 10 Z" fill="#101129" />
-      <rect x="4" y="14" width="9" height="9" rx="2" fill={lit ? '#f7d98b' : '#232450'}>
-        {lit ? <animate attributeName="opacity" values="1;0.75;1" dur="6s" repeatCount="indefinite" /> : null}
+      <path
+        d="M-23 10 L0 -12 L23 10 Q 23 14 18 14 L-18 14 Q -23 14 -23 10 Z"
+        fill="#101129"
+      />
+      <rect
+        x="4"
+        y="14"
+        width="9"
+        height="9"
+        rx="2"
+        fill={lit ? '#f7d98b' : '#232450'}
+      >
+        {lit ? (
+          <animate
+            attributeName="opacity"
+            values="1;0.75;1"
+            dur="6s"
+            repeatCount="indefinite"
+          />
+        ) : null}
       </rect>
       <rect x="9" y="-9" width="6" height="10" rx="1.5" fill="#101129" />
     </g>

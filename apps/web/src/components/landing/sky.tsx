@@ -24,12 +24,54 @@ type CoinSpec = {
 }
 
 const COINS: CoinSpec[] = [
-  { src: '/goal-types/finance.png', size: 68, left: '9%', top: '30%', dur: 7.5, delay: 0 },
-  { src: '/goal-types/travel.png', size: 82, left: '85%', top: '26%', dur: 8.5, delay: 1.3 },
-  { src: '/goal-types/learning.png', size: 48, left: '22%', top: '14%', dur: 6.5, delay: 2.1 },
-  { src: '/goal-types/skill-mastery.png', size: 52, left: '72%', top: '11%', dur: 7, delay: 0.7 },
-  { src: '/goal-types/adventure.png', size: 56, left: '15%', top: '58%', dur: 8, delay: 1.8 },
-  { src: '/goal-types/health-wellness.png', size: 60, left: '82%', top: '56%', dur: 7.2, delay: 2.6 },
+  {
+    src: '/goal-types/finance.png',
+    size: 68,
+    left: '9%',
+    top: '30%',
+    dur: 7.5,
+    delay: 0,
+  },
+  {
+    src: '/goal-types/travel.png',
+    size: 82,
+    left: '85%',
+    top: '26%',
+    dur: 8.5,
+    delay: 1.3,
+  },
+  {
+    src: '/goal-types/learning.png',
+    size: 48,
+    left: '22%',
+    top: '14%',
+    dur: 6.5,
+    delay: 2.1,
+  },
+  {
+    src: '/goal-types/skill-mastery.png',
+    size: 52,
+    left: '72%',
+    top: '11%',
+    dur: 7,
+    delay: 0.7,
+  },
+  {
+    src: '/goal-types/adventure.png',
+    size: 56,
+    left: '15%',
+    top: '58%',
+    dur: 8,
+    delay: 1.8,
+  },
+  {
+    src: '/goal-types/health-wellness.png',
+    size: 60,
+    left: '82%',
+    top: '56%',
+    dur: 7.2,
+    delay: 2.6,
+  },
 ]
 
 type SparkleSpec = { left: string; top: string; size: number; delay: number }
@@ -104,27 +146,104 @@ export function Sky() {
       <div className="sky__sun" />
 
       {/* far clouds: small, high, slow */}
-      <div className="sky__layer" ref={(el) => void (layerRefs.current[0] = el)}>
-        <CloudSvg className="sky__cloud" style={{ left: '4%', top: '16%', width: 150, ['--sway' as string]: '48s' }} />
-        <CloudSvg className="sky__cloud" style={{ left: '38%', top: '6%', width: 120, opacity: 0.85, ['--sway' as string]: '62s' }} />
-        <CloudSvg className="sky__cloud" style={{ left: '66%', top: '20%', width: 135, opacity: 0.9, ['--sway' as string]: '55s' }} />
-        <CloudSvg className="sky__cloud" style={{ left: '88%', top: '8%', width: 110, opacity: 0.8, ['--sway' as string]: '70s' }} />
+      <div
+        className="sky__layer"
+        ref={(el) => void (layerRefs.current[0] = el)}
+      >
+        <CloudSvg
+          className="sky__cloud"
+          style={{
+            left: '4%',
+            top: '16%',
+            width: 150,
+            ['--sway' as string]: '48s',
+          }}
+        />
+        <CloudSvg
+          className="sky__cloud"
+          style={{
+            left: '38%',
+            top: '6%',
+            width: 120,
+            opacity: 0.85,
+            ['--sway' as string]: '62s',
+          }}
+        />
+        <CloudSvg
+          className="sky__cloud"
+          style={{
+            left: '66%',
+            top: '20%',
+            width: 135,
+            opacity: 0.9,
+            ['--sway' as string]: '55s',
+          }}
+        />
+        <CloudSvg
+          className="sky__cloud"
+          style={{
+            left: '88%',
+            top: '8%',
+            width: 110,
+            opacity: 0.8,
+            ['--sway' as string]: '70s',
+          }}
+        />
       </div>
 
       {/* two drifters that cross the whole sky, very slowly */}
       <div className="sky__drifters">
-        <CloudSvg className="sky__cloud sky__cloud--drift" style={{ top: '12%', width: 130, ['--cross' as string]: '170s' }} />
         <CloudSvg
           className="sky__cloud sky__cloud--drift"
-          style={{ top: '38%', width: 100, opacity: 0.75, ['--cross' as string]: '210s', animationDelay: '-80s' }}
+          style={{ top: '12%', width: 130, ['--cross' as string]: '170s' }}
+        />
+        <CloudSvg
+          className="sky__cloud sky__cloud--drift"
+          style={{
+            top: '38%',
+            width: 100,
+            opacity: 0.75,
+            ['--cross' as string]: '210s',
+            animationDelay: '-80s',
+          }}
         />
       </div>
 
       {/* near clouds: big, framing the headline */}
-      <div className="sky__layer" ref={(el) => void (layerRefs.current[1] = el)}>
-        <CloudSvg className="sky__cloud" style={{ left: '-4%', top: '42%', width: 300, ['--sway' as string]: '40s' }} />
-        <CloudSvg className="sky__cloud" style={{ left: '76%', top: '38%', width: 340, ['--sway' as string]: '46s', animationDelay: '-18s' }} />
-        <CloudSvg className="sky__cloud" style={{ left: '30%', top: '66%', width: 220, opacity: 0.92, ['--sway' as string]: '52s', animationDelay: '-30s' }} />
+      <div
+        className="sky__layer"
+        ref={(el) => void (layerRefs.current[1] = el)}
+      >
+        <CloudSvg
+          className="sky__cloud"
+          style={{
+            left: '-4%',
+            top: '42%',
+            width: 300,
+            ['--sway' as string]: '40s',
+          }}
+        />
+        <CloudSvg
+          className="sky__cloud"
+          style={{
+            left: '76%',
+            top: '38%',
+            width: 340,
+            ['--sway' as string]: '46s',
+            animationDelay: '-18s',
+          }}
+        />
+        <CloudSvg
+          className="sky__cloud"
+          style={{
+            left: '30%',
+            top: '66%',
+            width: 220,
+            opacity: 0.92,
+            ['--sway' as string]: '52s',
+            animationDelay: '-30s',
+          }}
+        />
       </div>
 
       <div className="sky__sparkles">
@@ -134,7 +253,10 @@ export function Sky() {
       </div>
 
       {/* floating goal coins */}
-      <div className="sky__layer" ref={(el) => void (layerRefs.current[2] = el)}>
+      <div
+        className="sky__layer"
+        ref={(el) => void (layerRefs.current[2] = el)}
+      >
         {COINS.map((c) => (
           <img
             key={c.src}
@@ -162,7 +284,12 @@ export function Sky() {
 /* Shared gradients, referenced by url(#lp-*) from every SVG below. */
 function SkyDefs() {
   return (
-    <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+    <svg
+      width="0"
+      height="0"
+      style={{ position: 'absolute' }}
+      aria-hidden="true"
+    >
       <defs>
         <linearGradient id="lp-cloud-body" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#fffefb" />
@@ -205,17 +332,43 @@ function CloudSvg({
   style?: React.CSSProperties
 }) {
   return (
-    <svg className={className} style={style} viewBox="0 0 220 112" aria-hidden="true">
+    <svg
+      className={className}
+      style={style}
+      viewBox="0 0 220 112"
+      aria-hidden="true"
+    >
       <ellipse cx="110" cy="88" rx="90" ry="18" fill="url(#lp-cloud-shade)" />
       <circle cx="42" cy="74" r="24" fill="url(#lp-cloud-body)" />
       <circle cx="178" cy="76" r="22" fill="url(#lp-cloud-body)" />
       <circle cx="75" cy="56" r="32" fill="url(#lp-cloud-body)" />
       <circle cx="146" cy="58" r="30" fill="url(#lp-cloud-body)" />
       <circle cx="110" cy="44" r="38" fill="url(#lp-cloud-body)" />
-      <rect x="28" y="60" width="164" height="34" rx="17" fill="url(#lp-cloud-body)" />
+      <rect
+        x="28"
+        y="60"
+        width="164"
+        height="34"
+        rx="17"
+        fill="url(#lp-cloud-body)"
+      />
       <ellipse cx="96" cy="32" rx="30" ry="11" fill="#fffefb" opacity="0.9" />
-      <ellipse cx="72" cy="88" rx="28" ry="8" fill="url(#lp-cloud-under)" opacity="0.5" />
-      <ellipse cx="150" cy="90" rx="30" ry="8" fill="url(#lp-cloud-under)" opacity="0.45" />
+      <ellipse
+        cx="72"
+        cy="88"
+        rx="28"
+        ry="8"
+        fill="url(#lp-cloud-under)"
+        opacity="0.5"
+      />
+      <ellipse
+        cx="150"
+        cy="90"
+        rx="30"
+        ry="8"
+        fill="url(#lp-cloud-under)"
+        opacity="0.45"
+      />
     </svg>
   )
 }
@@ -286,7 +439,10 @@ function House({ x, y, flip }: { x: number; y: number; flip?: boolean }) {
       {/* walls */}
       <rect x="-20" y="8" width="40" height="30" rx="3" fill="#fdf3e0" />
       {/* roof */}
-      <path d="M-26 12 L0 -14 L26 12 Q 26 16 21 16 L-21 16 Q -26 16 -26 12 Z" fill="#d98a63" />
+      <path
+        d="M-26 12 L0 -14 L26 12 Q 26 16 21 16 L-21 16 Q -26 16 -26 12 Z"
+        fill="#d98a63"
+      />
       <path d="M-26 12 L0 -14 L4 -10 L-20 14 Z" fill="#e8a67e" />
       {/* door + window */}
       <rect x="-13" y="20" width="11" height="18" rx="4" fill="#a4653f" />

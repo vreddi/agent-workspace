@@ -68,9 +68,7 @@ export const Route = createFileRoute('/')({
       { name: 'twitter:title', content: TITLE },
       { name: 'twitter:description', content: DESCRIPTION },
     ],
-    scripts: [
-      { type: 'application/ld+json', children: structuredData },
-    ],
+    scripts: [{ type: 'application/ld+json', children: structuredData }],
   }),
   component: Home,
 })
