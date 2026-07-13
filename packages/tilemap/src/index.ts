@@ -29,9 +29,11 @@ export {
   LightingRenderer,
   SHADOW_TINT,
   lightsOnAt,
+  wallShadowPlacement,
 } from './lighting-renderer.js'
 export type {
   LightingLayerState,
   LightingRendererOptions,
+  WallShadowGeometry,
 } from './lighting-renderer.js'
 export * from './themes/verdant/index.js'
