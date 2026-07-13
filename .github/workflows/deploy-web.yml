@@ -80,9 +80,15 @@ jobs:
       # `--name` overrides the worker in wrangler.jsonc so each environment
       # deploys to its own isolated Worker. `wrangler deploy` does NOT put the
       # job's env onto the Worker, so we provision runtime bindings explicitly:
-      # public config as plaintext --var, the Clerk secret via `secret put`
-      # (stdin, never logged). Without this the SSR Worker has no CLERK_SECRET_KEY
-      # and every request 500s inside clerkMiddleware.
+      # all as Worker *vars* (see note below). Without this the SSR Worker has
+      # no CLERK_SECRET_KEY and every request 500s inside clerkMiddleware.
+      #
+      # These MUST be vars, not secrets: the SSR code reads them via process.env,
+      # and Cloudflare's nodejs_compat_populate_process_env exposes var values to
+      # process.env but NOT secret values — a secret reads back as "" and Clerk
+      # 500s with "no secret key provided". CLERK_SECRET_KEY as a Worker var is
+      # visible in the CF dashboard to account members (not the public); switch to
+      # a binding-read if it must be dashboard-hidden.
       - name: Deploy to Cloudflare and provision runtime bindings
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -96,6 +102,5 @@ jobs:
           pnpm exec wrangler deploy --name "$WORKER_NAME" \
             --var "VITE_CONVEX_URL:$VITE_CONVEX_URL" \
             --var "VITE_CLERK_PUBLISHABLE_KEY:$VITE_CLERK_PUBLISHABLE_KEY" \
-            --var "CLERK_JWT_ISSUER_DOMAIN:$CLERK_JWT_ISSUER_DOMAIN"
-          printf '%s' "$CLERK_SECRET_KEY" \
-            | pnpm exec wrangler secret put CLERK_SECRET_KEY --name "$WORKER_NAME"
+            --var "CLERK_JWT_ISSUER_DOMAIN:$CLERK_JWT_ISSUER_DOMAIN" \
+            --var "CLERK_SECRET_KEY:$CLERK_SECRET_KEY"

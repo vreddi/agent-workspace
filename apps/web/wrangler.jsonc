@@ -3,7 +3,10 @@
   "name": "org-web-todo",
   "account_id": "e453d753b343710951ac048bab41c846",
   "compatibility_date": "2026-05-16",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env",
+  ],
   "main": "@tanstack/react-start/server-entry",
   "vars": {
     "VITE_CONVEX_URL": "https://hidden-donkey-398.convex.cloud",
