@@ -1,78 +1,57 @@
 import { SignedIn, SignedOut, SignInButton } from '@clerk/tanstack-react-start'
 import { Link } from '@tanstack/react-router'
-
-/**
- * Wordmarks below are intentionally invented to avoid implying real endorsements.
- * Each is a small typographic study; the row reads as personality, not logos.
- */
-const WORDMARKS: { label: string; style: string }[] = [
-  { label: 'littleseed', style: 'lower-serif' },
-  { label: 'FIELDNOTES', style: 'tight-sans' },
-  { label: 'meridian·', style: 'mixed' },
-  { label: 'northstand', style: 'lower-mono' },
-  { label: 'Atelier & Co', style: 'lower-italic' },
-  { label: 'TYPEWRITER', style: 'wide-mono' },
-]
+import { Sky } from './sky'
 
 export function Hero() {
   return (
-    <section className="landing-hero">
-      <span className="landing-eyebrow">
-        <span className="landing-eyebrow__dot" />
-        <span className="landing-eyebrow__strong">New</span>
-        <span className="landing-eyebrow__divider">·</span>
-        Today&rsquo;s AI brief learns your week
-      </span>
+    <section className="lp-hero" id="top">
+      <Sky />
+      <div className="lp-hero__content">
+        <span className="lp-eyebrow">
+          <span className="lp-eyebrow__dot" />
+          Now in beta
+        </span>
 
-      <h1 className="landing-headline">
-        Make today a small,{' '}
-        <em className="landing-headline__em">completable</em> thing.
-      </h1>
+        <h1 className="lp-headline">
+          Make today a small, <em className="lp-headline__em">completable</em>{' '}
+          thing.
+        </h1>
 
-      <p className="landing-sub">
-        Today is a personal task manager with an AI co-pilot. Capture
-        what&rsquo;s on your mind, then let it shape a focused day around the
-        work that actually matters.
-      </p>
+        <p className="lp-hero-sub">
+          Today is a calm task manager where your AI helpers are characters in
+          a tiny pixel village. Capture what&rsquo;s on your mind, shape one
+          clear day, and let the villagers keep you gently on track.
+        </p>
 
-      <div className="landing-cta-row">
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button type="button" className="landing-btn landing-btn--primary">
-              Try Today free
+        <div className="lp-cta-row">
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button type="button" className="lp-btn lp-btn--primary">
+                Start free
+                <ArrowSvg />
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <Link to="/app" className="lp-btn lp-btn--primary">
+              Open Today
               <ArrowSvg />
-            </button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn>
-          <Link to="/app" className="landing-btn landing-btn--primary">
-            Open Today
-            <ArrowSvg />
-          </Link>
-        </SignedIn>
-        <a href="#features" className="landing-btn landing-btn--outline">
-          How it works
-        </a>
-      </div>
-
-      <div className="landing-trust">
-        <p className="landing-trust__label">Loved by makers at</p>
-        <div className="landing-trust__row">
-          {WORDMARKS.map((w) => (
-            <span
-              key={w.label}
-              className={`landing-trust__mark landing-trust__mark--${w.style}`}
-            >
-              {w.label}
-            </span>
-          ))}
+            </Link>
+          </SignedIn>
+          <a href="#features" className="lp-btn lp-btn--outline">
+            See how it works
+          </a>
         </div>
+
+        <p className="lp-hero-note">
+          Free to start. Works in the browser, on iPhone and on Android.
+        </p>
       </div>
     </section>
   )
 }
 
-function ArrowSvg() {
+export function ArrowSvg() {
   return (
     <svg
       width="14"

@@ -1,52 +1,28 @@
 import { SignedIn, SignedOut, SignInButton } from '@clerk/tanstack-react-start'
-import { useState } from 'react'
 import { UserMenu } from './user-menu'
 
-const NAV_LINKS = ['Features', 'Pricing', 'Manifesto', 'Changelog']
+const NAV_LINKS: { label: string; href: string }[] = [
+  { label: 'Features', href: '#features' },
+  { label: 'Village', href: '#village' },
+  { label: 'Pricing', href: '#pricing' },
+  { label: 'FAQ', href: '#faq' },
+]
 
 export function Header() {
-  const [audience, setAudience] = useState<'individual' | 'teams'>('individual')
-
   return (
     <header className="landing-header">
       <div className="landing-header__left">
         <Logo />
-        <div
-          className="landing-header__pills"
-          role="tablist"
-          aria-label="Audience"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={audience === 'individual'}
-            className="landing-header__pill"
-            data-active={audience === 'individual'}
-            onClick={() => setAudience('individual')}
-          >
-            Individual
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={audience === 'teams'}
-            className="landing-header__pill"
-            data-active={audience === 'teams'}
-            onClick={() => setAudience('teams')}
-          >
-            Teams
-          </button>
-        </div>
       </div>
 
       <nav className="landing-header__nav" aria-label="Primary">
-        {NAV_LINKS.map((label) => (
+        {NAV_LINKS.map((link) => (
           <a
-            key={label}
-            href={`#${label.toLowerCase()}`}
+            key={link.href}
+            href={link.href}
             className="landing-header__link"
           >
-            {label}
+            {link.label}
           </a>
         ))}
       </nav>
@@ -73,16 +49,16 @@ function Logo() {
       <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
         <defs>
           <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#e89968" />
-            <stop offset="100%" stopColor="#b85b34" />
+            <stop offset="0%" stopColor="#f2c14e" />
+            <stop offset="100%" stopColor="#d98a3d" />
           </linearGradient>
         </defs>
         {/* sun arc */}
         <path d="M4 22 A 12 12 0 0 1 28 22" fill="url(#logo-grad)" />
         {/* horizon line */}
-        <rect x="3" y="23.4" width="26" height="1.6" rx="0.8" fill="#1a1410" />
+        <rect x="3" y="23.4" width="26" height="1.6" rx="0.8" fill="#2b2620" />
         {/* tiny ground dot */}
-        <circle cx="16" cy="27.5" r="1.2" fill="#1a1410" />
+        <circle cx="16" cy="27.5" r="1.2" fill="#2b2620" />
       </svg>
       <span className="landing-header__wordmark">Today</span>
     </a>

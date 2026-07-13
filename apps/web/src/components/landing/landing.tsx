@@ -1,6 +1,13 @@
-import { Canyon } from './canyon'
 import { Header } from './header'
 import { Hero } from './hero'
+import {
+  Accountability,
+  Faq,
+  Features,
+  Night,
+  Pricing,
+  Village,
+} from './sections'
 import { landingStyles } from './styles'
 
 export function Landing() {
@@ -17,9 +24,16 @@ export function Landing() {
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       />
-      <Canyon />
       <Header />
-      <Hero />
+      <main>
+        <Hero />
+        <Features />
+        <Village />
+        <Accountability />
+        <Pricing />
+        <Faq />
+        <Night />
+      </main>
     </div>
   )
 }
