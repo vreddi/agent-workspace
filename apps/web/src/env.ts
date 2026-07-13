@@ -43,6 +43,16 @@ export const env = createEnv({
     VITE_CONVEX_URL: viteClient('VITE_CONVEX_URL'),
   },
   emptyStringAsUndefined: true,
+  // On Cloudflare Workers, secret/var bindings are NOT exposed at top-level
+  // module scope — only inside the request handler. `createEnv` validates
+  // eagerly at import time, so server vars (CLERK_SECRET_KEY, …) read as
+  // undefined and validation throws before any route runs. The built worker
+  // therefore skips eager validation; the values are consumed at request time
+  // (clerkMiddleware, server fns) where the runtime does expose them. Local
+  // `vite dev` still validates (import.meta.env.PROD is false) so misconfig is
+  // caught in development.
   skipValidation:
-    !!process.env.SKIP_ENV_VALIDATION || process.env.CI === 'true',
+    import.meta.env?.PROD === true ||
+    !!process.env.SKIP_ENV_VALIDATION ||
+    process.env.CI === 'true',
 })
