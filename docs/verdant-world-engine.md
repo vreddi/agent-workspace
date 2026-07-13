@@ -122,7 +122,15 @@ canvases over the flat scene:
 - **Cast shadows** (`shadowAt`) — a sun-driven `ShadowProjection` (`skewX`,
   length, `alpha`) that leans and stretches props' and characters' shadows
   through the day, longest at the golden hours and gone at night (replaced by a
-  faint static contact blob).
+  faint static contact blob). Shadows are wall-aware: the ground pass treats
+  the map as flat, then every prop's standing base (house facade, trunk)
+  becomes a receiver — linear pass-through shadows are erased from its face,
+  and any shadow that actually reaches its wall plane is re-drawn climbing
+  the face upright, shifted sideways by a constant `skewX × depth`
+  (`wallShadowPlacement` in `@worldkit/tilemap` is the pure projection).
+  The sun's elevation decides how far up a face a shadow climbs; roofs and
+  canopies still occlude shadows outright since the overhang canvas
+  composites above the shadow layer.
 - **Ambient multiply** (`ambientAt`) — a full-frame tint multiplied over the
   scene: warm and near-clear at noon, amber at dusk, deep indigo at night.
 - **Additive glow / point lights** (`lightLevel` + each emitter's `lights`) —

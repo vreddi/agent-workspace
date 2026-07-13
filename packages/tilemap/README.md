@@ -36,7 +36,10 @@ hue-shifted ramps, textured ground variants, and a day/night lighting engine.
   Call `render(frame)` on a slow tick for the water/flower shimmer.
 - **`LightingRenderer`** — the day/night compositor: cast shadows, a
   multiply-blended ambient grade, and additive light glow. Pairs with
-  `@worldkit/lighting` for the world clock and sun model.
+  `@worldkit/lighting` for the world clock and sun model. Cast shadows are
+  wall-aware: where one lands on another prop's standing base (a house
+  facade, a trunk) it climbs that face upright instead of banding linearly
+  across it (`wallShadowPlacement` is the pure projection math).
 
 ## Example
 

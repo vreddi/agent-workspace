@@ -2,7 +2,7 @@ import type { AmbientGrade, ShadowProjection } from '@worldkit/lighting'
 import { flickerScale } from '@worldkit/lighting'
 import { collectLights } from './lights.js'
 import type { PlacedLight } from './lights.js'
-import type { TileMap } from './map.js'
+import type { PropPlacement, TileMap } from './map.js'
 import { parseHexColor } from './pixel-art.js'
 import type { PixelArt } from './pixel-art.js'
 import { TILE_SIZE } from './tileset.js'
@@ -30,6 +30,48 @@ function clamp(value: number, min: number, max: number): number {
  */
 export function lightsOnAt(lightLevel: number): number {
   return clamp((LIGHTS_FULL_BELOW - lightLevel) / LIGHTS_FADE_SPAN, 0, 1)
+}
+
+export type WallShadowGeometry = {
+  /** Left edge of the caster's art, in art pixels. */
+  casterX: number
+  /** The caster's ground line (bottom edge of its art), in art pixels. */
+  casterGroundY: number
+  /** Full height of the caster's silhouette, in art pixels. */
+  casterHeight: number
+  /** Ground line of the receiving wall's base, in art pixels. */
+  wallGroundY: number
+  skewX: number
+  scaleY: number
+}
+
+/**
+ * Where a caster's silhouette lands on a vertical face standing at
+ * `wallGroundY`, or `null` when the shadow never reaches that wall.
+ *
+ * Sunlight travels along `(skewX, scaleY, -1)` per unit of height, so a
+ * caster pixel at height `z` meets the wall plane after descending
+ * `depth = (wallGroundY - casterGroundY) / scaleY` — on the wall it sits at
+ * height `z - depth`, upright and un-skewed (the horizontal lean is the same
+ * `skewX * depth` for every pixel). The silhouette therefore draws 1:1,
+ * translated only; sun elevation decides how far up the wall it climbs.
+ * Pure; unit-tested.
+ */
+export function wallShadowPlacement(
+  geometry: WallShadowGeometry,
+): { x: number; y: number } | null {
+  const { casterX, casterGroundY, casterHeight, wallGroundY, skewX, scaleY } =
+    geometry
+  if (scaleY <= 0) return null
+  const depth = (wallGroundY - casterGroundY) / scaleY
+  // Walls behind (north of) the caster never receive its shadow.
+  if (depth < 0) return null
+  // The shadow falls short of the wall's base line.
+  if (depth >= casterHeight) return null
+  return {
+    x: casterX + skewX * depth,
+    y: wallGroundY + depth - casterHeight,
+  }
 }
 
 /** Builds an `rgba()` string from a CSS hex color, multiplied by `alpha`. */
@@ -70,7 +112,9 @@ export type LightingRendererOptions = {
  * {@link TilemapRenderer}. Paints three layers each `render()`:
  *
  * - **shadows** long indigo silhouettes cast forward from props onto the
- *   ground (skewed/squashed by the sun's {@link ShadowProjection}),
+ *   ground (skewed/squashed by the sun's {@link ShadowProjection}); where a
+ *   shadow meets another prop's standing base it climbs that face upright
+ *   instead of banding linearly across it (see {@link wallShadowPlacement}),
  * - **ambient** a flat `ambient.tint` fill through which lit lamps are
  *   punched with additive radial gradients (consumed as a multiply layer),
  * - **glow** soft additive halos around each lit lamp (consumed as a screen
@@ -89,6 +133,7 @@ export class LightingRenderer {
   private readonly glow: HTMLCanvasElement
   private readonly lights: PlacedLight[]
   private readonly silhouetteCache = new Map<PixelArt, HTMLCanvasElement>()
+  private wallScratch: HTMLCanvasElement | null = null
 
   constructor(options: LightingRendererOptions) {
     this.map = options.map
@@ -158,6 +203,121 @@ export class LightingRenderer {
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.globalAlpha = 1
+
+    this.drawWallShadows(ctx, shadow, frame, placements)
+  }
+
+  /**
+   * The ground pass treats the whole map as flat, so a skewed shadow band
+   * sweeps linearly across house facades and trunks. Here every prop's
+   * standing base becomes a shadow *receiver*: linear pass-through shadows
+   * are erased from its face, and each shadow that actually reaches its wall
+   * plane is re-drawn climbing upright (see {@link wallShadowPlacement}).
+   */
+  private drawWallShadows(
+    ctx: CanvasRenderingContext2D,
+    shadow: ShadowProjection,
+    frame: number,
+    placements: PropPlacement[],
+  ): void {
+    const { tileset, pixelScale } = this
+    for (const receiver of placements) {
+      const def = tileset.props[receiver.prop]!
+      const art = def.frames[frame % def.frames.length]!
+      const silhouette = this.silhouette(art)
+      const baseHeight = def.baseRows * TILE_SIZE
+      const baseX = receiver.x * TILE_SIZE
+      const wallGroundY = (receiver.y + 1) * TILE_SIZE
+      const baseTopY = wallGroundY - baseHeight
+
+      // The face owns its pixels: strip the linear pass-through shadows.
+      ctx.globalCompositeOperation = 'destination-out'
+      ctx.globalAlpha = 1
+      ctx.drawImage(
+        silhouette,
+        0,
+        art.height - baseHeight,
+        art.width,
+        baseHeight,
+        baseX * pixelScale,
+        baseTopY * pixelScale,
+        art.width * pixelScale,
+        baseHeight * pixelScale,
+      )
+
+      const scratch = this.scratch(art.width, baseHeight)
+      scratch.clearRect(0, 0, art.width, baseHeight)
+      scratch.globalCompositeOperation = 'source-over'
+      let hasWallShadow = false
+      for (const caster of placements) {
+        if (caster === receiver) continue
+        const casterDef = tileset.props[caster.prop]!
+        const casterArt = casterDef.frames[frame % casterDef.frames.length]!
+        const placed = wallShadowPlacement({
+          casterX: caster.x * TILE_SIZE,
+          casterGroundY: (caster.y + 1) * TILE_SIZE,
+          casterHeight: casterArt.height,
+          wallGroundY,
+          skewX: shadow.skewX,
+          scaleY: shadow.scaleY,
+        })
+        if (!placed) continue
+        if (
+          placed.x + casterArt.width <= baseX ||
+          placed.x >= baseX + art.width
+        ) {
+          continue
+        }
+        scratch.drawImage(
+          this.silhouette(casterArt),
+          Math.round(placed.x - baseX),
+          Math.round(placed.y - baseTopY),
+        )
+        hasWallShadow = true
+      }
+      if (!hasWallShadow) continue
+
+      // Keep only the pixels on the receiver's actual face, then composite.
+      scratch.globalCompositeOperation = 'destination-in'
+      scratch.drawImage(
+        silhouette,
+        0,
+        art.height - baseHeight,
+        art.width,
+        baseHeight,
+        0,
+        0,
+        art.width,
+        baseHeight,
+      )
+      ctx.globalCompositeOperation = 'source-over'
+      ctx.globalAlpha = shadow.alpha
+      ctx.drawImage(
+        scratch.canvas,
+        0,
+        0,
+        art.width,
+        baseHeight,
+        baseX * pixelScale,
+        baseTopY * pixelScale,
+        art.width * pixelScale,
+        baseHeight * pixelScale,
+      )
+    }
+    ctx.globalCompositeOperation = 'source-over'
+    ctx.globalAlpha = 1
+  }
+
+  /** Reusable scratch context for masking wall shadows, grown as needed. */
+  private scratch(width: number, height: number): CanvasRenderingContext2D {
+    let canvas = this.wallScratch
+    if (!canvas || canvas.width < width || canvas.height < height) {
+      canvas = document.createElement('canvas')
+      canvas.width = Math.max(width, this.wallScratch?.width ?? 0)
+      canvas.height = Math.max(height, this.wallScratch?.height ?? 0)
+      this.wallScratch = canvas
+    }
+    return this.context(canvas)
   }
 
   private drawAmbient(state: LightingLayerState): void {
