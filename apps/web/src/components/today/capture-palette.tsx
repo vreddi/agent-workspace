@@ -524,9 +524,11 @@ export function CapturePalette({
                         // Without a valid estimate the slot length is unknown,
                         // so drop any chosen start time.
                         const n = Number(next.trim())
-                        if (
-                          !(next.trim() !== '' && Number.isFinite(n) && n > 0)
-                        ) {
+                        if (!(
+                          next.trim() !== '' &&
+                          Number.isFinite(n) &&
+                          n > 0
+                        )) {
                           setSlotStart(null)
                         }
                       }}

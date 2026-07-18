@@ -59,8 +59,7 @@ export function useGoalStages(
 
 /** System + custom goal types for the type picker. */
 export function useGoalTypes():
-  | { system: readonly GoalTypeSystem[]; custom: GoalTypeRow[] }
-  | undefined {
+  { system: readonly GoalTypeSystem[]; custom: GoalTypeRow[] } | undefined {
   return useQuery(api.goalTypes.list, {})
 }
 
