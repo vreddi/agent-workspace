@@ -48,6 +48,6 @@
     "@types/react": "catalog:",
     "eslint": "^9.19.0",
     "eslint-config-expo": "~57.0.0",
-    "typescript": "catalog:"
+    "typescript": "~6.0.3"
   }
 }
