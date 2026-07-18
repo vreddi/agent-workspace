@@ -33,11 +33,11 @@
     "@eslint/js": "^9.19.0",
     "@nx/js": "22.7.0",
     "@storybook/addon-docs": "catalog:",
-    "@swc-node/register": "1.11.1",
-    "@swc/core": "1.15.8",
-    "@swc/helpers": "0.5.18",
+    "@swc-node/register": "1.12.0",
+    "@swc/core": "1.15.43",
+    "@swc/helpers": "0.5.23",
     "@types/node": "^22.19.19",
-    "convex": "^1.39.1",
+    "convex": "^1.42.3",
     "convex-test": "^0.0.54",
     "eslint": "^9.19.0",
     "eslint-config-prettier": "^10.0.1",
@@ -45,15 +45,15 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "globals": "^15.14.0",
     "nx": "22.7.0",
-    "prettier": "^3.8.1",
+    "prettier": "^3.9.5",
     "tslib": "^2.3.0",
     "typescript": "catalog:",
-    "typescript-eslint": "^8.22.0",
+    "typescript-eslint": "^8.64.0",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@clerk/backend": "^3.4.9",
-    "svix": "^1.93.0"
+    "@clerk/backend": "^3.11.7",
+    "svix": "^1.97.0"
   }
 }

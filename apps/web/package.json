@@ -20,16 +20,16 @@
     "@org/theme": "workspace:*",
     "@org/ui": "workspace:*",
     "@t3-oss/env-core": "^0.13.11",
-    "@tanstack/react-query": "^5.100.10",
-    "@tanstack/react-router": "^1.168.2",
-    "@tanstack/react-router-ssr-query": "^1.167.0",
-    "@tanstack/react-start": "^1.168.2",
+    "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-router": "^1.170.18",
+    "@tanstack/react-router-ssr-query": "^1.167.1",
+    "@tanstack/react-start": "^1.168.28",
     "@uploadthing/react": "^7.3.3",
     "@worldkit/sprite-actor": "workspace:*",
     "@worldkit/tilemap": "workspace:*",
     "@worldkit/world-canvas": "workspace:*",
-    "@xyflow/react": "^12.10.2",
-    "convex": "^1.39.1",
+    "@xyflow/react": "^12.11.2",
+    "convex": "^1.42.3",
     "lucide-react": "^0.511.0",
     "react": "catalog:",
     "react-dom": "catalog:",
@@ -39,14 +39,14 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.37.1",
-    "@tailwindcss/vite": "^4.1.8",
+    "@cloudflare/vite-plugin": "^1.45.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^22.0.0",
     "@types/react": "catalog:",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "catalog:",
     "tailwindcss": "catalog:",
     "vite": "catalog:",
-    "wrangler": "^4.92.0"
+    "wrangler": "^4.111.0"
   }
 }

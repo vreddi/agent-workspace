@@ -28,19 +28,19 @@ catalog:
   # React: pinned to the exact version Expo SDK 57 / react-native 0.86 expect
   # (apps/mobile). The web/storybook ^19.0.0 ranges are satisfied by this too,
   # so a single cataloged version keeps every surface on the same React.
-  react: 19.2.3
-  react-dom: 19.2.3
-  '@types/react': ^19.2.2
+  react: 19.2.7
+  react-dom: 19.2.7
+  '@types/react': ^19.2.17
   # Toolchain shared across every project.
   typescript: ~5.9.2
-  tailwindcss: ^4.1.8
+  tailwindcss: ^4.3.3
   '@vitejs/plugin-react': ^5.0.0
   vite: 7.3.3
-  vitest: 4.1.6
+  vitest: 4.1.10
   # Storybook 10 stack.
-  storybook: ^10.0.0
-  '@storybook/react-vite': ^10.0.0
-  '@storybook/addon-docs': ^10.4.0
+  storybook: ^10.5.2
+  '@storybook/react-vite': ^10.5.2
+  '@storybook/addon-docs': ^10.5.2
   # Misc shared libs.
-  pixi.js: ^8.16.0
-  tsdown: ^0.22.0
+  pixi.js: ^8.19.0
+  tsdown: ^0.22.9
