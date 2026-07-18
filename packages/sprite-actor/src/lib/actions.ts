@@ -141,12 +141,7 @@ export type ActionName =
   | JobAction
 
 export type ActionCategory =
-  | 'movement'
-  | 'combat'
-  | 'state'
-  | 'emote'
-  | 'interact'
-  | 'job'
+  'movement' | 'combat' | 'state' | 'emote' | 'interact' | 'job'
 
 export const ACTION_CATEGORY: Record<ActionName, ActionCategory> = (() => {
   const m: Partial<Record<ActionName, ActionCategory>> = {}

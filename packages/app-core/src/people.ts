@@ -4,13 +4,7 @@
 import { pick } from './format'
 
 export type Tone =
-  | 'sand'
-  | 'sage'
-  | 'clay'
-  | 'fog'
-  | 'rose'
-  | 'slate'
-  | 'graphite'
+  'sand' | 'sage' | 'clay' | 'fog' | 'rose' | 'slate' | 'graphite'
 
 export const TONE_LIST: ReadonlyArray<Exclude<Tone, 'graphite'>> = [
   'sand',

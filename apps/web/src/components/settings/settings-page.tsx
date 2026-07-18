@@ -48,9 +48,7 @@ const ACCENTS = [
 export function SettingsPage() {
   const currentUser = useQuery(api.users.current)
   const themeInitial = (currentUser?.theme ?? 'system') as
-    | 'light'
-    | 'dark'
-    | 'system'
+    'light' | 'dark' | 'system'
 
   return (
     <AppShell>

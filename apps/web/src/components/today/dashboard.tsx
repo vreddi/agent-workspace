@@ -329,9 +329,7 @@ export function TodayDashboard() {
   // and across devices; useTheme() at the root turns it into the `.dark` class.
   const currentUser = useQuery(api.users.current)
   const themePref = (currentUser?.theme ?? 'system') as
-    | 'light'
-    | 'dark'
-    | 'system'
+    'light' | 'dark' | 'system'
   const updateTheme = useMutation(api.users.updateTheme)
 
   const live = useLiveTime(30_000)

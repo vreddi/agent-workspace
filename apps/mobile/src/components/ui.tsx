@@ -22,13 +22,7 @@ import { useTheme } from '@/theme/theme-context'
 export const BottomTabInset = Platform.select({ ios: 56, android: 84 }) ?? 0
 
 type TextVariant =
-  | 'hero'
-  | 'title'
-  | 'heading'
-  | 'body'
-  | 'label'
-  | 'meta'
-  | 'caption'
+  'hero' | 'title' | 'heading' | 'body' | 'label' | 'meta' | 'caption'
 
 const TEXT_VARIANTS: Record<TextVariant, TextStyle> = {
   hero: {

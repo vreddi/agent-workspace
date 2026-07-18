@@ -21,11 +21,7 @@ interface StackScreenOptions {
     | 'fullScreenModal'
     | 'formSheet'
   animation?:
-    | 'default'
-    | 'slide_from_bottom'
-    | 'slide_from_right'
-    | 'fade'
-    | 'none'
+    'default' | 'slide_from_bottom' | 'slide_from_right' | 'fade' | 'none'
   title?: string
   headerShown?: boolean
   gestureEnabled?: boolean

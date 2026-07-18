@@ -17,13 +17,13 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.8",
-    "chromatic": "^16.10.1",
     "@storybook/addon-docs": "catalog:",
     "@storybook/react-vite": "catalog:",
+    "@tailwindcss/vite": "catalog:",
     "@types/react": "catalog:",
-    "@types/react-dom": "^19.0.0",
+    "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "chromatic": "^16.10.1",
     "storybook": "catalog:",
     "vite": "catalog:"
   }

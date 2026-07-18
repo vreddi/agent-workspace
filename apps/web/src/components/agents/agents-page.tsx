@@ -34,8 +34,7 @@ import { STUB_SPRITES, customSheet, stubSheet } from './sprites'
 import { agentStyles } from './styles'
 
 type SpriteChoice =
-  | { kind: 'stub'; stubId: string }
-  | { kind: 'custom'; sheetUrl: string }
+  { kind: 'stub'; stubId: string } | { kind: 'custom'; sheetUrl: string }
 
 /**
  * Resolve an uploaded sheet image into a playable SpriteSheet by measuring
