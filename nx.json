@@ -32,6 +32,11 @@
       "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"]
     }
   },
+  "defaultBase": "develop",
+  "release": {
+    "projectsRelationship": "independent",
+    "versionPlans": true
+  },
   "plugins": [
     {
       "plugin": "@nx/js/typescript",
